@@ -1,0 +1,164 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  TENANT
+  LANDLORD
+  LETTING_AGENT
+  ADMIN
+}
+
+enum TenancyStatus {
+  PENDING
+  ACTIVE
+  ENDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  PARTIAL
+  LATE
+  MISSED
+}
+
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users            User[]
+  properties       Property[]
+  tenancies        Tenancy[]
+  payments         Payment[]
+  paymentSchedules PaymentSchedule[]
+  notifications    Notification[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name      String
+  email     String
+  password  String?
+  role      UserRole
+  phone     String?
+  resetToken String?
+  resetTokenExpiresAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  properties Property[] @relation("PropertyLandlord")
+  managedProperties Property[] @relation("PropertyAgent")
+  tenanciesTenanted Tenancy[] @relation("TenancyTenantUser")
+  tenanciesOwned Tenancy[] @relation("TenancyLandlord")
+  tenanciesManaged Tenancy[] @relation("TenancyAgent")
+  payments Payment[] @relation("PaymentPayer")
+  notifications Notification[]
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
+}
+
+model Property {
+  id          String   @id @default(cuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  title       String
+  address     String
+  landlordId  String
+  landlord    User     @relation("PropertyLandlord", fields: [landlordId], references: [id], onDelete: Cascade)
+  agentId     String?
+  agent       User?    @relation("PropertyAgent", fields: [agentId], references: [id], onDelete: SetNull)
+  bedrooms    Int
+  rentAmount  Int
+  currency    String   @default("NGN")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenancies Tenancy[]
+  @@index([tenantId, landlordId])
+}
+
+model Tenancy {
+  id            String        @id @default(cuid())
+  tenantId      String
+  tenant        Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  propertyId    String
+  property      Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  tenantUserId  String
+  tenantUser    User          @relation("TenancyTenantUser", fields: [tenantUserId], references: [id], onDelete: Cascade)
+  landlordId    String
+  landlord      User          @relation("TenancyLandlord", fields: [landlordId], references: [id], onDelete: Cascade)
+  agentId       String?
+  agent         User?         @relation("TenancyAgent", fields: [agentId], references: [id], onDelete: SetNull)
+  rentAmount    Int
+  currency      String        @default("NGN")
+  startDate     DateTime
+  endDate       DateTime?
+  status        TenancyStatus @default(ACTIVE)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  payments Payment[]
+  paymentSchedules PaymentSchedule[]
+  @@index([tenantId, propertyId, tenantUserId])
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  tenantId        String
+  tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenancyId       String
+  tenancy         Tenancy       @relation(fields: [tenancyId], references: [id], onDelete: Cascade)
+  payerId         String
+  payer           User          @relation("PaymentPayer", fields: [payerId], references: [id], onDelete: Cascade)
+  amount          Int
+  currency        String        @default("NGN")
+  provider        String        @default("flutterwave")
+  reference       String?
+  dueDate         DateTime?
+  status          PaymentStatus @default(PENDING)
+  verifiedAmount  Int?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  @@index([tenantId, tenancyId, payerId])
+}
+
+model PaymentSchedule {
+  id          String   @id @default(cuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenancyId   String
+  tenancy     Tenancy  @relation(fields: [tenancyId], references: [id], onDelete: Cascade)
+  amount      Int
+  currency    String   @default("NGN")
+  frequency   String
+  nextDueDate DateTime
+  status      String   @default("ACTIVE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@index([tenantId, nextDueDate])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  message   String
+  type      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  @@index([tenantId, userId])
+}

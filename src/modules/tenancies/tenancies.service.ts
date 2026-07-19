@@ -3,6 +3,7 @@ import { TenancyStatus as PrismaTenancyStatus } from '@prisma/client';
 import { CreateTenancyDto, TenancyStatus } from '../../common/tenantsea-dtos';
 import { PrismaService } from '../../common/prisma.service';
 import { CacheService } from '../../common/cache.service';
+import { buildSafeOrderBy } from '../../common/utils/sort.util';
 
 @Injectable()
 export class TenanciesService {
@@ -51,10 +52,30 @@ export class TenanciesService {
 
     const where: any = { tenantId };
     if (pagination?.search) {
-      where.OR = [{ status: { contains: pagination.search, mode: 'insensitive' } }];
+      const raw = String(pagination.search).trim().toLowerCase();
+      const statusMap: Record<string, PrismaTenancyStatus> = {
+        pending: PrismaTenancyStatus.PENDING,
+        active: PrismaTenancyStatus.ACTIVE,
+        ended: PrismaTenancyStatus.ENDED,
+      };
+
+      if (statusMap[raw]) {
+        where.status = statusMap[raw];
+      } else {
+        where.OR = [
+          { propertyId: { contains: raw, mode: 'insensitive' } },
+          { tenantUserId: { contains: raw, mode: 'insensitive' } },
+          { landlordId: { contains: raw, mode: 'insensitive' } },
+          { agentId: { contains: raw, mode: 'insensitive' } },
+        ];
+      }
     }
 
-    const orderBy: any = pagination?.sortBy ? { [pagination.sortBy]: (pagination.order || 'desc') } : { createdAt: 'desc' };
+    const orderBy = buildSafeOrderBy(
+      { sortBy: pagination?.sortBy, order: pagination?.order },
+      ['createdAt', 'startDate', 'endDate', 'rentAmount', 'currency', 'status', 'updatedAt'],
+      { createdAt: 'desc' },
+    );
 
     const cacheKey = this.cache.buildKey('tenancies', [tenantId, page, limit, pagination?.search, pagination?.sortBy, pagination?.order]);
     const cached = await this.cache.get<any>(cacheKey);

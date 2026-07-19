@@ -9,10 +9,11 @@ import { PaymentsService } from './payments.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { TenantGuard } from '../../common/guards/tenant.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
 
 @ApiTags('Payments')
 @ApiBearerAuth('access-token')
-@UseGuards(JwtAuthGuard, TenantGuard)
+@UseGuards(JwtAuthGuard, TenantGuard, RolesGuard)
 @Controller('payments')
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}

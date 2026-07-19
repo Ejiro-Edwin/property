@@ -12,10 +12,15 @@ import { LocalStrategy } from './local.strategy';
     PrismaModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'tenantsea_secret',
-      signOptions: {
-        expiresIn: (process.env.JWT_EXPIRES_IN || '3600s') as any,
-      },
+      secret: (() => {
+        const secret = process.env.JWT_SECRET;
+        const isProd = process.env.NODE_ENV === 'production';
+        if (!secret && isProd) {
+          throw new Error('JWT_SECRET is required in production');
+        }
+        return secret ?? 'dev_insecure_jwt_secret_change_me';
+      })(),
+      signOptions: { expiresIn: (process.env.JWT_EXPIRES_IN || '3600s') as any },
     }),
   ],
   controllers: [AuthController],

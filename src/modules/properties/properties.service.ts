@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreatePropertyDto } from '../../common/tenantsea-dtos';
 import { PrismaService } from '../../common/prisma.service';
 import { CacheService } from '../../common/cache.service';
+import { buildSafeOrderBy } from '../../common/utils/sort.util';
 
 @Injectable()
 export class PropertiesService {
@@ -48,7 +49,11 @@ export class PropertiesService {
       where.OR = [{ title: { contains: pagination.search, mode: 'insensitive' } }, { address: { contains: pagination.search, mode: 'insensitive' } }];
     }
 
-    const orderBy: any = pagination?.sortBy ? { [pagination.sortBy]: (pagination.order || 'desc') } : { createdAt: 'desc' };
+    const orderBy = buildSafeOrderBy(
+      { sortBy: pagination?.sortBy, order: pagination?.order },
+      ['createdAt', 'title', 'address', 'bedrooms', 'rentAmount', 'currency', 'updatedAt'],
+      { createdAt: 'desc' },
+    );
 
     const cacheKey = this.cache.buildKey('properties', [tenantId, page, limit, pagination?.search, pagination?.sortBy, pagination?.order]);
     const cached = await this.cache.get<any>(cacheKey);

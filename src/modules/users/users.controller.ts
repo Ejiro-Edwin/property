@@ -5,11 +5,12 @@ import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { TenantGuard } from '../../common/guards/tenant.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
 import { PaginationDto } from '../../common/pagination.dto';
 
 @ApiTags('Users')
 @ApiBearerAuth('access-token')
-@UseGuards(JwtAuthGuard, TenantGuard)
+@UseGuards(JwtAuthGuard, TenantGuard, RolesGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

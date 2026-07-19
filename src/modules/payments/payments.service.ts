@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PaymentStatus as PrismaPaymentStatus } from '@prisma/client';
 import {
   CreatePaymentScheduleDto,
@@ -8,10 +8,16 @@ import {
 } from '../../common/tenantsea-dtos';
 import { PrismaService } from '../../common/prisma.service';
 import { CacheService } from '../../common/cache.service';
+import { buildSafeOrderBy } from '../../common/utils/sort.util';
+import { RealtimeGateway } from '../../common/gateway/realtime.gateway';
 
 @Injectable()
 export class PaymentsService {
-  constructor(private readonly prisma: PrismaService, private readonly cache: CacheService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cache: CacheService,
+    private readonly realtime: RealtimeGateway,
+  ) {}
 
   async initiatePayment(dto: InitiatePaymentDto): Promise<any> {
     const tenancy = await this.prisma.tenancy.findFirst({ where: { id: dto.tenancyId, tenantId: dto.tenantId } });
@@ -47,7 +53,7 @@ export class PaymentsService {
     const existing = await this.prisma.payment.findFirst({ where: { id: dto.paymentId, tenantId: dto.tenantId } });
 
     if (!existing) {
-      return { message: 'Payment not found', payment: null };
+      throw new NotFoundException('Payment not found');
     }
 
     const payment = await this.prisma.payment.update({
@@ -58,6 +64,12 @@ export class PaymentsService {
       },
     });
 
+    await this.cache.delByPattern(`payments:${dto.tenantId}:*`);
+    this.realtime.emitPaymentUpdate({
+      tenantId: dto.tenantId,
+      payment: this.normalizePayment(payment),
+      event: 'payment:updated',
+    });
     return { message: 'Payment status updated', payment: this.normalizePayment(payment) };
   }
 
@@ -71,7 +83,11 @@ export class PaymentsService {
       where.OR = [{ reference: { contains: pagination.search, mode: 'insensitive' } }];
     }
 
-    const orderBy: any = pagination?.sortBy ? { [pagination.sortBy]: (pagination.order || 'desc') } : { createdAt: 'desc' };
+    const orderBy = buildSafeOrderBy(
+      { sortBy: pagination?.sortBy, order: pagination?.order },
+      ['createdAt', 'amount', 'currency', 'provider', 'reference', 'status', 'dueDate', 'updatedAt'],
+      { createdAt: 'desc' },
+    );
 
     const cacheKey = this.cache.buildKey('payments', [tenantId, tenancyId, page, limit, pagination?.search, pagination?.sortBy, pagination?.order]);
     const cached = await this.cache.get<any>(cacheKey);
@@ -112,7 +128,7 @@ export class PaymentsService {
 
     await this.createNotification(
       dto.tenantId,
-      null,
+      tenancy.landlordId ?? null,
       `A recurring payment schedule was created for tenancy ${dto.tenancyId}`,
       'payment_schedule',
     );
@@ -144,6 +160,15 @@ export class PaymentsService {
       },
     });
 
+    const tenancyIds = Array.from(new Set(overdueSchedules.map((s) => s.tenancyId)));
+    const tenancies = tenancyIds.length
+      ? await this.prisma.tenancy.findMany({
+          where: { tenantId, id: { in: tenancyIds } },
+          select: { id: true, landlordId: true },
+        })
+      : [];
+    const landlordByTenancyId = new Map(tenancies.map((t) => [t.id, t.landlordId]));
+
     const notifications: string[] = [];
     for (const schedule of overdueSchedules) {
       const paidPayment = await this.prisma.payment.findFirst({
@@ -158,7 +183,7 @@ export class PaymentsService {
       if (!paidPayment) {
         await this.createNotification(
           tenantId,
-          null,
+          landlordByTenancyId.get(schedule.tenancyId) ?? null,
           `Payment due for tenancy ${schedule.tenancyId} is overdue as of ${schedule.nextDueDate.toISOString()}`,
           'payment_overdue',
         );
@@ -215,7 +240,7 @@ export class PaymentsService {
     message: string,
     type: string,
   ) {
-    return this.prisma.notification.create({
+    const notification = await this.prisma.notification.create({
       data: {
         tenantId,
         userId,
@@ -223,5 +248,14 @@ export class PaymentsService {
         type,
       },
     });
+
+    this.realtime.emitNotification({
+      tenantId,
+      userId,
+      notification,
+      event: 'notification:created',
+    });
+
+    return notification;
   }
 }

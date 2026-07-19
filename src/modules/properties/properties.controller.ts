@@ -6,10 +6,11 @@ import { PaginationDto } from '../../common/pagination.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { TenantGuard } from '../../common/guards/tenant.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
 
 @ApiTags('Properties')
 @ApiBearerAuth('access-token')
-@UseGuards(JwtAuthGuard, TenantGuard)
+@UseGuards(JwtAuthGuard, TenantGuard, RolesGuard)
 @Controller('properties')
 export class PropertiesController {
   constructor(private readonly propertiesService: PropertiesService) {}

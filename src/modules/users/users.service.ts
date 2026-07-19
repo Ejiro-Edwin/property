@@ -1,19 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { UserRole } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 import { CreateUserDto } from '../../common/tenantsea-dtos';
 import { PrismaService } from '../../common/prisma.service';
 import { CacheService } from '../../common/cache.service';
+import { buildSafeOrderBy } from '../../common/utils/sort.util';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService, private readonly cache: CacheService) {}
 
   async createUser(dto: CreateUserDto): Promise<any> {
+    const rounds = Number(process.env.BCRYPT_SALT_ROUNDS || '10');
+    const hashedPassword = await bcrypt.hash(dto.password, rounds);
+
     const user = await this.prisma.user.create({
       data: {
         tenantId: dto.tenantId,
         name: dto.name,
         email: dto.email,
+        password: hashedPassword,
         role: this.toPrismaRole(dto.role),
         phone: dto.phone,
       },
@@ -34,7 +40,11 @@ export class UsersService {
       where.OR = [{ name: { contains: pagination.search, mode: 'insensitive' } }, { email: { contains: pagination.search, mode: 'insensitive' } }];
     }
 
-    const orderBy: any = pagination?.sortBy ? { [pagination.sortBy]: (pagination.order || 'desc') } : { createdAt: 'desc' };
+    const orderBy = buildSafeOrderBy(
+      { sortBy: pagination?.sortBy, order: pagination?.order },
+      ['createdAt', 'name', 'email', 'role', 'phone', 'updatedAt'],
+      { createdAt: 'desc' },
+    );
 
     const cacheKey = this.cache.buildKey('users', [tenantId, page, limit, pagination?.search, pagination?.sortBy, pagination?.order]);
     const cached = await this.cache.get<any>(cacheKey);
@@ -53,7 +63,19 @@ export class UsersService {
   }
 
   async getUser(tenantId: string, id: string): Promise<any> {
-    const user = await this.prisma.user.findFirst({ where: { tenantId, id } });
+    const user = await this.prisma.user.findFirst({
+      where: { tenantId, id },
+      select: {
+        id: true,
+        tenantId: true,
+        name: true,
+        email: true,
+        role: true,
+        phone: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
 
     return { tenantId, user };
   }

@@ -1,6 +1,14 @@
 import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CreateUserDto, ForgotPasswordDto, ResetPasswordDto, UserRole } from '../../common/tenantsea-dtos';
+import {
+  CreateUserDto,
+  ForgotPasswordDto,
+  LoginDto,
+  ResendVerificationDto,
+  ResetPasswordDto,
+  UserRole,
+  VerifyEmailDto,
+} from '../../common/tenantsea-dtos';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { LocalAuthGuard } from './local-auth.guard';
@@ -29,7 +37,7 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Request() req: any) {
+  async login(@Body() _dto: LoginDto, @Request() req: any) {
     return this.authService.login(req.user);
   }
 
@@ -41,6 +49,16 @@ export class AuthController {
   @Post('reset-password')
   resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto);
+  }
+
+  @Post('verify-email')
+  verifyEmail(@Body() dto: VerifyEmailDto) {
+    return this.authService.verifyEmail(dto);
+  }
+
+  @Post('resend-verification')
+  resendVerification(@Body() dto: ResendVerificationDto) {
+    return this.authService.resendVerification(dto);
   }
 
   @ApiBearerAuth('access-token')

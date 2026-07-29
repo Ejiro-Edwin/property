@@ -52,6 +52,7 @@
     "@types/nodemailer": "^8.0.1",
     "@types/supertest": "^7.2.1",
     "jest": "^30.4.2",
+    "md-to-pdf": "^5.2.5",
     "prisma": "^6.1.0",
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.11",

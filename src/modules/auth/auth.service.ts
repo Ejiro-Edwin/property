@@ -4,8 +4,8 @@ import { $Enums } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
 import {
-  CreateUserDto,
   ForgotPasswordDto,
+  RegisterDto,
   ResendVerificationDto,
   ResetPasswordDto,
   VerifyEmailDto,
@@ -23,16 +23,29 @@ export class AuthService {
     private readonly email: EmailService,
   ) {}
 
-  async register(dto: CreateUserDto): Promise<any> {
+  /**
+   * Registration creates a NEW workspace with the registrant as its landlord.
+   * Joining an existing workspace happens exclusively through invitations.
+   */
+  async register(dto: RegisterDto): Promise<any> {
     const tenantId = dto.tenantId;
-    const tenant = await this.prisma.tenant.upsert({
-      where: { id: tenantId },
-      create: {
+    const slug = tenantId.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+    const existing = await this.prisma.tenant.findFirst({
+      where: { OR: [{ id: tenantId }, { slug }] },
+    });
+    if (existing) {
+      throw new BadRequestException(
+        'This workspace already exists. Ask a workspace admin to send you an invitation instead.',
+      );
+    }
+
+    const tenant = await this.prisma.tenant.create({
+      data: {
         id: tenantId,
-        name: dto.tenantId,
-        slug: tenantId.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        name: dto.workspaceName?.trim() || dto.tenantId,
+        slug,
       },
-      update: {},
     });
 
     const rounds = Number(process.env.BCRYPT_SALT_ROUNDS || '10');
@@ -50,7 +63,7 @@ export class AuthService {
         emailVerified: false,
         emailVerificationToken: verificationToken,
         emailVerificationExpiresAt: verificationExpiresAt,
-        role: this.toPrismaRole(dto.role),
+        role: $Enums.UserRole.LANDLORD,
         phone: dto.phone,
       },
     });
@@ -66,7 +79,7 @@ export class AuthService {
     await this.email.sendEmailVerificationEmail({ to: dto.email, verifyLink });
 
     return {
-      message: 'Tenant onboarding completed successfully',
+      message: 'Workspace created successfully',
       tenant,
       user: { id: user.id, email: user.email, role: user.role, tenantId: user.tenantId },
     };
@@ -238,19 +251,6 @@ export class AuthService {
     await this.email.sendEmailVerificationEmail({ to: dto.email, verifyLink });
 
     return { message: 'If an account exists for that email, a verification link has been issued.' };
-  }
-
-  private toPrismaRole(role: string): $Enums.UserRole {
-    switch (role.toLowerCase()) {
-      case 'landlord':
-        return $Enums.UserRole.LANDLORD;
-      case 'letting_agent':
-        return $Enums.UserRole.LETTING_AGENT;
-      case 'admin':
-        return $Enums.UserRole.ADMIN;
-      default:
-        return $Enums.UserRole.TENANT;
-    }
   }
 
   private async resolveUserByEmail(email: string) {

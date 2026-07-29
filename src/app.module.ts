@@ -15,6 +15,7 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { ResponseTransformInterceptor } from './common/interceptors/response-transform.interceptor';
 import { RealtimeModule } from './common/gateway/realtime.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { InvitesModule } from './modules/invites/invites.module';
 import { envValidationSchema } from './config/env.validation';
 import { EmailModule } from './common/email/email.module';
 import { PrismaModule } from './common/prisma.module';
@@ -33,6 +34,7 @@ import { PrismaModule } from './common/prisma.module';
     CacheModule,
     RealtimeModule,
     NotificationsModule,
+    InvitesModule,
     EmailModule,
     ThrottlerModule.forRoot({ throttlers: [{ limit: 100, ttl: 60 }] }),
   ],

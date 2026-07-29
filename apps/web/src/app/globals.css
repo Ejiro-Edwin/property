@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+:root {
+  /* Property-primary palette: warm neutrals + sea accent */
+  --background: #faf8f5;      /* warm off-white */
+  --surface: #ffffff;
+  --foreground: #1c1917;      /* warm near-black */
+  --muted: #78716c;           /* stone */
+  --border: rgba(28, 25, 23, 0.10);
+
+  /* Brand (TenantSea) */
+  --brand: #0e9ae0;           /* sea blue */
+  --brand-ink: #083952;       /* deep sea */
+  --brand-soft: #e3f3fc;      /* sea tint */
+
+  /* Warm accents */
+  --sand: #f3ede4;
+  --sand-ink: #8a6d3b;
+
+  /* Status */
+  --danger: #dc2626;
+  --warning: #d97706;
+  --success: #16a34a;
+
+  /* Radius + shadow identity */
+  --radius: 16px;
+  --shadow: 0 8px 28px rgba(28, 25, 23, 0.07);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-brand: var(--brand);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-soft: var(--brand-soft);
+  --color-sand: var(--sand);
+  --color-sand-ink: var(--sand-ink);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --color-success: var(--success);
+  --radius-lg: var(--radius);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  /* Always use the light, warm property-primary theme */
+  color-scheme: light;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* App polish */
+* { -webkit-tap-highlight-color: transparent; }
+
+a { color: inherit; }
+
+.card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: var(--surface);
+}
+
+.card-flat {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+/* Abstract building illustration base (pure CSS, no stock images) */
+.property-art {
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(8, 57, 82, 0.06) 100%),
+    linear-gradient(135deg, var(--brand-soft) 0%, var(--sand) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.property-art::after {
+  content: "";
+  position: absolute;
+  inset: auto 12% -6% 12%;
+  height: 62%;
+  background:
+    linear-gradient(90deg,
+      var(--brand-ink) 0 22%, transparent 22% 26%,
+      var(--brand) 26% 44%, transparent 44% 48%,
+      var(--sand-ink) 48% 70%, transparent 70% 74%,
+      var(--brand-ink) 74% 100%);
+  opacity: 0.18;
+  border-radius: 6px 6px 0 0;
+}

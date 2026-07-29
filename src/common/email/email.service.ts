@@ -89,6 +89,26 @@ export class EmailService {
     return this.sendMail({ to: params.to, subject, text });
   }
 
+  async sendInvitationEmail(params: {
+    to: string;
+    inviteLink: string;
+    workspaceName: string;
+    role: string;
+    inviterName?: string;
+  }) {
+    const subject = `You've been invited to ${params.workspaceName} on TenantSea`;
+    const who = params.inviterName ? `${params.inviterName} has` : 'You have been';
+    const text = [
+      `${who} invited you to join the "${params.workspaceName}" workspace on TenantSea as ${params.role.replace('_', ' ')}.`,
+      '',
+      `Accept the invitation and set up your account: ${params.inviteLink}`,
+      '',
+      'This invitation expires in 7 days. If you were not expecting it, you can ignore this email.',
+    ].join('\n');
+
+    return this.sendMail({ to: params.to, subject, text });
+  }
+
   async sendWelcomeEmail(params: { to: string }) {
     const subject = 'Welcome to TenantSea';
     const text = ['Your TenantSea account is ready.', '', 'You can now sign in and start using the platform.'].join(

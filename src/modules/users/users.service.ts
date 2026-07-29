@@ -53,7 +53,23 @@ export class UsersService {
     }
 
     const [users, total] = await Promise.all([
-      this.prisma.user.findMany({ where, skip, take: limit, orderBy }),
+      this.prisma.user.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy,
+        select: {
+          id: true,
+          tenantId: true,
+          name: true,
+          email: true,
+          role: true,
+          phone: true,
+          emailVerified: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      }),
       this.prisma.user.count({ where }),
     ]);
 

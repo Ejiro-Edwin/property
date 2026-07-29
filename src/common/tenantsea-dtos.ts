@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsEnum, IsNumber, IsOptional, IsString, Matches, MinLength } from 'class-validator';
 
 export enum UserRole {
   TENANT = 'tenant',
@@ -44,6 +44,76 @@ export class CreateUserDto extends TenantScopedDto {
   @ApiProperty({ enum: UserRole, example: UserRole.TENANT })
   @IsEnum(UserRole)
   role: UserRole;
+
+  @ApiPropertyOptional({ example: '+441234567890' })
+  @IsOptional()
+  @IsString()
+  phone?: string;
+}
+
+export class RegisterDto {
+  @ApiProperty({
+    example: 'acme-corp',
+    description: 'Workspace handle. Lowercase letters, numbers and hyphens; becomes part of your URL.',
+  })
+  @IsString()
+  @Matches(/^[a-z0-9](?:[a-z0-9-]{1,38})?[a-z0-9]$/, {
+    message: 'tenantId must be 2-40 chars of lowercase letters, numbers and hyphens',
+  })
+  tenantId: string;
+
+  @ApiPropertyOptional({ example: 'Acme Properties Ltd' })
+  @IsOptional()
+  @IsString()
+  workspaceName?: string;
+
+  @ApiProperty({ example: 'Jane Doe' })
+  @IsString()
+  name: string;
+
+  @ApiProperty({ example: 'jane@example.com' })
+  @IsEmail()
+  email: string;
+
+  @ApiProperty({ example: 'SecurePass123!' })
+  @IsString()
+  @MinLength(8)
+  password: string;
+
+  @ApiPropertyOptional({ example: '+441234567890' })
+  @IsOptional()
+  @IsString()
+  phone?: string;
+}
+
+export class CreateInviteDto extends TenantScopedDto {
+  @ApiProperty({ example: 'tenant@example.com' })
+  @IsEmail()
+  email: string;
+
+  @ApiPropertyOptional({ example: 'John Tenant' })
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @ApiProperty({ enum: UserRole, example: UserRole.TENANT })
+  @IsEnum(UserRole)
+  role: UserRole;
+}
+
+export class AcceptInviteDto {
+  @ApiProperty({ example: 'invite_token_here' })
+  @IsString()
+  token: string;
+
+  @ApiProperty({ example: 'John Tenant' })
+  @IsString()
+  name: string;
+
+  @ApiProperty({ example: 'SecurePass123!' })
+  @IsString()
+  @MinLength(8)
+  password: string;
 
   @ApiPropertyOptional({ example: '+441234567890' })
   @IsOptional()

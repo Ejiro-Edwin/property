@@ -1,12 +1,11 @@
 import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import {
-  CreateUserDto,
   ForgotPasswordDto,
   LoginDto,
+  RegisterDto,
   ResendVerificationDto,
   ResetPasswordDto,
-  UserRole,
   VerifyEmailDto,
 } from '../../common/tenantsea-dtos';
 import { AuthService } from './auth.service';
@@ -18,20 +17,9 @@ import { LocalAuthGuard } from './local-auth.guard';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  /** Creates a new workspace with the registrant as its landlord. */
   @Post('register')
-  register(@Body() dto: CreateUserDto) {
-    return this.authService.register(dto);
-  }
-
-  @Post('register-landlord')
-  registerLandlord(@Body() dto: CreateUserDto) {
-    dto.role = UserRole.LANDLORD;
-    return this.authService.register(dto);
-  }
-
-  @Post('register-agent')
-  registerAgent(@Body() dto: CreateUserDto) {
-    dto.role = UserRole.LETTING_AGENT;
+  register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
 

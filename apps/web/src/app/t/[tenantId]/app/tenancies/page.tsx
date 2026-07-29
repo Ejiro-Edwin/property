@@ -26,6 +26,9 @@ export default function TenanciesPage() {
 
   const [items, setItems] = React.useState<Tenancy[] | null>(null);
   const [total, setTotal] = React.useState(0);
+  const activeCount = items?.filter((t) => t.status === "ACTIVE").length ?? 0;
+  const pendingCount = items?.filter((t) => t.status === "PENDING").length ?? 0;
+  const endedCount = items?.filter((t) => t.status === "ENDED").length ?? 0;
 
   React.useEffect(() => {
     let cancelled = false;
@@ -47,13 +50,43 @@ export default function TenanciesPage() {
   }, [tenantId]);
 
   return (
-    <div className="mx-auto grid w-full max-w-6xl gap-6">
+    <div className="mx-auto grid w-full max-w-6xl gap-6 pb-8">
       <PageHeader
         title="Tenancies"
         description={
           items ? `${total} tenanc${total === 1 ? "y" : "ies"} in this workspace.` : undefined
         }
       />
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+            Active
+          </div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight">
+            {items === null ? "…" : activeCount}
+          </div>
+          <div className="mt-1 text-xs text-muted">Currently occupied tenancies</div>
+        </div>
+        <div className="card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+            Pending
+          </div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight">
+            {items === null ? "…" : pendingCount}
+          </div>
+          <div className="mt-1 text-xs text-muted">Awaiting move-in</div>
+        </div>
+        <div className="card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+            Ended
+          </div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight">
+            {items === null ? "…" : endedCount}
+          </div>
+          <div className="mt-1 text-xs text-muted">Archived tenancy records</div>
+        </div>
+      </div>
 
       {items === null ? (
         <Skeleton className="h-[280px]" />
@@ -63,7 +96,7 @@ export default function TenanciesPage() {
           body="When a tenant is placed in a property, the tenancy—its rent, dates and status—will appear here."
         />
       ) : (
-        <div className="card-flat overflow-x-auto">
+        <div className="card overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">
@@ -77,15 +110,15 @@ export default function TenanciesPage() {
             <tbody className="divide-y divide-border">
               {items.map((t) => (
                 <tr key={t.id}>
-                  <td className="px-4 py-3 font-mono text-xs">{t.propertyId}</td>
-                  <td className="px-4 py-3 font-mono text-xs">{t.tenantUserId}</td>
+                  <td className="px-4 py-4 font-mono text-xs">{t.propertyId}</td>
+                  <td className="px-4 py-4 font-mono text-xs">{t.tenantUserId}</td>
                   <td className="px-4 py-3 font-medium">
                     {formatMoney(t.rentAmount, t.currency)}
                   </td>
-                  <td className="px-4 py-3 text-muted">
+                  <td className="px-4 py-4 text-muted">
                     {formatDate(t.startDate)} — {t.endDate ? formatDate(t.endDate) : "ongoing"}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-4">
                     <Badge tone={tenancyStatusTone(t.status)}>
                       {t.status.toLowerCase()}
                     </Badge>

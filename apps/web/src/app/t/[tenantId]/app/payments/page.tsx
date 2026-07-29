@@ -35,6 +35,11 @@ export default function PaymentsPage() {
 
   const [payments, setPayments] = React.useState<Payment[] | null>(null);
   const [schedules, setSchedules] = React.useState<Schedule[] | null>(null);
+  const totalPayments = payments?.length ?? 0;
+  const onTimeCount = payments?.filter((p) => p.status.toLowerCase() === "paid").length ?? 0;
+  const activeSchedules = schedules?.filter((s) => s.status === "ACTIVE").length ?? 0;
+  const lateOrMissed =
+    payments?.filter((p) => ["late", "missed"].includes(p.status.toLowerCase())).length ?? 0;
 
   React.useEffect(() => {
     let cancelled = false;
@@ -59,11 +64,54 @@ export default function PaymentsPage() {
   }, [tenantId]);
 
   return (
-    <div className="mx-auto grid w-full max-w-6xl gap-8">
+    <div className="mx-auto grid w-full max-w-6xl gap-8 pb-8">
       <PageHeader
         title="Payments"
         description="Rent payments and recurring schedules across your portfolio."
       />
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+            Payments
+          </div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight">
+            {payments === null ? "…" : totalPayments}
+          </div>
+          <div className="mt-1 text-xs text-muted">Recorded in this workspace</div>
+        </div>
+        <div className="card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+            On time
+          </div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight">
+            {payments === null ? "…" : onTimeCount}
+          </div>
+          <div className="mt-1 text-xs text-muted">
+            {payments && payments.length > 0
+              ? `${Math.round((onTimeCount / payments.length) * 100)}% of payments`
+              : "Nothing to compare yet"}
+          </div>
+        </div>
+        <div className="card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+            Active schedules
+          </div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight">
+            {schedules === null ? "…" : activeSchedules}
+          </div>
+          <div className="mt-1 text-xs text-muted">Recurring rent plans</div>
+        </div>
+        <div className="card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+            Late / missed
+          </div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight">
+            {payments === null ? "…" : lateOrMissed}
+          </div>
+          <div className="mt-1 text-xs text-muted">Needs attention now</div>
+        </div>
+      </div>
 
       <section className="grid gap-3">
         <h2 className="text-sm font-semibold tracking-tight">Payment history</h2>
@@ -111,8 +159,25 @@ export default function PaymentsPage() {
         {schedules === null ? (
           <Skeleton className="h-[120px]" />
         ) : schedules.length === 0 ? (
-          <div className="card-flat px-5 py-8 text-center text-sm text-muted">
-            No recurring schedules configured.
+          <div className="card p-6">
+            <div className="grid gap-4 sm:grid-cols-[1fr_240px] sm:items-center">
+              <div>
+                <div className="text-sm font-semibold tracking-tight">
+                  No recurring schedules configured
+                </div>
+                <div className="mt-2 text-sm leading-6 text-muted">
+                  Once a tenancy has a billing cadence, the schedule cards will
+                  appear here and show the next due date.
+                </div>
+              </div>
+              <div className="rounded-[18px] border border-border bg-brand-soft/60 p-4">
+                <div className="text-xs font-medium uppercase tracking-wide text-muted">
+                  Schedule preview
+                </div>
+                <div className="mt-2 text-sm font-semibold tracking-tight">Monthly</div>
+                <div className="mt-1 text-xs text-muted">Next due: 28 Jul</div>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

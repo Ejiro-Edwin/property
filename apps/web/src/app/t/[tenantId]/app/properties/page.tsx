@@ -4,6 +4,7 @@ import * as React from "react";
 import { useParams } from "next/navigation";
 import { api } from "@/lib/api";
 import { PageHeader } from "@/components/app/page-header";
+import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -27,6 +28,12 @@ export default function PropertiesPage() {
   const [total, setTotal] = React.useState(0);
   const [search, setSearch] = React.useState("");
   const [query, setQuery] = React.useState("");
+  const portfolioValue =
+    items?.reduce((sum, p) => sum + p.rentAmount, 0) ?? 0;
+  const avgRent =
+    items && items.length > 0
+      ? Math.round(portfolioValue / items.length)
+      : 0;
 
   React.useEffect(() => {
     const t = setTimeout(() => setQuery(search.trim()), 350);
@@ -54,18 +61,49 @@ export default function PropertiesPage() {
   }, [tenantId, query]);
 
   return (
-    <div className="mx-auto grid w-full max-w-6xl gap-6">
+    <div className="mx-auto grid w-full max-w-6xl gap-6 pb-8">
       <PageHeader
         title="Properties"
         description={items ? `${total} propert${total === 1 ? "y" : "ies"} in this workspace.` : undefined}
       />
 
-      <Input
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search by title or address…"
-        className="max-w-sm"
-      />
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+            Properties
+          </div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight">
+            {items === null ? "…" : total}
+          </div>
+          <div className="mt-1 text-xs text-muted">Listings in this workspace</div>
+        </div>
+        <div className="card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+            Portfolio value
+          </div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight">
+            {items === null ? "…" : formatMoney(portfolioValue)}
+          </div>
+          <div className="mt-1 text-xs text-muted">Annual rent across all properties</div>
+        </div>
+        <div className="card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+            Average rent
+          </div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight">
+            {items === null ? "…" : formatMoney(avgRent)}
+          </div>
+          <div className="mt-1 text-xs text-muted">Per property, on average</div>
+        </div>
+      </div>
+
+      <div className="card p-4">
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by title or address…"
+        />
+      </div>
 
       {items === null ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -92,15 +130,15 @@ export default function PropertiesPage() {
                   {p.title}
                 </div>
                 <div className="mt-0.5 truncate text-xs text-muted">{p.address}</div>
-                <div className="mt-3 flex items-center justify-between">
+                <div className="mt-3 flex items-center justify-between gap-2">
                   <div className="text-sm font-medium">
                     {formatMoney(p.rentAmount, p.currency)}
                     <span className="text-xs font-normal text-muted"> / yr</span>
                   </div>
                   {p.bedrooms != null ? (
-                    <span className="text-xs text-muted">
+                    <Badge tone="sand" className="shrink-0">
                       {p.bedrooms} bed{p.bedrooms === 1 ? "" : "s"}
-                    </span>
+                    </Badge>
                   ) : null}
                 </div>
               </div>

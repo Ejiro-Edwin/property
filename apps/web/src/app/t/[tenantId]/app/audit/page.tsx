@@ -38,6 +38,9 @@ export default function AuditPage() {
   const tenantId = params.tenantId;
 
   const [logs, setLogs] = React.useState<AuditLog[] | null>(null);
+  const totalLogs = logs?.length ?? 0;
+  const successfulLogs = logs?.filter((log) => (log.statusCode ?? 200) < 400).length ?? 0;
+  const failedLogs = logs?.filter((log) => (log.statusCode ?? 200) >= 400).length ?? 0;
 
   React.useEffect(() => {
     let cancelled = false;
@@ -54,11 +57,41 @@ export default function AuditPage() {
   }, [tenantId]);
 
   return (
-    <div className="mx-auto grid w-full max-w-5xl gap-6">
+    <div className="mx-auto grid w-full max-w-5xl gap-6 pb-8">
       <PageHeader
         title="Audit log"
         description="The last 100 actions recorded in this workspace."
       />
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+            Entries
+          </div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight">
+            {logs === null ? "…" : totalLogs}
+          </div>
+          <div className="mt-1 text-xs text-muted">Recent activity recorded</div>
+        </div>
+        <div className="card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+            Successful
+          </div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight">
+            {logs === null ? "…" : successfulLogs}
+          </div>
+          <div className="mt-1 text-xs text-muted">Below 400 status code</div>
+        </div>
+        <div className="card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+            Failed
+          </div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight">
+            {logs === null ? "…" : failedLogs}
+          </div>
+          <div className="mt-1 text-xs text-muted">Needs review or attention</div>
+        </div>
+      </div>
 
       {logs === null ? (
         <Skeleton className="h-[320px]" />
@@ -68,9 +101,9 @@ export default function AuditPage() {
           body="Actions performed in this workspace will be recorded here for accountability."
         />
       ) : (
-        <div className="card-flat divide-y divide-border">
+        <div className="card divide-y divide-border">
           {logs.map((log) => (
-            <div key={log.id} className="flex items-center gap-4 px-5 py-3.5">
+            <div key={log.id} className="flex items-center gap-4 px-5 py-4">
               <Badge tone={methodTone(log.method)} className="w-16 justify-center">
                 {log.method}
               </Badge>

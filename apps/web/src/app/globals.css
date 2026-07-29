@@ -52,8 +52,12 @@ html {
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(circle at top left, rgba(14, 154, 224, 0.10), transparent 32%),
+    radial-gradient(circle at top right, rgba(243, 237, 228, 0.88), transparent 30%),
+    linear-gradient(180deg, #fbf8f4 0%, #f6f0e8 100%);
   color: var(--foreground);
+  min-height: 100dvh;
 }
 
 /* App polish */

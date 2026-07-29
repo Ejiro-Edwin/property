@@ -23,6 +23,9 @@ export default function NotificationsPage() {
 
   const [items, setItems] = React.useState<Notification[] | null>(null);
   const [filter, setFilter] = React.useState<"all" | "unread">("all");
+  const unreadCount = items?.filter((n) => !n.read).length ?? 0;
+  const readCount = items?.filter((n) => n.read).length ?? 0;
+  const totalCount = items?.length ?? 0;
 
   React.useEffect(() => {
     let cancelled = false;
@@ -61,7 +64,7 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="mx-auto grid w-full max-w-4xl gap-6">
+    <div className="mx-auto grid w-full max-w-4xl gap-6 pb-8">
       <PageHeader
         title="Notifications"
         description="Overdue rent alerts, payment updates and workspace activity."
@@ -84,6 +87,36 @@ export default function NotificationsPage() {
           </div>
         }
       />
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+            Total
+          </div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight">
+            {items === null ? "…" : totalCount}
+          </div>
+          <div className="mt-1 text-xs text-muted">Workspace notifications</div>
+        </div>
+        <div className="card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+            Unread
+          </div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight">
+            {items === null ? "…" : unreadCount}
+          </div>
+          <div className="mt-1 text-xs text-muted">Needs your attention</div>
+        </div>
+        <div className="card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+            Read
+          </div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight">
+            {items === null ? "…" : readCount}
+          </div>
+          <div className="mt-1 text-xs text-muted">Already acknowledged</div>
+        </div>
+      </div>
 
       {items === null ? (
         <Skeleton className="h-[280px]" />

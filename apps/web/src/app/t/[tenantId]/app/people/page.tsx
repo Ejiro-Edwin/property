@@ -63,6 +63,9 @@ export default function PeoplePage() {
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [notice, setNotice] = React.useState<string | null>(null);
+  const memberCount = members?.length ?? 0;
+  const verifiedCount = members?.filter((m) => m.emailVerified).length ?? 0;
+  const inviteCount = invites?.length ?? 0;
 
   const loadInvites = React.useCallback(() => {
     api<{ invitations: Invite[] }>("invites", { tenantId })
@@ -112,13 +115,53 @@ export default function PeoplePage() {
   }
 
   const pendingInvites = (invites ?? []).filter((i) => i.status === "pending");
+  const pendingCount = pendingInvites.length;
 
   return (
-    <div className="mx-auto grid w-full max-w-5xl gap-8">
+    <div className="mx-auto grid w-full max-w-5xl gap-8 pb-8">
       <PageHeader
         title="People"
         description="Everyone in this workspace — invite tenants, agents and co-landlords by email."
       />
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+            Members
+          </div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight">
+            {members === null ? "…" : memberCount}
+          </div>
+          <div className="mt-1 text-xs text-muted">Active workspace users</div>
+        </div>
+        <div className="card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+            Verified
+          </div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight">
+            {members === null ? "…" : verifiedCount}
+          </div>
+          <div className="mt-1 text-xs text-muted">Email-verified accounts</div>
+        </div>
+        <div className="card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+            Invites
+          </div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight">
+            {invites === null ? "…" : inviteCount}
+          </div>
+          <div className="mt-1 text-xs text-muted">All invitation records</div>
+        </div>
+        <div className="card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+            Pending
+          </div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight">
+            {invites === null ? "…" : pendingCount}
+          </div>
+          <div className="mt-1 text-xs text-muted">Waiting to accept</div>
+        </div>
+      </div>
 
       {canInvite ? (
         <section className="card grid gap-4 p-5">

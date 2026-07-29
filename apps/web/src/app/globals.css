@@ -55,9 +55,17 @@ body {
   background:
     radial-gradient(circle at top left, rgba(14, 154, 224, 0.10), transparent 32%),
     radial-gradient(circle at top right, rgba(243, 237, 228, 0.88), transparent 30%),
-    linear-gradient(180deg, #fbf8f4 0%, #f6f0e8 100%);
+    linear-gradient(180deg, #fbf8f4 0%, #f6f0e8 100%),
+    repeating-linear-gradient(
+      45deg,
+      rgba(28, 25, 23, 0.012) 0,
+      rgba(28, 25, 23, 0.012) 1px,
+      transparent 1px,
+      transparent 14px
+    );
   color: var(--foreground);
   min-height: 100dvh;
+  background-attachment: fixed;
 }
 
 /* App polish */

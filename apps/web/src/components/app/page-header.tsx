@@ -12,9 +12,9 @@ export function PageHeader({
   className?: string;
 }) {
   return (
-    <section className={cn("card overflow-hidden", className)}>
-      <div className="relative grid gap-5 p-6 sm:p-7 lg:grid-cols-[1fr_auto] lg:items-end">
-        <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-brand via-brand/50 to-sand" />
+    <section className={cn("relative border-b border-border/60 pb-5", className)}>
+      <div className="absolute left-0 top-1 h-10 w-1 rounded-full bg-gradient-to-b from-brand via-brand/50 to-sand" />
+      <div className="grid gap-5 pl-4 lg:grid-cols-[1fr_auto] lg:items-end">
         <div>
           <div className="text-xs font-medium uppercase tracking-[0.22em] text-muted">
             Workspace overview

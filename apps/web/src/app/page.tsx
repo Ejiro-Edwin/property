@@ -1,10 +1,25 @@
-import Link from "next/link";
+"use client";
+
+import * as React from "react";
+import { useRouter } from "next/navigation";
 import { Mark } from "@/components/brand/mark";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { IconBuilding, IconCard, IconShield } from "@/components/ui/icons";
 
 export default function Home() {
+  const router = useRouter();
+  const [workspaceId, setWorkspaceId] = React.useState("");
+
+  const slug = workspaceId.trim().toLowerCase();
+  const isValidSlug = /^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$/.test(slug);
+
+  function go(path: string) {
+    if (!isValidSlug) return;
+    router.push(`/t/${slug}${path}`);
+  }
+
   return (
     <div className="min-h-dvh flex flex-col">
       <header className="px-6 py-6">
@@ -17,12 +32,22 @@ export default function Home() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Link href="/t/acme-corp/login">
-              <Button variant="secondary">Sign in</Button>
-            </Link>
-            <Link href="/t/acme-corp/register">
-              <Button>Get started</Button>
-            </Link>
+            <Input
+              value={workspaceId}
+              onChange={(e) => setWorkspaceId(e.target.value)}
+              placeholder="workspace slug"
+              className="w-40"
+            />
+            <Button
+              variant="secondary"
+              onClick={() => go("/login")}
+              disabled={!isValidSlug}
+            >
+              Sign in
+            </Button>
+            <Button onClick={() => go("/register")} disabled={!isValidSlug}>
+              Get started
+            </Button>
           </div>
         </div>
       </header>
@@ -43,15 +68,40 @@ export default function Home() {
                 their portfolio: who lives where, what&apos;s due, what&apos;s
                 paid, and which tenants have earned trust.
               </p>
-              <div className="flex flex-wrap items-center gap-3 pt-1">
-                <Link href="/t/acme-corp/register">
-                  <Button size="lg">Start managing</Button>
-                </Link>
-                <Link href="/t/acme-corp/login">
-                  <Button size="lg" variant="secondary">
-                    Sign in to your workspace
+              <div className="grid gap-2 pt-1 sm:max-w-md">
+                <div className="text-xs font-medium uppercase tracking-wide text-muted">
+                  Start by entering your workspace slug
+                </div>
+                <div className="flex gap-2">
+                  <Input
+                    value={workspaceId}
+                    onChange={(e) => setWorkspaceId(e.target.value)}
+                    placeholder="e.g. my-properties"
+                  />
+                  <Button
+                    variant="secondary"
+                    onClick={() => go("/login")}
+                    disabled={!isValidSlug}
+                  >
+                    Open
                   </Button>
-                </Link>
+                </div>
+                <div className="text-xs text-muted">
+                  Use the slug your workspace was created with.
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                <Button size="lg" onClick={() => go("/register")} disabled={!isValidSlug}>
+                  Start managing
+                </Button>
+                <Button
+                  size="lg"
+                  variant="secondary"
+                  onClick={() => go("/login")}
+                  disabled={!isValidSlug}
+                >
+                  Sign in to your workspace
+                </Button>
               </div>
               <div className="flex items-center gap-5 pt-2 text-xs text-muted">
                 <span>Multi-tenant workspaces</span>

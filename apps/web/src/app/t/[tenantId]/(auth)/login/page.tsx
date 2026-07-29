@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,9 @@ import { Input } from "@/components/ui/input";
 export default function LoginPage() {
   const router = useRouter();
   const params = useParams<{ tenantId: string }>();
+  const searchParams = useSearchParams();
   const tenantId = params.tenantId;
+  const nextPath = searchParams.get("next");
 
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -29,7 +31,11 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.message ?? data?.error ?? "Login failed");
-      router.push(`/t/${tenantId}/app`);
+      const target =
+        nextPath && nextPath.startsWith(`/t/${tenantId}/`)
+          ? nextPath
+          : `/t/${tenantId}/app`;
+      router.replace(target);
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Login failed";

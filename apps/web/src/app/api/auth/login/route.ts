@@ -20,8 +20,11 @@ export async function POST(req: Request) {
     return NextResponse.json(data, { status: upstream.status });
   }
 
-  const token = data?.accessToken;
-  const res = NextResponse.json({ ok: true, user: data?.user });
+  // The backend response is wrapped by the response-transform interceptor:
+  // { success, data: { accessToken, user, ... }, ... }
+  const payload = data?.data ?? data;
+  const token = payload?.accessToken;
+  const res = NextResponse.json({ ok: true, user: payload?.user, accessToken: token });
   if (typeof token === "string" && token.length > 0) {
     res.cookies.set(TOKEN_COOKIE, token, {
       httpOnly: true,

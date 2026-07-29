@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { UserRole } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
-import { CreateUserDto } from '../../common/tenantsea-dtos';
+import { CreateUserDto, UpdateUserDto } from '../../common/tenantsea-dtos';
 import { PrismaService } from '../../common/prisma.service';
 import { CacheService } from '../../common/cache.service';
 import { buildSafeOrderBy } from '../../common/utils/sort.util';
@@ -28,6 +28,57 @@ export class UsersService {
     await this.cache.delByPattern(`users:${dto.tenantId}:*`);
 
     return { message: 'User profile created', user };
+  }
+
+  async updateUser(id: string, dto: UpdateUserDto): Promise<any> {
+    const existing = await this.prisma.user.findFirst({ where: { id, tenantId: dto.tenantId } });
+    if (!existing) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (dto.email && dto.email !== existing.email) {
+      const conflict = await this.prisma.user.findFirst({
+        where: { tenantId: dto.tenantId, email: dto.email, NOT: { id } },
+      });
+      if (conflict) {
+        throw new BadRequestException('A user with that email already exists in this workspace');
+      }
+    }
+
+    const user = await this.prisma.user.update({
+      where: { id },
+      data: {
+        name: dto.name ?? undefined,
+        email: dto.email ?? undefined,
+        phone: dto.phone ?? undefined,
+        role: dto.role ? this.toPrismaRole(dto.role) : undefined,
+      },
+      select: {
+        id: true,
+        tenantId: true,
+        name: true,
+        email: true,
+        role: true,
+        phone: true,
+        emailVerified: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    await this.cache.delByPattern(`users:${dto.tenantId}:*`);
+    return { message: 'User updated', user };
+  }
+
+  async deleteUser(tenantId: string, id: string): Promise<any> {
+    const existing = await this.prisma.user.findFirst({ where: { id, tenantId } });
+    if (!existing) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.prisma.user.delete({ where: { id } });
+    await this.cache.delByPattern(`users:${tenantId}:*`);
+    return { message: 'User deleted' };
   }
 
   async listUsers(tenantId: string, pagination?: any): Promise<any> {

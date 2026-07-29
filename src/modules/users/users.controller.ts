@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CreateUserDto } from '../../common/tenantsea-dtos';
+import { CreateUserDto, UpdateUserDto } from '../../common/tenantsea-dtos';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -29,5 +29,17 @@ export class UsersController {
   @Get(':id')
   getUser(@Param('id') id: string, @Query('tenantId') tenantId: string) {
     return this.usersService.getUser(tenantId, id);
+  }
+
+  @Roles('ADMIN', 'LANDLORD', 'LETTING_AGENT')
+  @Patch(':id')
+  updateUser(@Param('id') id: string, @Body() dto: UpdateUserDto) {
+    return this.usersService.updateUser(id, dto);
+  }
+
+  @Roles('ADMIN', 'LANDLORD')
+  @Delete(':id')
+  deleteUser(@Param('id') id: string, @Query('tenantId') tenantId: string) {
+    return this.usersService.deleteUser(tenantId, id);
   }
 }

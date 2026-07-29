@@ -57,5 +57,14 @@ export class NotificationsService {
 
     return { tenantId, notification };
   }
+
+  async markAllRead(tenantId: string, userId: string) {
+    const result = await this.prisma.notification.updateMany({
+      where: { tenantId, userId, read: false },
+      data: { read: true },
+    });
+
+    return { tenantId, updated: result.count };
+  }
 }
 

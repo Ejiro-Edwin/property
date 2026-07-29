@@ -1,5 +1,5 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreatePropertyDto } from '../../common/tenantsea-dtos';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { CreatePropertyDto, UpdatePropertyDto } from '../../common/tenantsea-dtos';
 import { PrismaService } from '../../common/prisma.service';
 import { CacheService } from '../../common/cache.service';
 import { buildSafeOrderBy } from '../../common/utils/sort.util';
@@ -37,6 +37,55 @@ export class PropertiesService {
     await this.cache.delByPattern(`properties:${dto.tenantId}:*`);
 
     return { message: 'Property created for tenant', property };
+  }
+
+  async updateProperty(id: string, dto: UpdatePropertyDto): Promise<any> {
+    const existing = await this.prisma.property.findFirst({ where: { id, tenantId: dto.tenantId } });
+    if (!existing) {
+      throw new NotFoundException('Property not found');
+    }
+
+    if (dto.landlordId) {
+      const landlord = await this.prisma.user.findFirst({ where: { id: dto.landlordId, tenantId: dto.tenantId } });
+      if (!landlord) {
+        throw new BadRequestException('Referenced landlord user does not exist in this tenant');
+      }
+    }
+
+    if (dto.agentId !== undefined && dto.agentId !== null) {
+      const agent = await this.prisma.user.findFirst({ where: { id: dto.agentId, tenantId: dto.tenantId } });
+      if (!agent) {
+        throw new BadRequestException('Referenced agent user does not exist in this tenant');
+      }
+    }
+
+    const property = await this.prisma.property.update({
+      where: { id },
+      data: {
+        title: dto.title ?? undefined,
+        address: dto.address ?? undefined,
+        landlordId: dto.landlordId ?? undefined,
+        agentId: dto.agentId === undefined ? undefined : dto.agentId,
+        bedrooms: dto.bedrooms ?? undefined,
+        rentAmount: dto.rentAmount ?? undefined,
+        currency: dto.currency ?? undefined,
+      },
+    });
+
+    await this.cache.delByPattern(`properties:${dto.tenantId}:*`);
+    return { message: 'Property updated', property };
+  }
+
+  async deleteProperty(tenantId: string, id: string): Promise<any> {
+    const existing = await this.prisma.property.findFirst({ where: { id, tenantId } });
+    if (!existing) {
+      throw new NotFoundException('Property not found');
+    }
+
+    await this.prisma.property.delete({ where: { id } });
+    await this.cache.delByPattern(`properties:${tenantId}:*`);
+    await this.cache.delByPattern(`tenancies:${tenantId}:*`);
+    return { message: 'Property deleted' };
   }
 
   async listProperties(tenantId: string, pagination?: any): Promise<any> {

@@ -51,6 +51,32 @@ export class CreateUserDto extends TenantScopedDto {
   phone?: string;
 }
 
+export class UpdateUserDto extends TenantScopedDto {
+  @ApiProperty({ example: 'clx123userid' })
+  @IsString()
+  id: string;
+
+  @ApiPropertyOptional({ example: 'Jane Doe' })
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @ApiPropertyOptional({ example: 'jane@example.com' })
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @ApiPropertyOptional({ example: '+441234567890' })
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @ApiPropertyOptional({ enum: UserRole, example: UserRole.TENANT })
+  @IsOptional()
+  @IsEnum(UserRole)
+  role?: UserRole;
+}
+
 export class RegisterDto {
   @ApiProperty({
     example: 'acme-corp',
@@ -216,6 +242,47 @@ export class CreatePropertyDto extends TenantScopedDto {
   currency?: string;
 }
 
+export class UpdatePropertyDto extends TenantScopedDto {
+  @ApiProperty({ example: 'clx123propertyid' })
+  @IsString()
+  id: string;
+
+  @ApiPropertyOptional({ example: '2-bed flat in Camden' })
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @ApiPropertyOptional({ example: '12 High Street, London NW1 1AA' })
+  @IsOptional()
+  @IsString()
+  address?: string;
+
+  @ApiPropertyOptional({ example: 'clx123landlordid' })
+  @IsOptional()
+  @IsString()
+  landlordId?: string;
+
+  @ApiPropertyOptional({ example: 'clx123agentid' })
+  @IsOptional()
+  @IsString()
+  agentId?: string | null;
+
+  @ApiPropertyOptional({ example: 2 })
+  @IsOptional()
+  @IsNumber()
+  bedrooms?: number;
+
+  @ApiPropertyOptional({ example: 1500 })
+  @IsOptional()
+  @IsNumber()
+  rentAmount?: number;
+
+  @ApiPropertyOptional({ example: 'GBP' })
+  @IsOptional()
+  @IsString()
+  currency?: string;
+}
+
 export class CreateTenancyDto extends TenantScopedDto {
   @ApiProperty({ example: 'clx123propertyid' })
   @IsString()
@@ -251,6 +318,57 @@ export class CreateTenancyDto extends TenantScopedDto {
   @IsOptional()
   @IsString()
   endDate?: string;
+
+  @ApiPropertyOptional({ enum: TenancyStatus, example: TenancyStatus.PENDING })
+  @IsOptional()
+  @IsEnum(TenancyStatus)
+  status?: TenancyStatus;
+}
+
+export class UpdateTenancyDto extends TenantScopedDto {
+  @ApiProperty({ example: 'clx123tenancyid' })
+  @IsString()
+  id: string;
+
+  @ApiPropertyOptional({ example: 'clx123propertyid' })
+  @IsOptional()
+  @IsString()
+  propertyId?: string;
+
+  @ApiPropertyOptional({ example: 'clx123tenantuserid' })
+  @IsOptional()
+  @IsString()
+  tenantUserId?: string;
+
+  @ApiPropertyOptional({ example: 'clx123landlordid' })
+  @IsOptional()
+  @IsString()
+  landlordId?: string;
+
+  @ApiPropertyOptional({ example: 'clx123agentid' })
+  @IsOptional()
+  @IsString()
+  agentId?: string | null;
+
+  @ApiPropertyOptional({ example: 1500 })
+  @IsOptional()
+  @IsNumber()
+  rentAmount?: number;
+
+  @ApiPropertyOptional({ example: 'GBP' })
+  @IsOptional()
+  @IsString()
+  currency?: string;
+
+  @ApiPropertyOptional({ example: '2026-01-01' })
+  @IsOptional()
+  @IsString()
+  startDate?: string;
+
+  @ApiPropertyOptional({ example: '2026-12-31' })
+  @IsOptional()
+  @IsString()
+  endDate?: string | null;
 
   @ApiPropertyOptional({ enum: TenancyStatus, example: TenancyStatus.PENDING })
   @IsOptional()

@@ -1,6 +1,6 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { TenancyStatus as PrismaTenancyStatus } from '@prisma/client';
-import { CreateTenancyDto, TenancyStatus } from '../../common/tenantsea-dtos';
+import { CreateTenancyDto, TenancyStatus, UpdateTenancyDto } from '../../common/tenantsea-dtos';
 import { PrismaService } from '../../common/prisma.service';
 import { CacheService } from '../../common/cache.service';
 import { buildSafeOrderBy } from '../../common/utils/sort.util';
@@ -43,6 +43,71 @@ export class TenanciesService {
     await this.cache.delByPattern(`tenancies:${dto.tenantId}:*`);
 
     return { message: 'Tenancy setup completed', tenancy };
+  }
+
+  async updateTenancy(id: string, dto: UpdateTenancyDto): Promise<any> {
+    const existing = await this.prisma.tenancy.findFirst({ where: { id, tenantId: dto.tenantId } });
+    if (!existing) {
+      throw new NotFoundException('Tenancy not found');
+    }
+
+    if (dto.propertyId) {
+      const property = await this.prisma.property.findFirst({ where: { id: dto.propertyId, tenantId: dto.tenantId } });
+      if (!property) {
+        throw new BadRequestException('Referenced property does not exist in this tenant');
+      }
+    }
+
+    if (dto.tenantUserId) {
+      const tenantUser = await this.prisma.user.findFirst({ where: { id: dto.tenantUserId, tenantId: dto.tenantId } });
+      if (!tenantUser) {
+        throw new BadRequestException('Referenced tenant user does not exist in this tenant');
+      }
+    }
+
+    if (dto.landlordId) {
+      const landlord = await this.prisma.user.findFirst({ where: { id: dto.landlordId, tenantId: dto.tenantId } });
+      if (!landlord) {
+        throw new BadRequestException('Referenced landlord user does not exist in this tenant');
+      }
+    }
+
+    if (dto.agentId !== undefined && dto.agentId !== null) {
+      const agent = await this.prisma.user.findFirst({ where: { id: dto.agentId, tenantId: dto.tenantId } });
+      if (!agent) {
+        throw new BadRequestException('Referenced agent user does not exist in this tenant');
+      }
+    }
+
+    const tenancy = await this.prisma.tenancy.update({
+      where: { id },
+      data: {
+        propertyId: dto.propertyId ?? undefined,
+        tenantUserId: dto.tenantUserId ?? undefined,
+        landlordId: dto.landlordId ?? undefined,
+        agentId: dto.agentId === undefined ? undefined : dto.agentId,
+        rentAmount: dto.rentAmount ?? undefined,
+        currency: dto.currency ?? undefined,
+        startDate: dto.startDate ? new Date(dto.startDate) : undefined,
+        endDate: dto.endDate === undefined ? undefined : dto.endDate ? new Date(dto.endDate) : null,
+        status: dto.status ? this.toPrismaStatus(dto.status) : undefined,
+      },
+    });
+
+    await this.cache.delByPattern(`tenancies:${dto.tenantId}:*`);
+    return { message: 'Tenancy updated', tenancy };
+  }
+
+  async deleteTenancy(tenantId: string, id: string): Promise<any> {
+    const existing = await this.prisma.tenancy.findFirst({ where: { id, tenantId } });
+    if (!existing) {
+      throw new NotFoundException('Tenancy not found');
+    }
+
+    await this.prisma.tenancy.delete({ where: { id } });
+    await this.cache.delByPattern(`tenancies:${tenantId}:*`);
+    await this.cache.delByPattern(`payments:${tenantId}:*`);
+    return { message: 'Tenancy deleted' };
   }
 
   async listTenancies(tenantId: string, pagination?: any): Promise<any> {

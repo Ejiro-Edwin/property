@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useParams } from "next/navigation";
 import { api } from "@/lib/api";
+import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/app/page-header";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -28,6 +29,19 @@ export default function PropertiesPage() {
   const [total, setTotal] = React.useState(0);
   const [search, setSearch] = React.useState("");
   const [query, setQuery] = React.useState("");
+  const [currentUserId, setCurrentUserId] = React.useState("");
+  const [editingId, setEditingId] = React.useState<string | null>(null);
+  const [busy, setBusy] = React.useState(false);
+  const [formError, setFormError] = React.useState<string | null>(null);
+  const [form, setForm] = React.useState({
+    title: "",
+    address: "",
+    landlordId: "",
+    agentId: "",
+    bedrooms: "",
+    rentAmount: "",
+    currency: "NGN",
+  });
   const portfolioValue =
     items?.reduce((sum, p) => sum + p.rentAmount, 0) ?? 0;
   const avgRent =
@@ -41,6 +55,12 @@ export default function PropertiesPage() {
   }, [search]);
 
   React.useEffect(() => {
+    api<{ user: { id: string } }>("auth/me", { tenantId })
+      .then((r) => setCurrentUserId(r.user.id))
+      .catch(() => setCurrentUserId(""));
+  }, [tenantId]);
+
+  const loadProperties = React.useCallback(() => {
     let cancelled = false;
     setItems(null);
     api<{ properties: Property[]; meta: { total: number } }>("properties", {
@@ -60,11 +80,112 @@ export default function PropertiesPage() {
     };
   }, [tenantId, query]);
 
+  React.useEffect(() => {
+    return loadProperties();
+  }, [loadProperties]);
+
+  function resetForm() {
+    setEditingId(null);
+    setForm({
+      title: "",
+      address: "",
+      landlordId: currentUserId,
+      agentId: "",
+      bedrooms: "",
+      rentAmount: "",
+      currency: "NGN",
+    });
+    setFormError(null);
+  }
+
+  React.useEffect(() => {
+    if (!editingId && currentUserId) {
+      setForm((prev) => (prev.landlordId ? prev : { ...prev, landlordId: currentUserId }));
+    }
+  }, [currentUserId, editingId]);
+
+  function startEdit(p: Property) {
+    setEditingId(p.id);
+    setForm({
+      title: p.title,
+      address: p.address,
+      landlordId: currentUserId || "",
+      agentId: "",
+      bedrooms: String(p.bedrooms ?? ""),
+      rentAmount: String(p.rentAmount),
+      currency: p.currency ?? "NGN",
+    });
+    setFormError(null);
+  }
+
+  async function submitProperty(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setFormError(null);
+    try {
+      const payload = {
+        tenantId,
+        title: form.title,
+        address: form.address,
+        landlordId: form.landlordId,
+        ...(form.agentId.trim() ? { agentId: form.agentId.trim() } : {}),
+        bedrooms: Number(form.bedrooms),
+        rentAmount: Number(form.rentAmount),
+        currency: form.currency || "NGN",
+      };
+
+      const res = await api(
+        editingId ? `properties/${editingId}` : "properties",
+        {
+          method: editingId ? "PATCH" : "POST",
+          tenantId,
+          query: { tenantId },
+          body: payload,
+        },
+      );
+      setItems((prev) => {
+        if (!prev) return prev;
+        if (editingId) {
+          return prev.map((item) =>
+            item.id === editingId ? { ...item, ...(res as { property?: Property }).property } : item,
+          );
+        }
+        return prev;
+      });
+      resetForm();
+      loadProperties();
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : "Could not save property");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function deleteProperty(id: string) {
+    if (!confirm("Delete this property?")) return;
+    try {
+      await api(`properties/${id}`, { method: "DELETE", tenantId, query: { tenantId } });
+      if (editingId === id) resetForm();
+      loadProperties();
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : "Could not delete property");
+    }
+  }
+
   return (
     <div className="mx-auto grid w-full max-w-6xl gap-6 pb-8">
       <PageHeader
         title="Properties"
         description={items ? `${total} propert${total === 1 ? "y" : "ies"} in this workspace.` : undefined}
+        action={
+          <Button
+            onClick={resetForm}
+            className="shrink-0"
+            variant="secondary"
+          >
+            Add property
+          </Button>
+        }
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -98,11 +219,80 @@ export default function PropertiesPage() {
       </div>
 
       <div className="card p-4">
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by title or address…"
-        />
+        <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+          <form className="grid gap-3 sm:grid-cols-2" onSubmit={submitProperty}>
+            <Input
+              value={form.title}
+              onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
+              placeholder="Property title"
+              required
+            />
+            <Input
+              value={form.address}
+              onChange={(e) => setForm((prev) => ({ ...prev, address: e.target.value }))}
+              placeholder="Address"
+              required
+            />
+            <Input
+              value={form.landlordId}
+              onChange={(e) => setForm((prev) => ({ ...prev, landlordId: e.target.value }))}
+              placeholder="Landlord user ID"
+              required
+            />
+            <Input
+              value={form.agentId}
+              onChange={(e) => setForm((prev) => ({ ...prev, agentId: e.target.value }))}
+              placeholder="Agent user ID (optional)"
+            />
+            <Input
+              value={form.bedrooms}
+              onChange={(e) => setForm((prev) => ({ ...prev, bedrooms: e.target.value }))}
+              placeholder="Bedrooms"
+              type="number"
+              min="0"
+              required
+            />
+            <Input
+              value={form.rentAmount}
+              onChange={(e) => setForm((prev) => ({ ...prev, rentAmount: e.target.value }))}
+              placeholder="Rent amount"
+              type="number"
+              min="0"
+              required
+            />
+            <Input
+              value={form.currency}
+              onChange={(e) => setForm((prev) => ({ ...prev, currency: e.target.value }))}
+              placeholder="Currency"
+            />
+            <div className="flex items-center gap-2">
+              <Button type="submit" disabled={busy}>
+                {busy ? "Saving…" : editingId ? "Update property" : "Create property"}
+              </Button>
+              {editingId ? (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={resetForm}
+                >
+                  Cancel
+                </Button>
+              ) : null}
+            </div>
+          </form>
+          <div className="grid gap-3">
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by title or address…"
+            />
+            <div className="rounded-[16px] border border-border bg-brand-soft/60 p-4 text-sm text-muted">
+              Use the form to create or edit a property. The list below updates
+              as soon as you save.
+            </div>
+          </div>
+        </div>
+        {formError ? <div className="mt-3 text-sm text-danger">{formError}</div> : null}
       </div>
 
       {items === null ? (
@@ -140,6 +330,14 @@ export default function PropertiesPage() {
                       {p.bedrooms} bed{p.bedrooms === 1 ? "" : "s"}
                     </Badge>
                   ) : null}
+                </div>
+                <div className="mt-4 flex items-center gap-2">
+                  <Button size="sm" variant="secondary" onClick={() => startEdit(p)}>
+                    Edit
+                  </Button>
+                  <Button size="sm" variant="danger" onClick={() => deleteProperty(p.id)}>
+                    Delete
+                  </Button>
                 </div>
               </div>
             </div>

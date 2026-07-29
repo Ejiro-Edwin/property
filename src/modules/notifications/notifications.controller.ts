@@ -38,5 +38,10 @@ export class NotificationsController {
   markRead(@Param('id') id: string, @Body() dto: MarkNotificationReadDto) {
     return this.notificationsService.markRead(dto.tenantId, id, dto.read ?? true);
   }
+
+  @Post('read-all')
+  markAllRead(@Body() dto: MarkNotificationReadDto, @Request() req: any) {
+    return this.notificationsService.markAllRead(dto.tenantId, req?.user?.id);
+  }
 }
 

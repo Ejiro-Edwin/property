@@ -4,6 +4,7 @@ import * as React from "react";
 import { useParams } from "next/navigation";
 import { api } from "@/lib/api";
 import { PageHeader } from "@/components/app/page-header";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDateTime } from "@/lib/format";
@@ -63,27 +64,45 @@ export default function NotificationsPage() {
     }
   }
 
+  async function markAllRead() {
+    try {
+      await api("notifications/read-all", {
+        method: "POST",
+        tenantId,
+        body: { tenantId },
+      });
+      setItems((prev) => prev ? prev.map((n) => ({ ...n, read: true })) : prev);
+    } catch {
+      // no-op; page still works if bulk action fails
+    }
+  }
+
   return (
     <div className="mx-auto grid w-full max-w-4xl gap-6 pb-8">
       <PageHeader
         title="Notifications"
         description="Overdue rent alerts, payment updates and workspace activity."
         action={
-          <div className="flex rounded-[12px] border border-border p-0.5">
-            {(["all", "unread"] as const).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={cn(
-                  "rounded-[10px] px-3 py-1.5 text-sm capitalize transition-colors",
-                  filter === f
-                    ? "bg-brand-soft font-medium text-brand-ink"
-                    : "text-muted hover:text-foreground",
-                )}
-              >
-                {f}
-              </button>
-            ))}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex rounded-[12px] border border-border p-0.5">
+              {(["all", "unread"] as const).map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className={cn(
+                    "rounded-[10px] px-3 py-1.5 text-sm capitalize transition-colors",
+                    filter === f
+                      ? "bg-brand-soft font-medium text-brand-ink"
+                      : "text-muted hover:text-foreground",
+                  )}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+            <Button variant="secondary" onClick={markAllRead} disabled={unreadCount === 0}>
+              Mark all read
+            </Button>
           </div>
         }
       />

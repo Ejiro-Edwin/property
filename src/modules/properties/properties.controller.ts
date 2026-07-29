@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CreatePropertyDto } from '../../common/tenantsea-dtos';
+import { CreatePropertyDto, UpdatePropertyDto } from '../../common/tenantsea-dtos';
 import { PropertiesService } from './properties.service';
 import { PaginationDto } from '../../common/pagination.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -24,5 +24,17 @@ export class PropertiesController {
   @Get()
   listProperties(@Query('tenantId') tenantId: string, @Query() pagination: PaginationDto) {
     return this.propertiesService.listProperties(tenantId, pagination);
+  }
+
+  @Roles('LANDLORD', 'LETTING_AGENT', 'ADMIN')
+  @Patch(':id')
+  updateProperty(@Param('id') id: string, @Body() dto: UpdatePropertyDto) {
+    return this.propertiesService.updateProperty(id, dto);
+  }
+
+  @Roles('LANDLORD', 'LETTING_AGENT', 'ADMIN')
+  @Delete(':id')
+  deleteProperty(@Param('id') id: string, @Query('tenantId') tenantId: string) {
+    return this.propertiesService.deleteProperty(tenantId, id);
   }
 }

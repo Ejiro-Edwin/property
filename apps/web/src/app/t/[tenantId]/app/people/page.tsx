@@ -56,6 +56,11 @@ export default function PeoplePage() {
   const [members, setMembers] = React.useState<Member[] | null>(null);
   const [invites, setInvites] = React.useState<Invite[] | null>(null);
   const [canInvite, setCanInvite] = React.useState(true);
+  const [me, setMe] = React.useState<{ id: string; name: string; phone?: string | null } | null>(null);
+  const [profileBusy, setProfileBusy] = React.useState(false);
+  const [profileError, setProfileError] = React.useState<string | null>(null);
+  const [profileNotice, setProfileNotice] = React.useState<string | null>(null);
+  const [profileForm, setProfileForm] = React.useState({ name: "", phone: "" });
 
   const [email, setEmail] = React.useState("");
   const [name, setName] = React.useState("");
@@ -77,11 +82,38 @@ export default function PeoplePage() {
   }, [tenantId]);
 
   React.useEffect(() => {
+    api<{ user: { id: string; name: string; phone?: string | null } }>("auth/me", { tenantId })
+      .then((r) => {
+        setMe(r.user);
+        setProfileForm({ name: r.user.name ?? "", phone: r.user.phone ?? "" });
+      })
+      .catch(() => setMe(null));
     api<{ users: Member[] }>("users", { tenantId, query: { limit: 50 } })
       .then((r) => setMembers(r.users ?? []))
       .catch(() => setMembers([]));
     loadInvites();
   }, [tenantId, loadInvites]);
+
+  async function saveProfile(e: React.FormEvent) {
+    e.preventDefault();
+    if (!me) return;
+    setProfileBusy(true);
+    setProfileError(null);
+    setProfileNotice(null);
+    try {
+      await api(`users/${me.id}`, {
+        method: "PATCH",
+        tenantId,
+        query: { tenantId },
+        body: { tenantId, name: profileForm.name, phone: profileForm.phone },
+      });
+      setProfileNotice("Profile updated");
+    } catch (err) {
+      setProfileError(err instanceof ApiError ? err.message : "Could not update profile");
+    } finally {
+      setProfileBusy(false);
+    }
+  }
 
   async function sendInvite(e: React.FormEvent) {
     e.preventDefault();
@@ -162,6 +194,31 @@ export default function PeoplePage() {
           <div className="mt-1 text-xs text-muted">Waiting to accept</div>
         </div>
       </div>
+
+      <section className="card grid gap-4 p-5">
+        <h2 className="text-sm font-semibold tracking-tight">My profile</h2>
+        {me ? (
+          <form onSubmit={saveProfile} className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+            <Input
+              value={profileForm.name}
+              onChange={(e) => setProfileForm((p) => ({ ...p, name: e.target.value }))}
+              placeholder="Your name"
+            />
+            <Input
+              value={profileForm.phone}
+              onChange={(e) => setProfileForm((p) => ({ ...p, phone: e.target.value }))}
+              placeholder="Phone number"
+            />
+            <Button type="submit" disabled={profileBusy}>
+              {profileBusy ? "Saving…" : "Save profile"}
+            </Button>
+          </form>
+        ) : (
+          <div className="text-sm text-muted">Sign in again to update your profile.</div>
+        )}
+        {profileError ? <div className="text-sm text-danger">{profileError}</div> : null}
+        {profileNotice ? <div className="text-sm text-success">{profileNotice}</div> : null}
+      </section>
 
       {canInvite ? (
         <section className="card grid gap-4 p-5">

@@ -22,15 +22,23 @@ const items = [
   { href: "app/payments", label: "Payments", icon: IconCard },
   { href: "app/trust", label: "Trust", icon: IconShield },
   { href: "app/notifications", label: "Notifications", icon: IconBell },
-  { href: "app/audit", label: "Audit", icon: IconScroll },
+  { href: "app/audit", label: "Audit", icon: IconScroll, adminOnly: true },
 ];
 
-export function AppNav({ tenantId }: { tenantId: string }) {
+export function AppNav({
+  tenantId,
+  showAudit = false,
+}: {
+  tenantId: string;
+  showAudit?: boolean;
+}) {
   const pathname = usePathname();
+
+  const visible = items.filter((item) => !item.adminOnly || showAudit);
 
   return (
     <nav className="grid gap-1">
-      {items.map((item) => {
+      {visible.map((item) => {
         const href = `/t/${tenantId}/${item.href}`;
         const active = item.exact
           ? pathname === href

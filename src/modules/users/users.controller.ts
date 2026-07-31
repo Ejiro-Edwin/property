@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto, UpdateUserDto } from '../../common/tenantsea-dtos';
 import { UsersService } from './users.service';
@@ -39,7 +39,7 @@ export class UsersController {
 
   @Roles('ADMIN', 'LANDLORD')
   @Delete(':id')
-  deleteUser(@Param('id') id: string, @Query('tenantId') tenantId: string) {
-    return this.usersService.deleteUser(tenantId, id);
+  deleteUser(@Param('id') id: string, @Query('tenantId') tenantId: string, @Request() req: any) {
+    return this.usersService.deleteUser(tenantId, id, req.user?.id);
   }
 }

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useParams } from "next/navigation";
-import { api } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
 import { PageHeader } from "@/components/app/page-header";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -38,23 +38,47 @@ export default function AuditPage() {
   const tenantId = params.tenantId;
 
   const [logs, setLogs] = React.useState<AuditLog[] | null>(null);
+  const [denied, setDenied] = React.useState(false);
   const totalLogs = logs?.length ?? 0;
   const successfulLogs = logs?.filter((log) => (log.statusCode ?? 200) < 400).length ?? 0;
   const failedLogs = logs?.filter((log) => (log.statusCode ?? 200) >= 400).length ?? 0;
 
   React.useEffect(() => {
     let cancelled = false;
+    setDenied(false);
+    setLogs(null);
     api<{ logs: AuditLog[] }>("audit", { tenantId })
       .then((r) => {
         if (!cancelled) setLogs(r.logs ?? []);
       })
-      .catch(() => {
-        if (!cancelled) setLogs([]);
+      .catch((err) => {
+        if (cancelled) return;
+        if (err instanceof ApiError && err.status === 403) {
+          setDenied(true);
+          setLogs([]);
+        } else {
+          setLogs([]);
+        }
       });
     return () => {
       cancelled = true;
     };
   }, [tenantId]);
+
+  if (denied) {
+    return (
+      <div className="mx-auto grid w-full max-w-5xl gap-6 pb-8">
+        <PageHeader
+          title="Audit log"
+          description="Workspace activity history for administrators."
+        />
+        <EmptyState
+          title="Admin access required"
+          body="Audit logs are only visible to workspace administrators. Contact your admin if you need access."
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto grid w-full max-w-5xl gap-6 pb-8">
@@ -65,9 +89,7 @@ export default function AuditPage() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">
-            Entries
-          </div>
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">Entries</div>
           <div className="mt-1 text-3xl font-semibold tracking-tight">
             {logs === null ? "…" : totalLogs}
           </div>
@@ -83,9 +105,7 @@ export default function AuditPage() {
           <div className="mt-1 text-xs text-muted">Below 400 status code</div>
         </div>
         <div className="card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">
-            Failed
-          </div>
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">Failed</div>
           <div className="mt-1 text-3xl font-semibold tracking-tight">
             {logs === null ? "…" : failedLogs}
           </div>

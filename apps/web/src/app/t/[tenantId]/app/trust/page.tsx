@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/app/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { Badge, tenancyStatusTone } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { formatMoney } from "@/lib/format";
 
 type TrustProfile = {
@@ -28,6 +28,8 @@ type TrustProfile = {
   }[];
 };
 
+type Member = { id: string; name: string; role: string };
+
 function scoreTone(score: number) {
   if (score >= 75) return "text-success";
   if (score >= 50) return "text-warning";
@@ -38,46 +40,69 @@ export default function TrustPage() {
   const params = useParams<{ tenantId: string }>();
   const tenantId = params.tenantId;
 
+  const [tenants, setTenants] = React.useState<Member[]>([]);
   const [userId, setUserId] = React.useState("");
   const [profile, setProfile] = React.useState<TrustProfile | null>(null);
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
+  React.useEffect(() => {
+    api<{ users: Member[] }>("users", { tenantId, query: { limit: 100 } })
+      .then((r) =>
+        setTenants(
+          (r.users ?? []).filter((u) => u.role.toLowerCase() === "tenant"),
+        ),
+      )
+      .catch(() => setTenants([]));
+  }, [tenantId]);
+
   async function lookup(e: React.FormEvent) {
     e.preventDefault();
+    if (!userId) return;
     setBusy(true);
     setError(null);
     setProfile(null);
     try {
-      const p = await api<TrustProfile>(`trust/${userId.trim()}`, { tenantId });
+      const p = await api<TrustProfile>(`trust/${userId}`, { tenantId });
       setProfile(p);
     } catch (err) {
-      setError(
-        err instanceof ApiError ? err.message : "Could not load trust profile",
-      );
+      setError(err instanceof ApiError ? err.message : "Could not load trust profile");
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <div className="mx-auto grid w-full max-w-4xl gap-6">
+    <div className="mx-auto grid w-full max-w-4xl gap-6 pb-8">
       <PageHeader
         title="Trust"
         description="Explainable tenant trust scores based on payment behavior and tenancy history."
       />
 
-      <form onSubmit={lookup} className="flex max-w-lg gap-2">
-        <Input
+      <form onSubmit={lookup} className="flex max-w-lg flex-col gap-2 sm:flex-row">
+        <Select
           value={userId}
           onChange={(e) => setUserId(e.target.value)}
-          placeholder="Tenant user ID (e.g. cmd8x…)"
           required
-        />
-        <Button type="submit" disabled={busy}>
+          className="min-w-0 flex-1"
+        >
+          <option value="">Select tenant</option>
+          {tenants.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.name}
+            </option>
+          ))}
+        </Select>
+        <Button type="submit" disabled={busy || tenants.length === 0}>
           {busy ? "Loading…" : "Look up"}
         </Button>
       </form>
+
+      {tenants.length === 0 ? (
+        <div className="text-sm text-muted">
+          Invite tenants from the People page to look up trust scores.
+        </div>
+      ) : null}
 
       {error ? <div className="text-sm text-danger">{error}</div> : null}
 

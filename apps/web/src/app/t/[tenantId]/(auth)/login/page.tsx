@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const params = useParams<{ tenantId: string }>();
   const searchParams = useSearchParams();
@@ -37,8 +37,7 @@ export default function LoginPage() {
           : `/t/${tenantId}/app`;
       router.replace(target);
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Login failed";
+      const message = err instanceof Error ? err.message : "Login failed";
       setError(message);
     } finally {
       setBusy(false);
@@ -50,7 +49,7 @@ export default function LoginPage() {
       <div className="card p-6">
         <div className="text-lg font-semibold tracking-tight">Sign in</div>
         <div className="mt-1 text-sm text-muted">
-          Use your email + password to access your workspace.
+          Workspace: <span className="font-medium text-foreground">{tenantId}</span>
         </div>
 
         <form className="mt-6 grid gap-4" onSubmit={onSubmit}>
@@ -60,6 +59,7 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="jane@example.com"
               autoComplete="email"
+              required
             />
           </Field>
           <Field label="Password">
@@ -69,12 +69,11 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Your password"
               autoComplete="current-password"
+              required
             />
           </Field>
 
-          {error ? (
-            <div className="text-sm text-danger">{error}</div>
-          ) : null}
+          {error ? <div className="text-sm text-danger">{error}</div> : null}
 
           <Button disabled={busy} type="submit">
             {busy ? "Signing in…" : "Sign in"}
@@ -87,11 +86,8 @@ export default function LoginPage() {
             >
               Forgot password
             </Link>
-            <Link
-              href={`/t/${tenantId}/register`}
-              className="text-muted hover:text-foreground"
-            >
-              Create account
+            <Link href="/register" className="text-muted hover:text-foreground">
+              New workspace
             </Link>
           </div>
         </form>
@@ -100,3 +96,10 @@ export default function LoginPage() {
   );
 }
 
+export default function LoginPage() {
+  return (
+    <React.Suspense fallback={<div className="mx-auto max-w-md pt-10 text-sm text-muted">Loading…</div>}>
+      <LoginForm />
+    </React.Suspense>
+  );
+}

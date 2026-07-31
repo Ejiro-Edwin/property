@@ -70,7 +70,11 @@ export class UsersService {
     return { message: 'User updated', user };
   }
 
-  async deleteUser(tenantId: string, id: string): Promise<any> {
+  async deleteUser(tenantId: string, id: string, actorId?: string): Promise<any> {
+    if (actorId && actorId === id) {
+      throw new BadRequestException('You cannot remove your own account from this workspace');
+    }
+
     const existing = await this.prisma.user.findFirst({ where: { id, tenantId } });
     if (!existing) {
       throw new NotFoundException('User not found');

@@ -8,6 +8,7 @@ import { Badge, tenancyStatusTone } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate, formatMoney } from "@/lib/format";
 
@@ -22,11 +23,16 @@ type Tenancy = {
   status: string;
 };
 
+type Property = { id: string; title: string; rentAmount: number; currency: string };
+type Member = { id: string; name: string; role: string };
+
 export default function TenanciesPage() {
   const params = useParams<{ tenantId: string }>();
   const tenantId = params.tenantId;
 
   const [items, setItems] = React.useState<Tenancy[] | null>(null);
+  const [properties, setProperties] = React.useState<Property[]>([]);
+  const [members, setMembers] = React.useState<Member[]>([]);
   const [total, setTotal] = React.useState(0);
   const [currentUserId, setCurrentUserId] = React.useState("");
   const [editingId, setEditingId] = React.useState<string | null>(null);
@@ -35,7 +41,6 @@ export default function TenanciesPage() {
   const [form, setForm] = React.useState({
     propertyId: "",
     tenantUserId: "",
-    landlordId: "",
     agentId: "",
     rentAmount: "",
     currency: "NGN",
@@ -43,47 +48,55 @@ export default function TenanciesPage() {
     endDate: "",
     status: "ACTIVE",
   });
+
+  const propertyMap = React.useMemo(
+    () => new Map(properties.map((p) => [p.id, p])),
+    [properties],
+  );
+  const memberMap = React.useMemo(
+    () => new Map(members.map((m) => [m.id, m])),
+    [members],
+  );
+  const tenants = members.filter((m) => m.role.toLowerCase() === "tenant");
+  const agents = members.filter((m) =>
+    ["letting_agent", "landlord", "admin"].includes(m.role.toLowerCase()),
+  );
+
   const activeCount = items?.filter((t) => t.status === "ACTIVE").length ?? 0;
   const pendingCount = items?.filter((t) => t.status === "PENDING").length ?? 0;
   const endedCount = items?.filter((t) => t.status === "ENDED").length ?? 0;
 
-  React.useEffect(() => {
-    api<{ user: { id: string } }>("auth/me", { tenantId })
-      .then((r) => setCurrentUserId(r.user.id))
-      .catch(() => setCurrentUserId(""));
-  }, [tenantId]);
-
-  React.useEffect(() => {
-    let cancelled = false;
+  const loadTenancies = React.useCallback(() => {
+    setItems(null);
     api<{ tenancies: Tenancy[]; meta: { total: number } }>("tenancies", {
       tenantId,
       query: { limit: 50 },
     })
       .then((r) => {
-        if (cancelled) return;
         setItems(r.tenancies ?? []);
         setTotal(r.meta?.total ?? 0);
       })
-      .catch(() => {
-        if (!cancelled) setItems([]);
-      });
-    return () => {
-      cancelled = true;
-    };
+      .catch(() => setItems([]));
   }, [tenantId]);
 
   React.useEffect(() => {
-    if (!editingId && currentUserId) {
-      setForm((prev) => (prev.landlordId ? prev : { ...prev, landlordId: currentUserId }));
-    }
-  }, [currentUserId, editingId]);
+    api<{ user: { id: string } }>("auth/me", { tenantId })
+      .then((r) => setCurrentUserId(r.user.id))
+      .catch(() => setCurrentUserId(""));
+    api<{ properties: Property[] }>("properties", { tenantId, query: { limit: 100 } })
+      .then((r) => setProperties(r.properties ?? []))
+      .catch(() => setProperties([]));
+    api<{ users: Member[] }>("users", { tenantId, query: { limit: 100 } })
+      .then((r) => setMembers(r.users ?? []))
+      .catch(() => setMembers([]));
+    loadTenancies();
+  }, [tenantId, loadTenancies]);
 
   function resetForm() {
     setEditingId(null);
     setForm({
       propertyId: "",
       tenantUserId: "",
-      landlordId: currentUserId,
       agentId: "",
       rentAmount: "",
       currency: "NGN",
@@ -94,12 +107,21 @@ export default function TenanciesPage() {
     setFormError(null);
   }
 
+  function onPropertyChange(propertyId: string) {
+    const property = propertyMap.get(propertyId);
+    setForm((prev) => ({
+      ...prev,
+      propertyId,
+      rentAmount: property ? String(property.rentAmount) : prev.rentAmount,
+      currency: property?.currency ?? prev.currency,
+    }));
+  }
+
   function startEdit(t: Tenancy) {
     setEditingId(t.id);
     setForm({
       propertyId: t.propertyId,
       tenantUserId: t.tenantUserId,
-      landlordId: currentUserId || "",
       agentId: "",
       rentAmount: String(t.rentAmount),
       currency: t.currency ?? "NGN",
@@ -112,6 +134,10 @@ export default function TenanciesPage() {
 
   async function submitTenancy(e: React.FormEvent) {
     e.preventDefault();
+    if (!currentUserId) {
+      setFormError("Sign in again to manage tenancies.");
+      return;
+    }
     setBusy(true);
     setFormError(null);
     try {
@@ -119,13 +145,13 @@ export default function TenanciesPage() {
         tenantId,
         propertyId: form.propertyId,
         tenantUserId: form.tenantUserId,
-        landlordId: form.landlordId,
-        ...(form.agentId.trim() ? { agentId: form.agentId.trim() } : {}),
+        landlordId: currentUserId,
+        ...(form.agentId ? { agentId: form.agentId } : {}),
         rentAmount: Number(form.rentAmount),
         currency: form.currency || "NGN",
         startDate: form.startDate,
         ...(form.endDate.trim() ? { endDate: form.endDate.trim() } : {}),
-        status: form.status as "pending" | "active" | "ended",
+        status: form.status.toLowerCase() as "pending" | "active" | "ended",
       };
 
       await api(editingId ? `tenancies/${editingId}` : "tenancies", {
@@ -135,16 +161,7 @@ export default function TenanciesPage() {
         body: payload,
       });
       resetForm();
-      setItems(null);
-      api<{ tenancies: Tenancy[]; meta: { total: number } }>("tenancies", {
-        tenantId,
-        query: { limit: 50 },
-      })
-        .then((r) => {
-          setItems(r.tenancies ?? []);
-          setTotal(r.meta?.total ?? 0);
-        })
-        .catch(() => setItems([]));
+      loadTenancies();
     } catch (err) {
       setFormError(err instanceof Error ? err.message : "Could not save tenancy");
     } finally {
@@ -157,16 +174,7 @@ export default function TenanciesPage() {
     try {
       await api(`tenancies/${id}`, { method: "DELETE", tenantId, query: { tenantId } });
       if (editingId === id) resetForm();
-      setItems(null);
-      api<{ tenancies: Tenancy[]; meta: { total: number } }>("tenancies", {
-        tenantId,
-        query: { limit: 50 },
-      })
-        .then((r) => {
-          setItems(r.tenancies ?? []);
-          setTotal(r.meta?.total ?? 0);
-        })
-        .catch(() => setItems([]));
+      loadTenancies();
     } catch (err) {
       setFormError(err instanceof Error ? err.message : "Could not delete tenancy");
     }
@@ -179,32 +187,30 @@ export default function TenanciesPage() {
         description={
           items ? `${total} tenanc${total === 1 ? "y" : "ies"} in this workspace.` : undefined
         }
-        action={<Button variant="secondary" onClick={resetForm}>New tenancy</Button>}
+        action={
+          <Button variant="secondary" onClick={resetForm}>
+            New tenancy
+          </Button>
+        }
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">
-            Active
-          </div>
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">Active</div>
           <div className="mt-1 text-3xl font-semibold tracking-tight">
             {items === null ? "…" : activeCount}
           </div>
           <div className="mt-1 text-xs text-muted">Currently occupied tenancies</div>
         </div>
         <div className="card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">
-            Pending
-          </div>
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">Pending</div>
           <div className="mt-1 text-3xl font-semibold tracking-tight">
             {items === null ? "…" : pendingCount}
           </div>
           <div className="mt-1 text-xs text-muted">Awaiting move-in</div>
         </div>
         <div className="card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">
-            Ended
-          </div>
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">Ended</div>
           <div className="mt-1 text-3xl font-semibold tracking-tight">
             {items === null ? "…" : endedCount}
           </div>
@@ -214,20 +220,89 @@ export default function TenanciesPage() {
 
       <div className="card p-4">
         <form className="grid gap-3 sm:grid-cols-2" onSubmit={submitTenancy}>
-          <Input value={form.propertyId} onChange={(e) => setForm((p) => ({ ...p, propertyId: e.target.value }))} placeholder="Property ID" required />
-          <Input value={form.tenantUserId} onChange={(e) => setForm((p) => ({ ...p, tenantUserId: e.target.value }))} placeholder="Tenant user ID" required />
-          <Input value={form.landlordId} onChange={(e) => setForm((p) => ({ ...p, landlordId: e.target.value }))} placeholder="Landlord user ID" required />
-          <Input value={form.agentId} onChange={(e) => setForm((p) => ({ ...p, agentId: e.target.value }))} placeholder="Agent user ID (optional)" />
-          <Input value={form.rentAmount} onChange={(e) => setForm((p) => ({ ...p, rentAmount: e.target.value }))} placeholder="Rent amount" type="number" min="0" required />
-          <Input value={form.currency} onChange={(e) => setForm((p) => ({ ...p, currency: e.target.value }))} placeholder="Currency" />
-          <Input value={form.startDate} onChange={(e) => setForm((p) => ({ ...p, startDate: e.target.value }))} placeholder="Start date (YYYY-MM-DD)" />
-          <Input value={form.endDate} onChange={(e) => setForm((p) => ({ ...p, endDate: e.target.value }))} placeholder="End date (optional)" />
-          <Input value={form.status} onChange={(e) => setForm((p) => ({ ...p, status: e.target.value }))} placeholder="Status (PENDING | ACTIVE | ENDED)" />
-          <div className="flex items-center gap-2">
-            <Button type="submit" disabled={busy}>{busy ? "Saving…" : editingId ? "Update tenancy" : "Create tenancy"}</Button>
-            {editingId ? <Button type="button" variant="secondary" onClick={resetForm}>Cancel</Button> : null}
+          <Select
+            value={form.propertyId}
+            onChange={(e) => onPropertyChange(e.target.value)}
+            required
+          >
+            <option value="">Select property</option>
+            {properties.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.title}
+              </option>
+            ))}
+          </Select>
+          <Select
+            value={form.tenantUserId}
+            onChange={(e) => setForm((p) => ({ ...p, tenantUserId: e.target.value }))}
+            required
+          >
+            <option value="">Select tenant</option>
+            {tenants.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
+              </option>
+            ))}
+          </Select>
+          <Select
+            value={form.agentId}
+            onChange={(e) => setForm((p) => ({ ...p, agentId: e.target.value }))}
+          >
+            <option value="">No assigned agent</option>
+            {agents.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
+              </option>
+            ))}
+          </Select>
+          <Select
+            value={form.status}
+            onChange={(e) => setForm((p) => ({ ...p, status: e.target.value }))}
+          >
+            <option value="PENDING">Pending</option>
+            <option value="ACTIVE">Active</option>
+            <option value="ENDED">Ended</option>
+          </Select>
+          <Input
+            value={form.rentAmount}
+            onChange={(e) => setForm((p) => ({ ...p, rentAmount: e.target.value }))}
+            placeholder="Rent amount"
+            type="number"
+            min="0"
+            required
+          />
+          <Input
+            value={form.currency}
+            onChange={(e) => setForm((p) => ({ ...p, currency: e.target.value }))}
+            placeholder="Currency"
+          />
+          <Input
+            value={form.startDate}
+            onChange={(e) => setForm((p) => ({ ...p, startDate: e.target.value }))}
+            type="date"
+            required
+          />
+          <Input
+            value={form.endDate}
+            onChange={(e) => setForm((p) => ({ ...p, endDate: e.target.value }))}
+            type="date"
+          />
+          <div className="flex items-center gap-2 sm:col-span-2">
+            <Button type="submit" disabled={busy}>
+              {busy ? "Saving…" : editingId ? "Update tenancy" : "Create tenancy"}
+            </Button>
+            {editingId ? (
+              <Button type="button" variant="secondary" onClick={resetForm}>
+                Cancel
+              </Button>
+            ) : null}
           </div>
         </form>
+        {tenants.length === 0 ? (
+          <div className="mt-3 text-sm text-muted">
+            Invite tenants from the People page before creating a tenancy.
+          </div>
+        ) : null}
         {formError ? <div className="mt-3 text-sm text-danger">{formError}</div> : null}
       </div>
 
@@ -254,8 +329,12 @@ export default function TenanciesPage() {
             <tbody className="divide-y divide-border">
               {items.map((t) => (
                 <tr key={t.id}>
-                  <td className="px-4 py-4 font-mono text-xs">{t.propertyId}</td>
-                  <td className="px-4 py-4 font-mono text-xs">{t.tenantUserId}</td>
+                  <td className="px-4 py-4">
+                    {propertyMap.get(t.propertyId)?.title ?? t.propertyId}
+                  </td>
+                  <td className="px-4 py-4">
+                    {memberMap.get(t.tenantUserId)?.name ?? t.tenantUserId}
+                  </td>
                   <td className="px-4 py-3 font-medium">
                     {formatMoney(t.rentAmount, t.currency)}
                   </td>
@@ -263,9 +342,7 @@ export default function TenanciesPage() {
                     {formatDate(t.startDate)} — {t.endDate ? formatDate(t.endDate) : "ongoing"}
                   </td>
                   <td className="px-4 py-4">
-                    <Badge tone={tenancyStatusTone(t.status)}>
-                      {t.status.toLowerCase()}
-                    </Badge>
+                    <Badge tone={tenancyStatusTone(t.status)}>{t.status.toLowerCase()}</Badge>
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-2">

@@ -1,25 +1,10 @@
-"use client";
-
-import * as React from "react";
-import { useRouter } from "next/navigation";
 import { Mark } from "@/components/brand/mark";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+import Link from "next/link";
 import { IconBuilding, IconCard, IconShield } from "@/components/ui/icons";
 
 export default function Home() {
-  const router = useRouter();
-  const [workspaceId, setWorkspaceId] = React.useState("");
-
-  const slug = workspaceId.trim().toLowerCase();
-  const isValidSlug = /^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$/.test(slug);
-
-  function go(path: string) {
-    if (!isValidSlug) return;
-    router.push(`/t/${slug}${path}`);
-  }
-
   return (
     <div className="min-h-dvh flex flex-col">
       <header className="px-6 py-6">
@@ -32,29 +17,18 @@ export default function Home() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Input
-              value={workspaceId}
-              onChange={(e) => setWorkspaceId(e.target.value)}
-              placeholder="workspace slug"
-              className="w-40"
-            />
-            <Button
-              variant="secondary"
-              onClick={() => go("/login")}
-              disabled={!isValidSlug}
-            >
-              Sign in
-            </Button>
-            <Button onClick={() => go("/register")} disabled={!isValidSlug}>
-              Get started
-            </Button>
+            <Link href="/login">
+              <Button variant="secondary">Sign in</Button>
+            </Link>
+            <Link href="/register">
+              <Button>Get started</Button>
+            </Link>
           </div>
         </div>
       </header>
 
       <main className="flex-1 px-6 pb-16">
         <div className="mx-auto grid w-full max-w-6xl gap-12 pt-8">
-          {/* Hero */}
           <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_1fr]">
             <div className="grid max-w-xl gap-5">
               <Badge tone="sand" className="w-fit">
@@ -68,40 +42,16 @@ export default function Home() {
                 their portfolio: who lives where, what&apos;s due, what&apos;s
                 paid, and which tenants have earned trust.
               </p>
-              <div className="grid gap-2 pt-1 sm:max-w-md">
-                <div className="text-xs font-medium uppercase tracking-wide text-muted">
-                  Start by entering your workspace slug
-                </div>
-                <div className="flex gap-2">
-                  <Input
-                    value={workspaceId}
-                    onChange={(e) => setWorkspaceId(e.target.value)}
-                    placeholder="e.g. my-properties"
-                  />
-                  <Button
-                    variant="secondary"
-                    onClick={() => go("/login")}
-                    disabled={!isValidSlug}
-                  >
-                    Open
-                  </Button>
-                </div>
-                <div className="text-xs text-muted">
-                  Use the slug your workspace was created with.
-                </div>
-              </div>
+
               <div className="flex flex-wrap items-center gap-3 pt-1">
-                <Button size="lg" onClick={() => go("/register")} disabled={!isValidSlug}>
-                  Start managing
-                </Button>
-                <Button
-                  size="lg"
-                  variant="secondary"
-                  onClick={() => go("/login")}
-                  disabled={!isValidSlug}
-                >
-                  Sign in to your workspace
-                </Button>
+                <Link href="/register">
+                  <Button size="lg">Start managing</Button>
+                </Link>
+                <Link href="/login">
+                  <Button size="lg" variant="secondary">
+                    Sign in to your workspace
+                  </Button>
+                </Link>
               </div>
               <div className="flex items-center gap-5 pt-2 text-xs text-muted">
                 <span>Multi-tenant workspaces</span>
@@ -112,7 +62,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Property visual with floating cards */}
             <div className="relative hidden min-h-[420px] lg:block">
               <div className="property-art absolute inset-0 rounded-[24px]" />
 
@@ -153,7 +102,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Feature cards */}
           <div className="grid gap-6">
             <div className="max-w-xl">
               <h2 className="text-2xl font-semibold tracking-tight">
@@ -166,7 +114,6 @@ export default function Home() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
-              {/* Portfolio */}
               <div className="card flex flex-col p-5">
                 <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-brand-soft text-brand-ink">
                   <IconBuilding width={20} height={20} />
@@ -190,7 +137,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Payments */}
               <div className="card flex flex-col p-5">
                 <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-brand-soft text-brand-ink">
                   <IconCard width={20} height={20} />
@@ -214,7 +160,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Trust */}
               <div className="card flex flex-col p-5">
                 <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-brand-soft text-brand-ink">
                   <IconShield width={20} height={20} />

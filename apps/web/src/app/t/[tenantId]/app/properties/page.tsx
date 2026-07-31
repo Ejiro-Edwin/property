@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/app/page-header";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatMoney } from "@/lib/format";
 
@@ -21,11 +22,19 @@ type Property = {
   createdAt: string;
 };
 
+type Member = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+};
+
 export default function PropertiesPage() {
   const params = useParams<{ tenantId: string }>();
   const tenantId = params.tenantId;
 
   const [items, setItems] = React.useState<Property[] | null>(null);
+  const [members, setMembers] = React.useState<Member[]>([]);
   const [total, setTotal] = React.useState(0);
   const [search, setSearch] = React.useState("");
   const [query, setQuery] = React.useState("");
@@ -36,18 +45,18 @@ export default function PropertiesPage() {
   const [form, setForm] = React.useState({
     title: "",
     address: "",
-    landlordId: "",
     agentId: "",
     bedrooms: "",
     rentAmount: "",
     currency: "NGN",
   });
-  const portfolioValue =
-    items?.reduce((sum, p) => sum + p.rentAmount, 0) ?? 0;
+  const portfolioValue = items?.reduce((sum, p) => sum + p.rentAmount, 0) ?? 0;
   const avgRent =
-    items && items.length > 0
-      ? Math.round(portfolioValue / items.length)
-      : 0;
+    items && items.length > 0 ? Math.round(portfolioValue / items.length) : 0;
+
+  const agents = members.filter((m) =>
+    ["letting_agent", "landlord", "admin"].includes(m.role.toLowerCase()),
+  );
 
   React.useEffect(() => {
     const t = setTimeout(() => setQuery(search.trim()), 350);
@@ -58,6 +67,9 @@ export default function PropertiesPage() {
     api<{ user: { id: string } }>("auth/me", { tenantId })
       .then((r) => setCurrentUserId(r.user.id))
       .catch(() => setCurrentUserId(""));
+    api<{ users: Member[] }>("users", { tenantId, query: { limit: 100 } })
+      .then((r) => setMembers(r.users ?? []))
+      .catch(() => setMembers([]));
   }, [tenantId]);
 
   const loadProperties = React.useCallback(() => {
@@ -89,7 +101,6 @@ export default function PropertiesPage() {
     setForm({
       title: "",
       address: "",
-      landlordId: currentUserId,
       agentId: "",
       bedrooms: "",
       rentAmount: "",
@@ -98,18 +109,11 @@ export default function PropertiesPage() {
     setFormError(null);
   }
 
-  React.useEffect(() => {
-    if (!editingId && currentUserId) {
-      setForm((prev) => (prev.landlordId ? prev : { ...prev, landlordId: currentUserId }));
-    }
-  }, [currentUserId, editingId]);
-
   function startEdit(p: Property) {
     setEditingId(p.id);
     setForm({
       title: p.title,
       address: p.address,
-      landlordId: currentUserId || "",
       agentId: "",
       bedrooms: String(p.bedrooms ?? ""),
       rentAmount: String(p.rentAmount),
@@ -120,6 +124,10 @@ export default function PropertiesPage() {
 
   async function submitProperty(e: React.FormEvent) {
     e.preventDefault();
+    if (!currentUserId) {
+      setFormError("Sign in again to create properties.");
+      return;
+    }
     setBusy(true);
     setFormError(null);
     try {
@@ -127,30 +135,18 @@ export default function PropertiesPage() {
         tenantId,
         title: form.title,
         address: form.address,
-        landlordId: form.landlordId,
-        ...(form.agentId.trim() ? { agentId: form.agentId.trim() } : {}),
+        landlordId: currentUserId,
+        ...(form.agentId ? { agentId: form.agentId } : {}),
         bedrooms: Number(form.bedrooms),
         rentAmount: Number(form.rentAmount),
         currency: form.currency || "NGN",
       };
 
-      const res = await api(
-        editingId ? `properties/${editingId}` : "properties",
-        {
-          method: editingId ? "PATCH" : "POST",
-          tenantId,
-          query: { tenantId },
-          body: payload,
-        },
-      );
-      setItems((prev) => {
-        if (!prev) return prev;
-        if (editingId) {
-          return prev.map((item) =>
-            item.id === editingId ? { ...item, ...(res as { property?: Property }).property } : item,
-          );
-        }
-        return prev;
+      await api(editingId ? `properties/${editingId}` : "properties", {
+        method: editingId ? "PATCH" : "POST",
+        tenantId,
+        query: { tenantId },
+        body: payload,
       });
       resetForm();
       loadProperties();
@@ -178,11 +174,7 @@ export default function PropertiesPage() {
         title="Properties"
         description={items ? `${total} propert${total === 1 ? "y" : "ies"} in this workspace.` : undefined}
         action={
-          <Button
-            onClick={resetForm}
-            className="shrink-0"
-            variant="secondary"
-          >
+          <Button onClick={resetForm} className="shrink-0" variant="secondary">
             Add property
           </Button>
         }
@@ -190,9 +182,7 @@ export default function PropertiesPage() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">
-            Properties
-          </div>
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">Properties</div>
           <div className="mt-1 text-3xl font-semibold tracking-tight">
             {items === null ? "…" : total}
           </div>
@@ -208,9 +198,7 @@ export default function PropertiesPage() {
           <div className="mt-1 text-xs text-muted">Annual rent across all properties</div>
         </div>
         <div className="card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">
-            Average rent
-          </div>
+          <div className="text-xs font-medium uppercase tracking-wide text-muted">Average rent</div>
           <div className="mt-1 text-3xl font-semibold tracking-tight">
             {items === null ? "…" : formatMoney(avgRent)}
           </div>
@@ -233,17 +221,17 @@ export default function PropertiesPage() {
               placeholder="Address"
               required
             />
-            <Input
-              value={form.landlordId}
-              onChange={(e) => setForm((prev) => ({ ...prev, landlordId: e.target.value }))}
-              placeholder="Landlord user ID"
-              required
-            />
-            <Input
+            <Select
               value={form.agentId}
               onChange={(e) => setForm((prev) => ({ ...prev, agentId: e.target.value }))}
-              placeholder="Agent user ID (optional)"
-            />
+            >
+              <option value="">No assigned agent</option>
+              {agents.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name} ({m.role.replaceAll("_", " ").toLowerCase()})
+                </option>
+              ))}
+            </Select>
             <Input
               value={form.bedrooms}
               onChange={(e) => setForm((prev) => ({ ...prev, bedrooms: e.target.value }))}
@@ -265,16 +253,12 @@ export default function PropertiesPage() {
               onChange={(e) => setForm((prev) => ({ ...prev, currency: e.target.value }))}
               placeholder="Currency"
             />
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 sm:col-span-2">
               <Button type="submit" disabled={busy}>
                 {busy ? "Saving…" : editingId ? "Update property" : "Create property"}
               </Button>
               {editingId ? (
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={resetForm}
-                >
+                <Button type="button" variant="secondary" onClick={resetForm}>
                   Cancel
                 </Button>
               ) : null}
@@ -287,8 +271,8 @@ export default function PropertiesPage() {
               placeholder="Search by title or address…"
             />
             <div className="rounded-[16px] border border-border bg-brand-soft/60 p-4 text-sm text-muted">
-              Use the form to create or edit a property. The list below updates
-              as soon as you save.
+              You are recorded as the landlord automatically. Assign an agent
+              from your workspace if someone manages this property for you.
             </div>
           </div>
         </div>
@@ -316,9 +300,7 @@ export default function PropertiesPage() {
             <div key={p.id} className="card overflow-hidden">
               <div className="property-art h-28" />
               <div className="p-4">
-                <div className="truncate text-sm font-semibold tracking-tight">
-                  {p.title}
-                </div>
+                <div className="truncate text-sm font-semibold tracking-tight">{p.title}</div>
                 <div className="mt-0.5 truncate text-xs text-muted">{p.address}</div>
                 <div className="mt-3 flex items-center justify-between gap-2">
                   <div className="text-sm font-medium">

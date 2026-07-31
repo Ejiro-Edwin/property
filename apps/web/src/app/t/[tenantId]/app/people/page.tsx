@@ -16,6 +16,7 @@ type Member = {
   name: string;
   email: string;
   role: string;
+  phone?: string | null;
   emailVerified: boolean;
   createdAt: string;
 };
@@ -35,6 +36,29 @@ const inviteRoles = [
   { value: "letting_agent", label: "Agent" },
   { value: "landlord", label: "Landlord" },
 ];
+
+const memberRoles = [
+  ...inviteRoles,
+  { value: "admin", label: "Admin" },
+];
+
+function normalizeRole(role: string) {
+  return role.toLowerCase().replaceAll("_", " ");
+}
+
+function canManageMembers(role: string | null | undefined) {
+  const r = normalizeRole(role ?? "");
+  return r === "landlord" || r === "letting agent" || r === "admin";
+}
+
+function canDeleteMembers(role: string | null | undefined) {
+  const r = normalizeRole(role ?? "");
+  return r === "landlord" || r === "admin";
+}
+
+function toApiRole(role: string) {
+  return role.toLowerCase().replaceAll(" ", "_");
+}
 
 function roleTone(role: string) {
   switch (role.toLowerCase()) {
@@ -56,11 +80,27 @@ export default function PeoplePage() {
   const [members, setMembers] = React.useState<Member[] | null>(null);
   const [invites, setInvites] = React.useState<Invite[] | null>(null);
   const [canInvite, setCanInvite] = React.useState(true);
-  const [me, setMe] = React.useState<{ id: string; name: string; phone?: string | null } | null>(null);
+  const [me, setMe] = React.useState<{
+    id: string;
+    name: string;
+    role?: string;
+    phone?: string | null;
+  } | null>(null);
   const [profileBusy, setProfileBusy] = React.useState(false);
   const [profileError, setProfileError] = React.useState<string | null>(null);
   const [profileNotice, setProfileNotice] = React.useState<string | null>(null);
   const [profileForm, setProfileForm] = React.useState({ name: "", phone: "" });
+
+  const [editingMemberId, setEditingMemberId] = React.useState<string | null>(null);
+  const [memberBusy, setMemberBusy] = React.useState(false);
+  const [memberError, setMemberError] = React.useState<string | null>(null);
+  const [memberNotice, setMemberNotice] = React.useState<string | null>(null);
+  const [memberForm, setMemberForm] = React.useState({
+    name: "",
+    email: "",
+    phone: "",
+    role: "tenant",
+  });
 
   const [email, setEmail] = React.useState("");
   const [name, setName] = React.useState("");
@@ -81,18 +121,25 @@ export default function PeoplePage() {
       });
   }, [tenantId]);
 
+  const loadMembers = React.useCallback(() => {
+    return api<{ users: Member[] }>("users", { tenantId, query: { limit: 50 } })
+      .then((r) => setMembers(r.users ?? []))
+      .catch(() => setMembers([]));
+  }, [tenantId]);
+
   React.useEffect(() => {
-    api<{ user: { id: string; name: string; phone?: string | null } }>("auth/me", { tenantId })
+    api<{ user: { id: string; name: string; role?: string; phone?: string | null } }>(
+      "auth/me",
+      { tenantId },
+    )
       .then((r) => {
         setMe(r.user);
         setProfileForm({ name: r.user.name ?? "", phone: r.user.phone ?? "" });
       })
       .catch(() => setMe(null));
-    api<{ users: Member[] }>("users", { tenantId, query: { limit: 50 } })
-      .then((r) => setMembers(r.users ?? []))
-      .catch(() => setMembers([]));
+    loadMembers();
     loadInvites();
-  }, [tenantId, loadInvites]);
+  }, [tenantId, loadInvites, loadMembers]);
 
   async function saveProfile(e: React.FormEvent) {
     e.preventDefault();
@@ -146,7 +193,70 @@ export default function PeoplePage() {
     }
   }
 
+  function resetMemberForm() {
+    setEditingMemberId(null);
+    setMemberForm({ name: "", email: "", phone: "", role: "tenant" });
+    setMemberError(null);
+    setMemberNotice(null);
+  }
+
+  function startEditMember(member: Member) {
+    setEditingMemberId(member.id);
+    setMemberForm({
+      name: member.name,
+      email: member.email,
+      phone: member.phone ?? "",
+      role: toApiRole(member.role),
+    });
+    setMemberError(null);
+    setMemberNotice(null);
+  }
+
+  async function saveMember(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editingMemberId) return;
+    setMemberBusy(true);
+    setMemberError(null);
+    setMemberNotice(null);
+    try {
+      await api(`users/${editingMemberId}`, {
+        method: "PATCH",
+        tenantId,
+        query: { tenantId },
+        body: {
+          tenantId,
+          id: editingMemberId,
+          name: memberForm.name,
+          email: memberForm.email,
+          phone: memberForm.phone,
+          role: memberForm.role,
+        },
+      });
+      setMemberNotice("Member updated");
+      resetMemberForm();
+      loadMembers();
+    } catch (err) {
+      setMemberError(err instanceof ApiError ? err.message : "Could not update member");
+    } finally {
+      setMemberBusy(false);
+    }
+  }
+
+  async function deleteMember(id: string, name: string) {
+    if (!confirm(`Remove ${name} from this workspace?`)) return;
+    setMemberError(null);
+    try {
+      await api(`users/${id}`, { method: "DELETE", tenantId, query: { tenantId } });
+      if (editingMemberId === id) resetMemberForm();
+      loadMembers();
+    } catch (err) {
+      setMemberError(err instanceof ApiError ? err.message : "Could not remove member");
+    }
+  }
+
   const pendingInvites = (invites ?? []).filter((i) => i.status === "pending");
+  const manageMembers = canManageMembers(me?.role);
+  const removeMembers = canDeleteMembers(me?.role);
   const pendingCount = pendingInvites.length;
 
   return (
@@ -289,8 +399,72 @@ export default function PeoplePage() {
         </section>
       ) : null}
 
+      {manageMembers && editingMemberId && editingMemberId !== me?.id ? (
+        <section className="card grid gap-4 p-5">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-sm font-semibold tracking-tight">Edit member</h2>
+            <button
+              type="button"
+              onClick={resetMemberForm}
+              className="text-xs font-medium text-muted hover:text-foreground"
+            >
+              Cancel
+            </button>
+          </div>
+          <form onSubmit={saveMember} className="grid gap-3">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Input
+                value={memberForm.name}
+                onChange={(e) => setMemberForm((p) => ({ ...p, name: e.target.value }))}
+                placeholder="Full name"
+                required
+              />
+              <Input
+                type="email"
+                value={memberForm.email}
+                onChange={(e) => setMemberForm((p) => ({ ...p, email: e.target.value }))}
+                placeholder="Email"
+                required
+              />
+            </div>
+            <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto]">
+              <Input
+                value={memberForm.phone}
+                onChange={(e) => setMemberForm((p) => ({ ...p, phone: e.target.value }))}
+                placeholder="Phone (optional)"
+              />
+              <div className="flex rounded-[12px] border border-border p-0.5">
+                {memberRoles.map((r) => (
+                  <button
+                    key={r.value}
+                    type="button"
+                    onClick={() => setMemberForm((p) => ({ ...p, role: r.value }))}
+                    className={cn(
+                      "rounded-[10px] px-3 py-1.5 text-sm transition-colors",
+                      memberForm.role === r.value
+                        ? "bg-brand-soft font-medium text-brand-ink"
+                        : "text-muted hover:text-foreground",
+                    )}
+                  >
+                    {r.label}
+                  </button>
+                ))}
+              </div>
+              <Button type="submit" disabled={memberBusy}>
+                {memberBusy ? "Saving…" : "Save changes"}
+              </Button>
+            </div>
+          </form>
+          {memberError ? <div className="text-sm text-danger">{memberError}</div> : null}
+          {memberNotice ? <div className="text-sm text-success">{memberNotice}</div> : null}
+        </section>
+      ) : null}
+
       <section className="grid gap-3">
         <h2 className="text-sm font-semibold tracking-tight">Members</h2>
+        {memberError && !editingMemberId ? (
+          <div className="text-sm text-danger">{memberError}</div>
+        ) : null}
         {members === null ? (
           <Skeleton className="h-[220px]" />
         ) : members.length === 0 ? (
@@ -299,26 +473,55 @@ export default function PeoplePage() {
           </div>
         ) : (
           <div className="card-flat divide-y divide-border">
-            {members.map((m) => (
-              <div key={m.id} className="flex items-center gap-4 px-5 py-3.5">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-soft text-sm font-semibold text-brand-ink">
-                  {m.name?.charAt(0).toUpperCase() || "?"}
+            {members.map((m) => {
+              const isSelf = m.id === me?.id;
+              const showActions = manageMembers && !isSelf;
+              return (
+                <div key={m.id} className="flex items-center gap-4 px-5 py-3.5">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-soft text-sm font-semibold text-brand-ink">
+                    {m.name?.charAt(0).toUpperCase() || "?"}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium">
+                      {m.name}
+                      {isSelf ? (
+                        <span className="ml-1.5 text-xs font-normal text-muted">(you)</span>
+                      ) : null}
+                    </div>
+                    <div className="truncate text-xs text-muted">{m.email}</div>
+                  </div>
+                  {!m.emailVerified ? (
+                    <span className="text-xs text-muted">unverified</span>
+                  ) : null}
+                  <Badge tone={roleTone(m.role)} className="capitalize">
+                    {m.role.replaceAll("_", " ").toLowerCase()}
+                  </Badge>
+                  <span className="hidden text-xs text-muted sm:block">
+                    joined {formatDate(m.createdAt)}
+                  </span>
+                  {showActions ? (
+                    <div className="flex shrink-0 items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => startEditMember(m)}
+                        className="text-xs font-medium text-brand hover:underline"
+                      >
+                        Edit
+                      </button>
+                      {removeMembers ? (
+                        <button
+                          type="button"
+                          onClick={() => deleteMember(m.id, m.name)}
+                          className="text-xs font-medium text-danger hover:underline"
+                        >
+                          Remove
+                        </button>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium">{m.name}</div>
-                  <div className="truncate text-xs text-muted">{m.email}</div>
-                </div>
-                {!m.emailVerified ? (
-                  <span className="text-xs text-muted">unverified</span>
-                ) : null}
-                <Badge tone={roleTone(m.role)} className="capitalize">
-                  {m.role.replaceAll("_", " ").toLowerCase()}
-                </Badge>
-                <span className="hidden text-xs text-muted sm:block">
-                  joined {formatDate(m.createdAt)}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>

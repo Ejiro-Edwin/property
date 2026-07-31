@@ -69,6 +69,13 @@ export const IconUsers = (p: IconProps) => (
   </svg>
 );
 
+export const IconUser = (p: IconProps) => (
+  <svg {...base(p)}>
+    <circle cx="12" cy="8" r="4" />
+    <path d="M5 20c0-3.5 3.5-6 7-6s7 2.5 7 6" />
+  </svg>
+);
+
 export const IconScroll = (p: IconProps) => (
   <svg {...base(p)}>
     <path d="M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" />

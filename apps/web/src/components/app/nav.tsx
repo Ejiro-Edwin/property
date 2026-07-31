@@ -11,6 +11,7 @@ import {
   IconKey,
   IconScroll,
   IconShield,
+  IconUser,
   IconUsers,
 } from "@/components/ui/icons";
 
@@ -22,6 +23,7 @@ const items = [
   { href: "app/payments", label: "Payments", icon: IconCard },
   { href: "app/trust", label: "Trust", icon: IconShield },
   { href: "app/notifications", label: "Notifications", icon: IconBell },
+  { href: "app/profile", label: "Profile", icon: IconUser },
   { href: "app/audit", label: "Audit", icon: IconScroll, adminOnly: true },
 ];
 

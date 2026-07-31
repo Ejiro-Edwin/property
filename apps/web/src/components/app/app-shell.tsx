@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Mark } from "@/components/brand/mark";
 import { AppNav } from "@/components/app/nav";
+import { UserMenu } from "@/components/app/user-menu";
 import { cn } from "@/lib/cn";
 import { api } from "@/lib/api";
 
@@ -11,6 +12,12 @@ function canSeeAudit(role: string | undefined) {
   const r = (role ?? "").toLowerCase();
   return r === "admin";
 }
+
+type CurrentUser = {
+  name: string;
+  email: string;
+  role?: string;
+};
 
 export function AppShell({
   tenantId,
@@ -20,22 +27,22 @@ export function AppShell({
   children: React.ReactNode;
 }) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [role, setRole] = React.useState<string | undefined>();
+  const [user, setUser] = React.useState<CurrentUser | null>(null);
 
   React.useEffect(() => {
-    api<{ user: { role?: string } }>("auth/me", { tenantId })
-      .then((r) => setRole(r.user?.role))
-      .catch(() => setRole(undefined));
+    api<{ user: CurrentUser }>("auth/me", { tenantId })
+      .then((r) => setUser(r.user))
+      .catch(() => setUser(null));
   }, [tenantId]);
 
-  const logoutAction = `/api/auth/logout?redirect=${encodeURIComponent("/login")}`;
+  const closeMobile = () => setMobileOpen(false);
 
   const sidebar = (
     <>
       <Link
         href={`/t/${tenantId}/app`}
-        className="flex items-center gap-3 px-1"
-        onClick={() => setMobileOpen(false)}
+        className="flex shrink-0 items-center gap-3 px-1"
+        onClick={closeMobile}
       >
         <Mark />
         <div className="leading-tight">
@@ -44,18 +51,11 @@ export function AppShell({
         </div>
       </Link>
 
-      <AppNav tenantId={tenantId} showAudit={canSeeAudit(role)} />
-
-      <div className="mt-auto px-1">
-        <form action={logoutAction} method="post">
-          <button
-            type="submit"
-            className="text-sm text-muted transition-colors hover:text-foreground"
-          >
-            Sign out
-          </button>
-        </form>
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <AppNav tenantId={tenantId} showAudit={canSeeAudit(user?.role)} />
       </div>
+
+      <UserMenu tenantId={tenantId} user={user} onNavigate={closeMobile} />
     </>
   );
 
@@ -66,27 +66,35 @@ export function AppShell({
           <Mark />
           <span className="text-sm font-semibold tracking-tight">TenantSea</span>
         </Link>
-        <button
-          type="button"
-          aria-label="Open menu"
-          className="rounded-[10px] px-3 py-2 text-sm font-medium text-muted hover:bg-black/5 hover:text-foreground"
-          onClick={() => setMobileOpen((v) => !v)}
-        >
-          Menu
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/t/${tenantId}/app/profile`}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-soft text-sm font-semibold text-brand-ink"
+          >
+            {user?.name?.charAt(0).toUpperCase() || "?"}
+          </Link>
+          <button
+            type="button"
+            aria-label="Open menu"
+            className="rounded-[10px] px-3 py-2 text-sm font-medium text-muted hover:bg-black/5 hover:text-foreground"
+            onClick={() => setMobileOpen((v) => !v)}
+          >
+            Menu
+          </button>
+        </div>
       </header>
 
       {mobileOpen ? (
         <div
           className="fixed inset-0 z-40 bg-black/20 md:hidden"
-          onClick={() => setMobileOpen(false)}
+          onClick={closeMobile}
           aria-hidden
         />
       ) : null}
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[264px] flex-col gap-7 border-r border-border bg-background px-4 py-6 transition-transform md:static md:sticky md:top-0 md:z-auto md:h-dvh md:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 flex w-[264px] flex-col gap-5 border-r border-border bg-background px-4 py-6 transition-transform md:static md:sticky md:top-0 md:z-auto md:h-dvh md:translate-x-0",
           mobileOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >

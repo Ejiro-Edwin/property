@@ -78,15 +78,17 @@ export class UpdateUserDto extends TenantScopedDto {
 }
 
 export class RegisterDto {
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'acme-corp',
-    description: 'Workspace handle. Lowercase letters, numbers and hyphens; becomes part of your URL.',
+    description:
+      'Optional workspace handle. If omitted, one is generated automatically from your company name or email.',
   })
+  @IsOptional()
   @IsString()
   @Matches(/^[a-z0-9](?:[a-z0-9-]{1,38})?[a-z0-9]$/, {
     message: 'tenantId must be 2-40 chars of lowercase letters, numbers and hyphens',
   })
-  tenantId: string;
+  tenantId?: string;
 
   @ApiPropertyOptional({ example: 'Acme Properties Ltd' })
   @IsOptional()

@@ -105,7 +105,7 @@ function AcceptInviteInner() {
           is ready. Sign in with your email and new password.
         </div>
         <div className="mt-6">
-          <Link href={`/t/${preview.tenantId}/login`}>
+          <Link href="/login">
             <Button className="w-full">Sign in</Button>
           </Link>
         </div>

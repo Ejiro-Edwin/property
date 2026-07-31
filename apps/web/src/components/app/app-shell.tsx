@@ -28,7 +28,7 @@ export function AppShell({
       .catch(() => setRole(undefined));
   }, [tenantId]);
 
-  const logoutAction = `/api/auth/logout?redirect=${encodeURIComponent(`/t/${tenantId}/login`)}`;
+  const logoutAction = `/api/auth/logout?redirect=${encodeURIComponent("/login")}`;
 
   const sidebar = (
     <>

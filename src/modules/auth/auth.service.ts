@@ -28,7 +28,9 @@ export class AuthService {
    * Joining an existing workspace happens exclusively through invitations.
    */
   async register(dto: RegisterDto): Promise<any> {
-    const tenantId = dto.tenantId;
+    const tenantId = dto.tenantId
+      ? dto.tenantId
+      : await this.allocateTenantId(dto.email, dto.workspaceName);
     const slug = tenantId.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
     const existing = await this.prisma.tenant.findFirst({
@@ -43,7 +45,7 @@ export class AuthService {
     const tenant = await this.prisma.tenant.create({
       data: {
         id: tenantId,
-        name: dto.workspaceName?.trim() || dto.tenantId,
+        name: dto.workspaceName?.trim() || dto.name?.trim() || tenantId,
         slug,
       },
     });
@@ -71,9 +73,7 @@ export class AuthService {
     const frontendUrl = process.env.FRONTEND_URL;
     const base = frontendUrl ? frontendUrl.replace(/\/$/, '') : '';
     const verifyLink = frontendUrl
-      ? `${base}/verify-email?token=${verificationToken}${
-          dto.tenantId ? `&tenantId=${encodeURIComponent(dto.tenantId)}` : ''
-        }`
+      ? `${base}/verify-email?token=${verificationToken}&tenantId=${encodeURIComponent(tenant.id)}`
       : `token:${verificationToken}`;
 
     await this.email.sendEmailVerificationEmail({ to: dto.email, verifyLink });
@@ -269,5 +269,63 @@ export class AuthService {
     }
 
     return users[0];
+  }
+
+  private normalizeTenantHandle(raw: string): string {
+    const normalized = raw
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 40);
+    if (normalized.length < 2) {
+      return '';
+    }
+    let handle = normalized;
+    if (!/^[a-z0-9]/.test(handle)) {
+      handle = `w-${handle}`.slice(0, 40);
+    }
+    if (!/[a-z0-9]$/.test(handle)) {
+      handle = `${handle}0`.slice(0, 40);
+    }
+    return handle.length >= 2 ? handle : '';
+  }
+
+  private async isTenantIdAvailable(tenantId: string): Promise<boolean> {
+    const slug = tenantId.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const existing = await this.prisma.tenant.findFirst({
+      where: { OR: [{ id: tenantId }, { slug }] },
+      select: { id: true },
+    });
+    return !existing;
+  }
+
+  private async allocateTenantId(email: string, workspaceName?: string): Promise<string> {
+    const seeds = [
+      workspaceName ? this.normalizeTenantHandle(workspaceName) : '',
+      this.normalizeTenantHandle(email.split('@')[0] ?? ''),
+    ].filter(Boolean);
+
+    for (const base of seeds) {
+      if (await this.isTenantIdAvailable(base)) {
+        return base;
+      }
+      for (let i = 0; i < 8; i++) {
+        const suffix = randomBytes(2).toString('hex');
+        const candidate = this.normalizeTenantHandle(`${base}-${suffix}`);
+        if (candidate && (await this.isTenantIdAvailable(candidate))) {
+          return candidate;
+        }
+      }
+    }
+
+    for (let i = 0; i < 8; i++) {
+      const candidate = `ws-${randomBytes(4).toString('hex')}`;
+      if (await this.isTenantIdAvailable(candidate)) {
+        return candidate;
+      }
+    }
+
+    throw new BadRequestException('Could not allocate a workspace id. Try again.');
   }
 }

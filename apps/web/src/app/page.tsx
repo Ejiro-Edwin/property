@@ -45,7 +45,7 @@ export default function Home() {
 
               <div className="flex flex-wrap items-center gap-3 pt-1">
                 <Link href="/register">
-                  <Button size="lg">Start managing</Button>
+                  <Button size="lg">Create account</Button>
                 </Link>
                 <Link href="/login">
                   <Button size="lg" variant="secondary">

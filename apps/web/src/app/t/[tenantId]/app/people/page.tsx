@@ -111,6 +111,8 @@ function PeoplePageContent() {
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [notice, setNotice] = React.useState<string | null>(null);
+  const [inviteLink, setInviteLink] = React.useState<string | null>(null);
+  const [copied, setCopied] = React.useState(false);
   const memberCount = members?.length ?? 0;
   const verifiedCount = members?.filter((m) => m.emailVerified).length ?? 0;
   const inviteCount = invites?.length ?? 0;
@@ -143,13 +145,18 @@ function PeoplePageContent() {
     setBusy(true);
     setError(null);
     setNotice(null);
+    setInviteLink(null);
+    setCopied(false);
     try {
-      const res = await api<{ message?: string }>("invites", {
+      const res = await api<{ message?: string; emailSent?: boolean; inviteLink?: string }>("invites", {
         method: "POST",
         tenantId,
         body: { email, ...(name.trim() ? { name: name.trim() } : {}), role },
       });
       setNotice(res?.message ?? "Invitation sent");
+      if (res?.inviteLink && !res.emailSent) {
+        setInviteLink(res.inviteLink);
+      }
       setEmail("");
       setName("");
       loadInvites();
@@ -157,6 +164,17 @@ function PeoplePageContent() {
       setError(err instanceof ApiError ? err.message : "Could not send invitation");
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function copyInviteLink() {
+    if (!inviteLink) return;
+    try {
+      await navigator.clipboard.writeText(inviteLink);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setError("Could not copy link — select and copy it manually");
     }
   }
 
@@ -320,6 +338,21 @@ function PeoplePageContent() {
           </form>
           {error ? <div className="text-sm text-danger">{error}</div> : null}
           {notice ? <div className="text-sm text-success">{notice}</div> : null}
+          {inviteLink ? (
+            <div className="grid gap-2 rounded-[12px] border border-border bg-charcoal-soft p-4">
+              <div className="text-sm font-medium">Share this invite link</div>
+              <p className="text-sm text-muted">
+                Email isn&apos;t configured yet — send this link to your invitee directly (WhatsApp,
+                SMS, etc.). It expires in 7 days.
+              </p>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Input readOnly value={inviteLink} className="font-mono text-xs" />
+                <Button type="button" variant="secondary" onClick={copyInviteLink}>
+                  {copied ? "Copied" : "Copy link"}
+                </Button>
+              </div>
+            </div>
+          ) : null}
         </section>
       ) : null}
 

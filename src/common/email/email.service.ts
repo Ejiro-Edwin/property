@@ -38,10 +38,10 @@ export class EmailService {
     });
   }
 
-  async sendMail(params: EmailSendParams) {
+  async sendMail(params: EmailSendParams): Promise<{ sent: boolean }> {
     if (!this.isEnabled()) {
       this.logger.log(`[EMAIL_DISABLED] to=${params.to} subject=${params.subject} text=${params.text}`);
-      return { queued: false, sent: false };
+      return { sent: false };
     }
 
     const transport = this.getTransport();
@@ -49,7 +49,7 @@ export class EmailService {
       this.logger.warn(
         `[EMAIL_ENABLED_NO_SMTP] to=${params.to} subject=${params.subject} (set SMTP_HOST/SMTP_PORT)`,
       );
-      return { queued: false, sent: false };
+      return { sent: false };
     }
 
     await transport.sendMail({
@@ -60,7 +60,7 @@ export class EmailService {
       html: params.html,
     });
 
-    return { queued: false, sent: true };
+    return { sent: true };
   }
 
   async sendPasswordResetEmail(params: { to: string; resetLink: string; tenantId?: string }) {

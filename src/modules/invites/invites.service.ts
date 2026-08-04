@@ -89,14 +89,14 @@ export class InvitesService {
 
     let emailSent = false;
     try {
-      await this.email.sendInvitationEmail({
+      const result = await this.email.sendInvitationEmail({
         to: dto.email,
         inviteLink,
         workspaceName: tenant?.name ?? dto.tenantId,
         role: dto.role,
         inviterName: inviterUser?.name,
       });
-      emailSent = true;
+      emailSent = result.sent;
     } catch (err) {
       this.logger.error(`Invite email failed for ${dto.email}`, err);
     }
@@ -107,9 +107,9 @@ export class InvitesService {
 
     const baseMessage = pending ? 'Invitation refreshed' : 'Invitation created';
     return {
-      message: emailSent
-        ? `${baseMessage} and email sent`
-        : `${baseMessage}. Email could not be sent — share this link: ${inviteLink}`,
+      message: emailSent ? `${baseMessage} and email sent` : baseMessage,
+      emailSent,
+      inviteLink,
       invitation: this.sanitize(invitation),
     };
   }

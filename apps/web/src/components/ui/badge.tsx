@@ -4,11 +4,11 @@ import { cn } from "@/lib/cn";
 type BadgeTone = "neutral" | "brand" | "success" | "warning" | "danger" | "sand";
 
 const tones: Record<BadgeTone, string> = {
-  neutral: "bg-black/6 text-foreground",
+  neutral: "bg-charcoal-soft text-foreground",
   brand: "bg-brand-soft text-brand-ink",
-  success: "bg-success/12 text-success",
-  warning: "bg-warning/12 text-warning",
-  danger: "bg-danger/12 text-danger",
+  success: "bg-success-soft text-success",
+  warning: "bg-warning-soft text-warning",
+  danger: "bg-danger-soft text-danger",
   sand: "bg-sand text-sand-ink",
 };
 

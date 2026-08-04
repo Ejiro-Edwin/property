@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import {
   CreatePaymentScheduleDto,
@@ -19,8 +19,11 @@ export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
   @Post('initiate')
-  initiatePayment(@Body() dto: InitiatePaymentDto) {
-    return this.paymentsService.initiatePayment(dto);
+  initiatePayment(@Body() dto: InitiatePaymentDto, @Request() req: any) {
+    return this.paymentsService.initiatePayment(dto, {
+      id: req.user.id,
+      role: req.user.role,
+    });
   }
 
   @Roles('LANDLORD', 'ADMIN')
@@ -29,14 +32,22 @@ export class PaymentsController {
     return this.paymentsService.verifyPayment(dto);
   }
 
+  @Roles('LANDLORD', 'LETTING_AGENT', 'ADMIN')
   @Post('schedules')
   createPaymentSchedule(@Body() dto: CreatePaymentScheduleDto) {
     return this.paymentsService.createPaymentSchedule(dto);
   }
 
   @Get('schedules')
-  getPaymentSchedules(@Query('tenantId') tenantId: string, @Query('tenancyId') tenancyId?: string) {
-    return this.paymentsService.getPaymentSchedules(tenantId, tenancyId);
+  getPaymentSchedules(
+    @Query('tenantId') tenantId: string,
+    @Query('tenancyId') tenancyId: string | undefined,
+    @Request() req: any,
+  ) {
+    return this.paymentsService.getPaymentSchedules(tenantId, tenancyId, {
+      id: req.user.id,
+      role: req.user.role,
+    });
   }
 
   @Roles('LANDLORD', 'ADMIN')
@@ -46,7 +57,15 @@ export class PaymentsController {
   }
 
   @Get('history')
-  getPaymentHistory(@Query('tenantId') tenantId: string, @Query('tenancyId') tenancyId?: string, @Query() pagination?: any) {
-    return this.paymentsService.getPaymentHistory(tenantId, tenancyId, pagination);
+  getPaymentHistory(
+    @Query('tenantId') tenantId: string,
+    @Query('tenancyId') tenancyId: string | undefined,
+    @Query() pagination: any,
+    @Request() req: any,
+  ) {
+    return this.paymentsService.getPaymentHistory(tenantId, tenancyId, pagination, {
+      id: req.user.id,
+      role: req.user.role,
+    });
   }
 }

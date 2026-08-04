@@ -3,6 +3,7 @@ import { CreatePropertyDto, UpdatePropertyDto } from '../../common/tenantsea-dto
 import { PrismaService } from '../../common/prisma.service';
 import { CacheService } from '../../common/cache.service';
 import { buildSafeOrderBy } from '../../common/utils/sort.util';
+import { ActorContext, isTenantRole } from '../../common/utils/role.util';
 
 @Injectable()
 export class PropertiesService {
@@ -88,12 +89,20 @@ export class PropertiesService {
     return { message: 'Property deleted' };
   }
 
-  async listProperties(tenantId: string, pagination?: any): Promise<any> {
+  async listProperties(tenantId: string, pagination?: any, actor?: ActorContext): Promise<any> {
     const page = pagination?.page ?? 1;
     const limit = pagination?.limit ?? 20;
     const skip = (page - 1) * limit;
 
     const where: any = { tenantId };
+    if (actor && isTenantRole(actor.role)) {
+      const tenancies = await this.prisma.tenancy.findMany({
+        where: { tenantId, tenantUserId: actor.id },
+        select: { propertyId: true },
+      });
+      const propertyIds = [...new Set(tenancies.map((t) => t.propertyId))];
+      where.id = { in: propertyIds.length > 0 ? propertyIds : ['__none__'] };
+    }
     if (pagination?.search) {
       where.OR = [{ title: { contains: pagination.search, mode: 'insensitive' } }, { address: { contains: pagination.search, mode: 'insensitive' } }];
     }
@@ -104,7 +113,16 @@ export class PropertiesService {
       { createdAt: 'desc' },
     );
 
-    const cacheKey = this.cache.buildKey('properties', [tenantId, page, limit, pagination?.search, pagination?.sortBy, pagination?.order]);
+    const cacheKey = this.cache.buildKey('properties', [
+      tenantId,
+      actor?.id,
+      actor?.role,
+      page,
+      limit,
+      pagination?.search,
+      pagination?.sortBy,
+      pagination?.order,
+    ]);
     const cached = await this.cache.get<any>(cacheKey);
     if (cached) {
       return cached;

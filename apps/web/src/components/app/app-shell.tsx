@@ -52,7 +52,7 @@ export function AppShell({
       </Link>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <AppNav tenantId={tenantId} showAudit={canSeeAudit(user?.role)} />
+        <AppNav tenantId={tenantId} role={user?.role} showAudit={canSeeAudit(user?.role)} />
       </div>
 
       <UserMenu tenantId={tenantId} user={user} onNavigate={closeMobile} />

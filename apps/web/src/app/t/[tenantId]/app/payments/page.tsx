@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/format";
+import { isTenantRole } from "@/lib/roles";
 
 type Payment = {
   id: string;
@@ -58,6 +59,7 @@ export default function PaymentsPage() {
   const [properties, setProperties] = React.useState<Property[]>([]);
   const [members, setMembers] = React.useState<Member[]>([]);
   const [role, setRole] = React.useState<string | undefined>();
+  const [meId, setMeId] = React.useState<string>("");
   const [busy, setBusy] = React.useState<string | null>(null);
   const [notice, setNotice] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
@@ -116,20 +118,43 @@ export default function PaymentsPage() {
   }, [tenantId]);
 
   React.useEffect(() => {
-    api<{ user: { role?: string } }>("auth/me", { tenantId })
-      .then((r) => setRole(r.user?.role))
-      .catch(() => setRole(undefined));
+    api<{ user: { role?: string; id?: string } }>("auth/me", { tenantId })
+      .then((r) => {
+        setRole(r.user?.role);
+        setMeId(r.user?.id ?? "");
+      })
+      .catch(() => {
+        setRole(undefined);
+        setMeId("");
+      });
     api<{ tenancies: Tenancy[] }>("tenancies", { tenantId, query: { limit: 100 } })
       .then((r) => setTenancies(r.tenancies ?? []))
       .catch(() => setTenancies([]));
     api<{ properties: Property[] }>("properties", { tenantId, query: { limit: 100 } })
       .then((r) => setProperties(r.properties ?? []))
       .catch(() => setProperties([]));
+    loadAll();
+  }, [tenantId, loadAll]);
+
+  React.useEffect(() => {
+    if (!isTenantRole(role) || tenancies.length === 0 || !meId) return;
+    const mine = tenancies.find((t) => t.tenantUserId === meId) ?? tenancies[0];
+    if (!mine) return;
+    setInitiateForm((prev) => ({
+      ...prev,
+      tenancyId: mine.id,
+      payerId: meId,
+      amount: prev.amount || String(mine.rentAmount),
+      currency: mine.currency,
+    }));
+  }, [role, tenancies, meId]);
+
+  React.useEffect(() => {
+    if (isTenantRole(role)) return;
     api<{ users: Member[] }>("users", { tenantId, query: { limit: 100 } })
       .then((r) => setMembers(r.users ?? []))
       .catch(() => setMembers([]));
-    loadAll();
-  }, [tenantId, loadAll]);
+  }, [tenantId, role]);
 
   function onScheduleTenancyChange(tenancyId: string) {
     const t = tenancies.find((x) => x.id === tenancyId);
@@ -263,12 +288,17 @@ export default function PaymentsPage() {
   const pendingPayments =
     payments?.filter((p) => p.status.toLowerCase() === "pending") ?? [];
   const managePayments = canManagePayments(role);
+  const isTenant = isTenantRole(role);
 
   return (
     <div className="mx-auto grid w-full max-w-6xl gap-8 pb-8">
       <PageHeader
-        title="Payments"
-        description="Rent payments and recurring schedules across your portfolio."
+        title={isTenant ? "My payments" : "Payments"}
+        description={
+          isTenant
+            ? "Your rent payment history and record new payments for your tenancy."
+            : "Rent payments and recurring schedules across your portfolio."
+        }
         action={
           managePayments ? (
             <Button
@@ -291,7 +321,9 @@ export default function PaymentsPage() {
           <div className="mt-1 text-3xl font-semibold tracking-tight">
             {payments === null ? "…" : totalPayments}
           </div>
-          <div className="mt-1 text-xs text-muted">Recorded in this workspace</div>
+          <div className="mt-1 text-xs text-muted">
+            {isTenant ? "Linked to your tenancy" : "Recorded in this workspace"}
+          </div>
         </div>
         <div className="card p-5">
           <div className="text-xs font-medium uppercase tracking-wide text-muted">On time</div>
@@ -304,15 +336,17 @@ export default function PaymentsPage() {
               : "Nothing to compare yet"}
           </div>
         </div>
-        <div className="card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">
-            Active schedules
+        {!isTenant ? (
+          <div className="card p-5">
+            <div className="text-xs font-medium uppercase tracking-wide text-muted">
+              Active schedules
+            </div>
+            <div className="mt-1 text-3xl font-semibold tracking-tight">
+              {schedules === null ? "…" : activeSchedules}
+            </div>
+            <div className="mt-1 text-xs text-muted">Recurring rent plans</div>
           </div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight">
-            {schedules === null ? "…" : activeSchedules}
-          </div>
-          <div className="mt-1 text-xs text-muted">Recurring rent plans</div>
-        </div>
+        ) : null}
         <div className="card p-5">
           <div className="text-xs font-medium uppercase tracking-wide text-muted">
             Late / missed
@@ -325,6 +359,39 @@ export default function PaymentsPage() {
       </div>
 
       {tenancies.length > 0 ? (
+        isTenant ? (
+          <section className="card grid gap-3 p-5">
+            <h2 className="text-sm font-semibold tracking-tight">Record a payment</h2>
+            <p className="text-sm text-muted">
+              Submit a rent payment for your tenancy. Your landlord may verify it before it
+              counts toward your trust score.
+            </p>
+            <form className="grid gap-3 sm:max-w-md" onSubmit={initiatePayment}>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Input
+                  type="number"
+                  min="0"
+                  value={initiateForm.amount}
+                  onChange={(e) =>
+                    setInitiateForm((p) => ({ ...p, amount: e.target.value }))
+                  }
+                  placeholder="Amount"
+                  required
+                />
+                <Input
+                  type="date"
+                  value={initiateForm.dueDate}
+                  onChange={(e) =>
+                    setInitiateForm((p) => ({ ...p, dueDate: e.target.value }))
+                  }
+                />
+              </div>
+              <Button type="submit" disabled={busy === "initiate" || !initiateForm.tenancyId}>
+                {busy === "initiate" ? "Recording…" : "Record payment"}
+              </Button>
+            </form>
+          </section>
+        ) : (
         <div className="grid gap-4 lg:grid-cols-2">
           <section className="card grid gap-3 p-5">
             <h2 className="text-sm font-semibold tracking-tight">Create schedule</h2>
@@ -417,9 +484,12 @@ export default function PaymentsPage() {
             </form>
           </section>
         </div>
+        )
       ) : (
         <div className="card p-5 text-sm text-muted">
-          Create a tenancy first — then you can set up schedules and record payments.
+          {isTenant
+            ? "You don't have a tenancy yet — your landlord will assign one before you can record payments."
+            : "Create a tenancy first — then you can set up schedules and record payments."}
         </div>
       )}
 
@@ -479,7 +549,9 @@ export default function PaymentsPage() {
               <thead>
                 <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">
                   <th className="px-4 py-3 font-medium">Amount</th>
-                  <th className="px-4 py-3 font-medium">Tenancy</th>
+                  {!isTenant ? (
+                    <th className="px-4 py-3 font-medium">Tenancy</th>
+                  ) : null}
                   <th className="px-4 py-3 font-medium">Due date</th>
                   <th className="px-4 py-3 font-medium">Recorded</th>
                   <th className="px-4 py-3 font-medium">Status</th>
@@ -491,7 +563,9 @@ export default function PaymentsPage() {
                     <td className="px-4 py-3 font-medium">
                       {formatMoney(p.amount, p.currency)}
                     </td>
-                    <td className="px-4 py-3">{tenancyLabel(p.tenancyId)}</td>
+                    {!isTenant ? (
+                      <td className="px-4 py-3">{tenancyLabel(p.tenancyId)}</td>
+                    ) : null}
                     <td className="px-4 py-3 text-muted">{formatDate(p.dueDate)}</td>
                     <td className="px-4 py-3 text-muted">{formatDateTime(p.createdAt)}</td>
                     <td className="px-4 py-3">
@@ -505,6 +579,7 @@ export default function PaymentsPage() {
         )}
       </section>
 
+      {!isTenant ? (
       <section className="grid gap-3">
         <h2 className="text-sm font-semibold tracking-tight">Recurring schedules</h2>
         {schedules === null ? (
@@ -535,6 +610,28 @@ export default function PaymentsPage() {
           </div>
         )}
       </section>
+      ) : schedules && schedules.length > 0 ? (
+        <section className="grid gap-3">
+          <h2 className="text-sm font-semibold tracking-tight">Your rent schedule</h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {schedules.map((s) => (
+              <div key={s.id} className="card-flat p-4">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-semibold">
+                    {formatMoney(s.amount, s.currency)}
+                  </div>
+                  <Badge tone={s.status === "ACTIVE" ? "success" : "neutral"}>
+                    {s.status.toLowerCase()}
+                  </Badge>
+                </div>
+                <div className="mt-1 text-xs capitalize text-muted">
+                  {s.frequency.toLowerCase()} · next due {formatDate(s.nextDueDate)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreatePropertyDto, UpdatePropertyDto } from '../../common/tenantsea-dtos';
 import { PropertiesService } from './properties.service';
@@ -22,8 +22,11 @@ export class PropertiesController {
   }
 
   @Get()
-  listProperties(@Query('tenantId') tenantId: string, @Query() pagination: PaginationDto) {
-    return this.propertiesService.listProperties(tenantId, pagination);
+  listProperties(@Query('tenantId') tenantId: string, @Query() pagination: PaginationDto, @Request() req: any) {
+    return this.propertiesService.listProperties(tenantId, pagination, {
+      id: req.user.id,
+      role: req.user.role,
+    });
   }
 
   @Roles('LANDLORD', 'LETTING_AGENT', 'ADMIN')

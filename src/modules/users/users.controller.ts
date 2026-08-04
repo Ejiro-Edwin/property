@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto, UpdateUserDto } from '../../common/tenantsea-dtos';
 import { UsersService } from './users.service';
@@ -7,6 +7,7 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { TenantGuard } from '../../common/guards/tenant.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { PaginationDto } from '../../common/pagination.dto';
+import { isPrivilegedRole, isTenantRole } from '../../common/utils/role.util';
 
 @ApiTags('Users')
 @ApiBearerAuth('access-token')
@@ -22,7 +23,10 @@ export class UsersController {
   }
 
   @Get()
-  listUsers(@Query('tenantId') tenantId: string, @Query() pagination: PaginationDto) {
+  listUsers(@Query('tenantId') tenantId: string, @Query() pagination: PaginationDto, @Request() req: any) {
+    if (isTenantRole(req?.user?.role)) {
+      throw new ForbiddenException('Insufficient permissions to list workspace members');
+    }
     return this.usersService.listUsers(tenantId, pagination);
   }
 
@@ -31,9 +35,20 @@ export class UsersController {
     return this.usersService.getUser(tenantId, id);
   }
 
-  @Roles('ADMIN', 'LANDLORD', 'LETTING_AGENT')
   @Patch(':id')
-  updateUser(@Param('id') id: string, @Body() dto: UpdateUserDto) {
+  updateUser(@Param('id') id: string, @Body() dto: UpdateUserDto, @Request() req: any) {
+    const isSelf = req?.user?.id === id;
+    const privileged = isPrivilegedRole(req?.user?.role);
+    if (!isSelf && !privileged) {
+      throw new ForbiddenException('Insufficient permissions to update this user');
+    }
+    if (isSelf && !privileged) {
+      return this.usersService.updateUser(id, {
+        ...dto,
+        email: undefined,
+        role: undefined,
+      });
+    }
     return this.usersService.updateUser(id, dto);
   }
 

@@ -9,6 +9,7 @@ import { Badge, tenancyStatusTone } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { formatMoney } from "@/lib/format";
+import { RequirePrivileged } from "@/components/app/require-privileged";
 
 type TrustProfile = {
   tenantUserId: string;
@@ -37,6 +38,14 @@ function scoreTone(score: number) {
 }
 
 export default function TrustPage() {
+  return (
+    <RequirePrivileged redirectTo="app/my-trust">
+      <TrustPageContent />
+    </RequirePrivileged>
+  );
+}
+
+function TrustPageContent() {
   const params = useParams<{ tenantId: string }>();
   const tenantId = params.tenantId;
 

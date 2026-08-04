@@ -1,5 +1,12 @@
-import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { $Enums } from '@prisma/client';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import { $Enums, Prisma } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
 import { AcceptInviteDto, CreateInviteDto } from '../../common/tenantsea-dtos';
@@ -36,26 +43,37 @@ export class InvitesService {
     const expiresAt = new Date(Date.now() + INVITE_TTL_MS);
 
     // Re-inviting the same email refreshes the pending invitation.
-    const pending = await this.prisma.invitation.findFirst({
-      where: { tenantId: dto.tenantId, email: dto.email, status: $Enums.InviteStatus.PENDING },
-    });
+    let pending;
+    try {
+      pending = await this.prisma.invitation.findFirst({
+        where: { tenantId: dto.tenantId, email: dto.email, status: $Enums.InviteStatus.PENDING },
+      });
+    } catch (err) {
+      this.rethrowInvitationDbError(err);
+    }
 
-    const invitation = pending
-      ? await this.prisma.invitation.update({
-          where: { id: pending.id },
-          data: { token, expiresAt, role, name: dto.name ?? pending.name, invitedById: inviter.id },
-        })
-      : await this.prisma.invitation.create({
-          data: {
-            tenantId: dto.tenantId,
-            email: dto.email,
-            name: dto.name,
-            role,
-            token,
-            expiresAt,
-            invitedById: inviter.id,
-          },
-        });
+    let invitation;
+    try {
+      invitation = pending
+        ? await this.prisma.invitation.update({
+            where: { id: pending.id },
+            data: { token, expiresAt, role, name: dto.name ?? pending.name, invitedById: inviter.id },
+          })
+        : await this.prisma.invitation.create({
+            data: {
+              tenantId: dto.tenantId,
+              email: dto.email,
+              name: dto.name,
+              role,
+              token,
+              expiresAt,
+              invitedById: inviter.id,
+            },
+          });
+    } catch (err) {
+      this.logger.error(`Failed to create invitation for ${dto.email}`, err);
+      this.rethrowInvitationDbError(err);
+    }
 
     const tenant = await this.prisma.tenant.findUnique({ where: { id: dto.tenantId } });
     const inviterUser = await this.prisma.user.findUnique({
@@ -69,20 +87,29 @@ export class InvitesService {
       ? `${base}/t/${encodeURIComponent(dto.tenantId)}/accept-invite?token=${token}`
       : `token:${token}`;
 
-    await this.email.sendInvitationEmail({
-      to: dto.email,
-      inviteLink,
-      workspaceName: tenant?.name ?? dto.tenantId,
-      role: dto.role,
-      inviterName: inviterUser?.name,
-    });
+    let emailSent = false;
+    try {
+      await this.email.sendInvitationEmail({
+        to: dto.email,
+        inviteLink,
+        workspaceName: tenant?.name ?? dto.tenantId,
+        role: dto.role,
+        inviterName: inviterUser?.name,
+      });
+      emailSent = true;
+    } catch (err) {
+      this.logger.error(`Invite email failed for ${dto.email}`, err);
+    }
 
     if (process.env.NODE_ENV !== 'production') {
       this.logger.warn(`Invite issued for ${dto.email} (${dto.tenantId}): ${token}`);
     }
 
+    const baseMessage = pending ? 'Invitation refreshed' : 'Invitation created';
     return {
-      message: pending ? 'Invitation refreshed and re-sent' : 'Invitation sent',
+      message: emailSent
+        ? `${baseMessage} and email sent`
+        : `${baseMessage}. Email could not be sent — share this link: ${inviteLink}`,
       invitation: this.sanitize(invitation),
     };
   }
@@ -179,6 +206,23 @@ export class InvitesService {
       throw new BadRequestException('This invitation is invalid, expired or has been revoked');
     }
     return invitation;
+  }
+
+  private rethrowInvitationDbError(err: unknown): never {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2021') {
+      throw new InternalServerErrorException(
+        'Invitations are not set up in the database yet. Run: npx prisma migrate deploy',
+      );
+    }
+
+    const message = err instanceof Error ? err.message : String(err);
+    if (/invitation/i.test(message) && /does not exist|undefined_table|relation .* does not exist/i.test(message)) {
+      throw new InternalServerErrorException(
+        'Invitations are not set up in the database yet. Run: npx prisma migrate deploy',
+      );
+    }
+
+    throw err;
   }
 
   private sanitize(invitation: any) {

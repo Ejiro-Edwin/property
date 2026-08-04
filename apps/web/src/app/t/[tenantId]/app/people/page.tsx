@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/cn";
+import { RequirePrivileged } from "@/components/app/require-privileged";
 
 type Member = {
   id: string;
@@ -74,6 +75,14 @@ function roleTone(role: string) {
 }
 
 export default function PeoplePage() {
+  return (
+    <RequirePrivileged>
+      <PeoplePageContent />
+    </RequirePrivileged>
+  );
+}
+
+function PeoplePageContent() {
   const params = useParams<{ tenantId: string }>();
   const tenantId = params.tenantId;
 

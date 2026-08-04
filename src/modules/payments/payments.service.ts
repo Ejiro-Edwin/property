@@ -9,6 +9,7 @@ import {
 import { PrismaService } from '../../common/prisma.service';
 import { CacheService } from '../../common/cache.service';
 import { buildSafeOrderBy } from '../../common/utils/sort.util';
+import { ActorContext, isTenantRole } from '../../common/utils/role.util';
 import { RealtimeGateway } from '../../common/gateway/realtime.gateway';
 
 @Injectable()
@@ -19,7 +20,7 @@ export class PaymentsService {
     private readonly realtime: RealtimeGateway,
   ) {}
 
-  async initiatePayment(dto: InitiatePaymentDto): Promise<any> {
+  async initiatePayment(dto: InitiatePaymentDto, actor?: ActorContext): Promise<any> {
     const tenancy = await this.prisma.tenancy.findFirst({ where: { id: dto.tenancyId, tenantId: dto.tenantId } });
     if (!tenancy) {
       throw new BadRequestException('Referenced tenancy does not exist in this tenant');
@@ -28,6 +29,12 @@ export class PaymentsService {
     const payer = await this.prisma.user.findFirst({ where: { id: dto.payerId, tenantId: dto.tenantId } });
     if (!payer) {
       throw new BadRequestException('Referenced payer user does not exist in this tenant');
+    }
+
+    if (actor && isTenantRole(actor.role)) {
+      if (dto.payerId !== actor.id || tenancy.tenantUserId !== actor.id) {
+        throw new BadRequestException('You can only record payments for your own tenancy');
+      }
     }
 
     const payment = await this.prisma.payment.create({
@@ -73,12 +80,20 @@ export class PaymentsService {
     return { message: 'Payment status updated', payment: this.normalizePayment(payment) };
   }
 
-  async getPaymentHistory(tenantId: string, tenancyId?: string, pagination?: any): Promise<any> {
+  async getPaymentHistory(
+    tenantId: string,
+    tenancyId?: string,
+    pagination?: any,
+    actor?: ActorContext,
+  ): Promise<any> {
     const page = pagination?.page ?? 1;
     const limit = pagination?.limit ?? 20;
     const skip = (page - 1) * limit;
 
     const where: any = { tenantId, ...(tenancyId ? { tenancyId } : {}) };
+    if (actor && isTenantRole(actor.role)) {
+      where.payerId = actor.id;
+    }
     if (pagination?.search) {
       where.OR = [{ reference: { contains: pagination.search, mode: 'insensitive' } }];
     }
@@ -89,7 +104,17 @@ export class PaymentsService {
       { createdAt: 'desc' },
     );
 
-    const cacheKey = this.cache.buildKey('payments', [tenantId, tenancyId, page, limit, pagination?.search, pagination?.sortBy, pagination?.order]);
+    const cacheKey = this.cache.buildKey('payments', [
+      tenantId,
+      tenancyId,
+      actor?.id,
+      actor?.role,
+      page,
+      limit,
+      pagination?.search,
+      pagination?.sortBy,
+      pagination?.order,
+    ]);
     const cached = await this.cache.get<any>(cacheKey);
     if (cached) {
       return cached;
@@ -136,13 +161,26 @@ export class PaymentsService {
     return { message: 'Payment schedule created', schedule: this.normalizeSchedule(schedule) };
   }
 
-  async getPaymentSchedules(tenantId: string, tenancyId?: string): Promise<any> {
-    const schedules = await this.prisma.paymentSchedule.findMany({
-      where: {
-        tenantId,
-        ...(tenancyId ? { tenancyId } : {}),
-      },
-    });
+  async getPaymentSchedules(tenantId: string, tenancyId?: string, actor?: ActorContext): Promise<any> {
+    const where: any = {
+      tenantId,
+      ...(tenancyId ? { tenancyId } : {}),
+    };
+
+    if (actor && isTenantRole(actor.role)) {
+      const tenancies = await this.prisma.tenancy.findMany({
+        where: { tenantId, tenantUserId: actor.id },
+        select: { id: true },
+      });
+      const tenancyIds = tenancies.map((t) => t.id);
+      where.tenancyId = tenancyId
+        ? tenancyIds.includes(tenancyId)
+          ? tenancyId
+          : '__none__'
+        : { in: tenancyIds.length > 0 ? tenancyIds : ['__none__'] };
+    }
+
+    const schedules = await this.prisma.paymentSchedule.findMany({ where });
 
     return {
       tenantId,

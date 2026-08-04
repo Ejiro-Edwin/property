@@ -4,6 +4,8 @@ import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { api } from "@/lib/api";
+import { TenantHome } from "@/components/app/tenant-home";
+import { isTenantRole } from "@/lib/roles";
 import { Badge, paymentStatusTone } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -79,6 +81,7 @@ export default function OverviewPage() {
   const params = useParams<{ tenantId: string }>();
   const tenantId = params.tenantId;
 
+  const [role, setRole] = React.useState<string | null>(null);
   const [dashboard, setDashboard] = React.useState<Dashboard | null>(null);
   const [properties, setProperties] = React.useState<Property[] | null>(null);
   const [payments, setPayments] = React.useState<Payment[] | null>(null);
@@ -92,8 +95,14 @@ export default function OverviewPage() {
   const notificationCount = notifications?.length ?? 0;
 
   React.useEffect(() => {
+    api<{ user: { role?: string } }>("auth/me", { tenantId })
+      .then((r) => setRole(r.user?.role ?? null))
+      .catch(() => setRole(null));
+  }, [tenantId]);
+
+  React.useEffect(() => {
+    if (role === null || isTenantRole(role)) return;
     // Each section loads independently and degrades gracefully
-    // (e.g. tenant-role users can't access the landlord dashboard).
     api<Dashboard>("trust/dashboard", { tenantId })
       .then(setDashboard)
       .catch(() => setDashboard(null));
@@ -109,7 +118,15 @@ export default function OverviewPage() {
     api<{ notifications: Notification[] }>("notifications", { tenantId, query: { limit: 5 } })
       .then((r) => setNotifications(r.notifications ?? []))
       .catch(() => setNotifications([]));
-  }, [tenantId]);
+  }, [tenantId, role]);
+
+  if (role === null) {
+    return <Skeleton className="mx-auto h-[320px] max-w-6xl" />;
+  }
+
+  if (isTenantRole(role)) {
+    return <TenantHome />;
+  }
 
   return (
     <div className="mx-auto grid w-full max-w-6xl gap-8 pb-8">

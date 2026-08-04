@@ -1,8 +1,10 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
+import { isTenantRole } from "@/lib/roles";
 import {
   IconBell,
   IconBuilding,
@@ -15,37 +17,60 @@ import {
   IconUsers,
 } from "@/components/ui/icons";
 
-const items = [
-  { href: "app", label: "Overview", icon: IconHome, exact: true },
-  { href: "app/properties", label: "Properties", icon: IconBuilding },
-  { href: "app/tenancies", label: "Tenancies", icon: IconKey },
-  { href: "app/people", label: "People", icon: IconUsers },
-  { href: "app/payments", label: "Payments", icon: IconCard },
-  { href: "app/trust", label: "Trust", icon: IconShield },
-  { href: "app/notifications", label: "Notifications", icon: IconBell },
-  { href: "app/profile", label: "Profile", icon: IconUser },
-  { href: "app/audit", label: "Audit", icon: IconScroll, adminOnly: true },
+const iconByHref: Record<string, React.ComponentType<{ width?: number; height?: number }>> = {
+  app: IconHome,
+  "app/properties": IconBuilding,
+  "app/tenancies": IconKey,
+  "app/my-tenancy": IconKey,
+  "app/people": IconUsers,
+  "app/payments": IconCard,
+  "app/trust": IconShield,
+  "app/my-trust": IconShield,
+  "app/notifications": IconBell,
+  "app/profile": IconUser,
+  "app/audit": IconScroll,
+};
+
+const landlordItems = [
+  { href: "app", label: "Overview", exact: true },
+  { href: "app/properties", label: "Properties" },
+  { href: "app/tenancies", label: "Tenancies" },
+  { href: "app/people", label: "People" },
+  { href: "app/payments", label: "Payments" },
+  { href: "app/trust", label: "Trust" },
+  { href: "app/notifications", label: "Notifications" },
+  { href: "app/profile", label: "Profile" },
+  { href: "app/audit", label: "Audit", adminOnly: true },
+];
+
+const tenantItems = [
+  { href: "app", label: "Home", exact: true },
+  { href: "app/my-tenancy", label: "My tenancy" },
+  { href: "app/payments", label: "My payments" },
+  { href: "app/my-trust", label: "Trust score" },
+  { href: "app/notifications", label: "Notifications" },
+  { href: "app/profile", label: "Profile" },
 ];
 
 export function AppNav({
   tenantId,
+  role,
   showAudit = false,
 }: {
   tenantId: string;
+  role?: string;
   showAudit?: boolean;
 }) {
   const pathname = usePathname();
-
-  const visible = items.filter((item) => !item.adminOnly || showAudit);
+  const items = isTenantRole(role) ? tenantItems : landlordItems;
+  const visible = items.filter((item) => !("adminOnly" in item) || !item.adminOnly || showAudit);
 
   return (
     <nav className="grid gap-1">
       {visible.map((item) => {
         const href = `/t/${tenantId}/${item.href}`;
-        const active = item.exact
-          ? pathname === href
-          : pathname.startsWith(href);
-        const Icon = item.icon;
+        const active = item.exact ? pathname === href : pathname.startsWith(href);
+        const Icon = iconByHref[item.href] ?? IconHome;
         return (
           <Link
             key={item.href}

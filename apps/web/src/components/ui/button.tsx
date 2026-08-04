@@ -11,18 +11,18 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-brand text-white hover:bg-brand/90 active:bg-brand/85 shadow-sm",
+    "bg-brand text-white hover:bg-brand-hover active:bg-brand-hover shadow-sm",
   secondary:
-    "bg-black/5 text-foreground hover:bg-black/7 active:bg-black/10",
-  ghost:
-    "bg-transparent hover:bg-black/5 active:bg-black/8",
-  danger: "bg-danger text-white hover:bg-danger/90 active:bg-danger/85",
+    "border border-border bg-background text-foreground hover:bg-charcoal-soft active:bg-black/[0.06]",
+  ghost: "bg-transparent text-foreground hover:bg-charcoal-soft active:bg-black/[0.06]",
+  danger:
+    "bg-danger text-white hover:bg-danger/90 active:bg-danger/85 shadow-sm",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: "h-9 px-3 text-sm",
-  md: "h-10 px-4 text-sm",
-  lg: "h-11 px-5 text-base",
+  sm: "h-9 px-3.5 text-sm rounded-[10px]",
+  md: "h-10 px-4 text-sm rounded-[10px]",
+  lg: "h-11 px-5 text-base rounded-[12px]",
 };
 
 export function Button({
@@ -35,9 +35,9 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-[12px] font-medium transition outline-none",
-        "focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-        "disabled:opacity-60 disabled:pointer-events-none",
+        "inline-flex items-center justify-center gap-2 font-medium transition outline-none",
+        "focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        "disabled:opacity-50 disabled:pointer-events-none",
         variantClasses[variant],
         sizeClasses[size],
         className,
@@ -47,4 +47,3 @@ export function Button({
     />
   );
 }
-

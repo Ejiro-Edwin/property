@@ -4,6 +4,7 @@ import { CreateTenancyDto, TenancyStatus, UpdateTenancyDto } from '../../common/
 import { PrismaService } from '../../common/prisma.service';
 import { CacheService } from '../../common/cache.service';
 import { buildSafeOrderBy } from '../../common/utils/sort.util';
+import { ActorContext, isTenantRole } from '../../common/utils/role.util';
 
 @Injectable()
 export class TenanciesService {
@@ -110,12 +111,15 @@ export class TenanciesService {
     return { message: 'Tenancy deleted' };
   }
 
-  async listTenancies(tenantId: string, pagination?: any): Promise<any> {
+  async listTenancies(tenantId: string, pagination?: any, actor?: ActorContext): Promise<any> {
     const page = pagination?.page ?? 1;
     const limit = pagination?.limit ?? 20;
     const skip = (page - 1) * limit;
 
     const where: any = { tenantId };
+    if (actor && isTenantRole(actor.role)) {
+      where.tenantUserId = actor.id;
+    }
     if (pagination?.search) {
       const raw = String(pagination.search).trim().toLowerCase();
       const statusMap: Record<string, PrismaTenancyStatus> = {
@@ -142,7 +146,16 @@ export class TenanciesService {
       { createdAt: 'desc' },
     );
 
-    const cacheKey = this.cache.buildKey('tenancies', [tenantId, page, limit, pagination?.search, pagination?.sortBy, pagination?.order]);
+    const cacheKey = this.cache.buildKey('tenancies', [
+      tenantId,
+      actor?.id,
+      actor?.role,
+      page,
+      limit,
+      pagination?.search,
+      pagination?.sortBy,
+      pagination?.order,
+    ]);
     const cached = await this.cache.get<any>(cacheKey);
     if (cached) {
       return cached;

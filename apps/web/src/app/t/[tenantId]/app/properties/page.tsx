@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatMoney } from "@/lib/format";
+import { RequirePrivileged } from "@/components/app/require-privileged";
 
 type Property = {
   id: string;
@@ -30,6 +31,14 @@ type Member = {
 };
 
 export default function PropertiesPage() {
+  return (
+    <RequirePrivileged>
+      <PropertiesPageContent />
+    </RequirePrivileged>
+  );
+}
+
+function PropertiesPageContent() {
   const params = useParams<{ tenantId: string }>();
   const tenantId = params.tenantId;
 

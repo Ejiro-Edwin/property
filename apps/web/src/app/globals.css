@@ -1,53 +1,75 @@
 @import "tailwindcss";
 
+/*
+ * TenantSea design tokens — aligned with Figma library:
+ * https://www.figma.com/design/VOjiPOeNt9K9IuBkBAiKVv/TENANTSEA
+ */
 :root {
-  /* Property-primary palette: clean white + sea accent */
   --background: #ffffff;
   --surface: #ffffff;
-  --foreground: #1c1917;      /* warm near-black */
-  --muted: #78716c;           /* stone */
-  --border: rgba(28, 25, 23, 0.10);
+  --surface-muted: #fafafa;
+  --foreground: #1a1a1a;
+  --muted: #737373;
+  --border: rgba(26, 26, 26, 0.10);
 
-  /* Brand (TenantSea) */
-  --brand: #0e9ae0;           /* sea blue */
-  --brand-ink: #083952;       /* deep sea */
-  --brand-soft: #e3f3fc;      /* sea tint */
+  /* Brand — coral primary */
+  --brand: #e8624a;
+  --brand-hover: #d9553f;
+  --brand-ink: #7c2d12;
+  --brand-soft: #fef3f0;
 
-  /* Warm accents */
-  --sand: #f3ede4;
-  --sand-ink: #8a6d3b;
+  /* Neutrals */
+  --charcoal: #1a1a1a;
+  --charcoal-soft: #f5f5f5;
+  --sand: #f5f0eb;
+  --sand-ink: #78716c;
 
   /* Status */
   --danger: #dc2626;
+  --danger-soft: #fef2f2;
   --warning: #d97706;
+  --warning-soft: #fffbeb;
   --success: #16a34a;
+  --success-soft: #f0fdf4;
 
-  /* Radius + shadow identity */
-  --radius: 16px;
-  --shadow: 0 8px 28px rgba(28, 25, 23, 0.07);
+  /* Shape */
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --shadow: 0 1px 2px rgba(26, 26, 26, 0.06), 0 8px 24px rgba(26, 26, 26, 0.06);
+  --shadow-sm: 0 1px 2px rgba(26, 26, 26, 0.05);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-border: var(--border);
   --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
   --color-brand-ink: var(--brand-ink);
   --color-brand-soft: var(--brand-soft);
+  --color-charcoal: var(--charcoal);
+  --color-charcoal-soft: var(--charcoal-soft);
   --color-sand: var(--sand);
   --color-sand-ink: var(--sand-ink);
   --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
   --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
   --color-success: var(--success);
-  --radius-lg: var(--radius);
+  --color-success-soft: var(--success-soft);
+  --radius-sm: var(--radius-sm);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 html {
-  /* Always use the light, warm property-primary theme */
   color-scheme: light;
 }
 
@@ -57,28 +79,30 @@ body {
   min-height: 100dvh;
 }
 
-/* App polish */
-* { -webkit-tap-highlight-color: transparent; }
+* {
+  -webkit-tap-highlight-color: transparent;
+}
 
-a { color: inherit; }
+a {
+  color: inherit;
+}
 
 .card {
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
   background: var(--surface);
 }
 
 .card-flat {
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   background: var(--surface);
 }
 
-/* Abstract building illustration base (pure CSS, no stock images) */
 .property-art {
   background:
-    linear-gradient(180deg, transparent 0%, rgba(8, 57, 82, 0.06) 100%),
+    linear-gradient(180deg, transparent 0%, rgba(124, 45, 18, 0.05) 100%),
     linear-gradient(135deg, var(--brand-soft) 0%, var(--sand) 100%);
   position: relative;
   overflow: hidden;
@@ -90,11 +114,16 @@ a { color: inherit; }
   inset: auto 12% -6% 12%;
   height: 62%;
   background:
-    linear-gradient(90deg,
-      var(--brand-ink) 0 22%, transparent 22% 26%,
-      var(--brand) 26% 44%, transparent 44% 48%,
-      var(--sand-ink) 48% 70%, transparent 70% 74%,
-      var(--brand-ink) 74% 100%);
-  opacity: 0.18;
+    linear-gradient(
+      90deg,
+      var(--brand-ink) 0 22%,
+      transparent 22% 26%,
+      var(--brand) 26% 44%,
+      transparent 44% 48%,
+      var(--sand-ink) 48% 70%,
+      transparent 70% 74%,
+      var(--brand-ink) 74% 100%
+    );
+  opacity: 0.16;
   border-radius: 6px 6px 0 0;
 }

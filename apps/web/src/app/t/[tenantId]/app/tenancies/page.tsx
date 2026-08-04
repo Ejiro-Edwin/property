@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate, formatMoney } from "@/lib/format";
+import { RequirePrivileged } from "@/components/app/require-privileged";
 
 type Tenancy = {
   id: string;
@@ -27,6 +28,14 @@ type Property = { id: string; title: string; rentAmount: number; currency: strin
 type Member = { id: string; name: string; role: string };
 
 export default function TenanciesPage() {
+  return (
+    <RequirePrivileged redirectTo="app/my-tenancy">
+      <TenanciesPageContent />
+    </RequirePrivileged>
+  );
+}
+
+function TenanciesPageContent() {
   const params = useParams<{ tenantId: string }>();
   const tenantId = params.tenantId;
 

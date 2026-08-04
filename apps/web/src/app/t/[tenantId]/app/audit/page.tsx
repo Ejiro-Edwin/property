@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDateTime } from "@/lib/format";
+import { RequirePrivileged } from "@/components/app/require-privileged";
 
 type AuditLog = {
   id: string;
@@ -34,6 +35,14 @@ function methodTone(method: string) {
 }
 
 export default function AuditPage() {
+  return (
+    <RequirePrivileged>
+      <AuditPageContent />
+    </RequirePrivileged>
+  );
+}
+
+function AuditPageContent() {
   const params = useParams<{ tenantId: string }>();
   const tenantId = params.tenantId;
 

@@ -12,6 +12,7 @@ import { randomBytes } from 'crypto';
 import { AcceptInviteDto, CreateInviteDto } from '../../common/tenantsea-dtos';
 import { PrismaService } from '../../common/prisma.service';
 import { EmailService } from '../../common/email/email.service';
+import { RoleGrantsService } from '../../common/roles/role-grants.service';
 
 const INVITE_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 7 days
 
@@ -22,6 +23,7 @@ export class InvitesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly email: EmailService,
+    private readonly roleGrants: RoleGrantsService,
   ) {}
 
   async createInvite(dto: CreateInviteDto, inviter: { id: string; role: string; name?: string }) {
@@ -183,6 +185,8 @@ export class InvitesService {
       },
     });
 
+    await this.roleGrants.seedInitialGrant(user.id, invitation.role);
+
     await this.prisma.invitation.update({
       where: { id: invitation.id },
       data: { status: $Enums.InviteStatus.ACCEPTED, acceptedAt: new Date() },
@@ -192,7 +196,14 @@ export class InvitesService {
 
     return {
       message: 'Invitation accepted. You can now sign in.',
-      user: { id: user.id, email: user.email, role: user.role, tenantId: user.tenantId },
+      user: {
+        id: user.id,
+        email: user.email,
+        role: this.roleGrants.toApiRole(user.role),
+        activeRole: this.roleGrants.toApiRole(user.role),
+        tenantId: user.tenantId,
+        profiles: [this.roleGrants.toApiRole(user.role)],
+      },
     };
   }
 

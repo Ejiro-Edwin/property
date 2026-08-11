@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Mark } from "@/components/brand/mark";
 import { AppNav } from "@/components/app/nav";
+import { ProfileSwitcher } from "@/components/app/profile-switcher";
 import { UserMenu } from "@/components/app/user-menu";
 import { cn } from "@/lib/cn";
 import { api } from "@/lib/api";
@@ -17,6 +18,7 @@ type CurrentUser = {
   name: string;
   email: string;
   role?: string;
+  activeRole?: string;
 };
 
 export function AppShell({
@@ -28,14 +30,28 @@ export function AppShell({
 }) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [user, setUser] = React.useState<CurrentUser | null>(null);
+  const [profiles, setProfiles] = React.useState<string[]>([]);
 
-  React.useEffect(() => {
-    api<{ user: CurrentUser }>("auth/me", { tenantId })
-      .then((r) => setUser(r.user))
-      .catch(() => setUser(null));
+  const loadSession = React.useCallback(() => {
+    api<{ user: CurrentUser; profiles?: string[] }>("auth/me", { tenantId })
+      .then((r) => {
+        setUser(r.user);
+        setProfiles(
+          r.profiles ?? (r.user?.role ? [r.user.role] : []),
+        );
+      })
+      .catch(() => {
+        setUser(null);
+        setProfiles([]);
+      });
   }, [tenantId]);
 
+  React.useEffect(() => {
+    loadSession();
+  }, [loadSession]);
+
   const closeMobile = () => setMobileOpen(false);
+  const activeRole = user?.activeRole ?? user?.role;
 
   const sidebar = (
     <>
@@ -51,8 +67,15 @@ export function AppShell({
         </div>
       </Link>
 
+      <ProfileSwitcher
+        tenantId={tenantId}
+        activeRole={activeRole}
+        profiles={profiles}
+        onSwitched={() => loadSession()}
+      />
+
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <AppNav tenantId={tenantId} role={user?.role} showAudit={canSeeAudit(user?.role)} />
+        <AppNav tenantId={tenantId} role={activeRole} showAudit={canSeeAudit(activeRole)} />
       </div>
 
       <UserMenu tenantId={tenantId} user={user} onNavigate={closeMobile} />

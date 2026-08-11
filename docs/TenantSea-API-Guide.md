@@ -108,7 +108,9 @@ Response contains:
 
 ### GET `/auth/me` (JWT required)
 
-Returns your profile from the token (safe fields only).
+Returns your profile from the token (safe fields only), your **active operating profile**, and all **profiles** you may switch to.
+
+A single account can hold multiple operating profiles in one workspace — for example `landlord`, `letting_agent` (agent), and `tenant`. The active profile controls permissions and UI mode for the session.
 
 Example:
 
@@ -116,6 +118,43 @@ Example:
 curl -s http://localhost:3100/api/v1/auth/me \
   -H "Authorization: Bearer <accessToken>"
 ```
+
+Example response:
+
+```json
+{
+  "user": {
+    "id": "...",
+    "email": "jane@example.com",
+    "role": "landlord",
+    "activeRole": "landlord"
+  },
+  "profiles": ["landlord", "letting_agent", "tenant"]
+}
+```
+
+### POST `/auth/switch-profile` (JWT required)
+
+Switch the **active operating profile** for this session. Returns a new `accessToken` — replace your stored token (same as login).
+
+Body:
+
+```json
+{ "role": "tenant" }
+```
+
+Allowed values: `tenant`, `landlord`, `letting_agent`, `admin` (only if you have that profile grant).
+
+Example:
+
+```bash
+curl -s -X POST http://localhost:3100/api/v1/auth/switch-profile \
+  -H "Authorization: Bearer <accessToken>" \
+  -H "Content-Type: application/json" \
+  -d '{ "role": "letting_agent" }'
+```
+
+Profile grants are added when you register, accept an invite, or are linked on a property/tenancy (e.g. as landlord, agent, or renter).
 
 ### POST `/auth/forgot-password`
 

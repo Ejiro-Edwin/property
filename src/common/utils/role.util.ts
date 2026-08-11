@@ -1,3 +1,4 @@
+/** Active operating profile helpers — User.role is the current mode; grants hold all allowed modes. */
 export function isTenantRole(role?: string): boolean {
   return (role ?? '').toUpperCase() === 'TENANT';
 }

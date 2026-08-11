@@ -12,6 +12,7 @@ import {
 } from '../../common/tenantsea-dtos';
 import { PrismaService } from '../../common/prisma.service';
 import { EmailService } from '../../common/email/email.service';
+import { RoleGrantsService } from '../../common/roles/role-grants.service';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +22,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly email: EmailService,
+    private readonly roleGrants: RoleGrantsService,
   ) {}
 
   /**
@@ -70,6 +72,8 @@ export class AuthService {
       },
     });
 
+    await this.roleGrants.seedInitialGrant(user.id, $Enums.UserRole.LANDLORD);
+
     const frontendUrl = process.env.FRONTEND_URL;
     const base = frontendUrl ? frontendUrl.replace(/\/$/, '') : '';
     const verifyLink = frontendUrl
@@ -81,7 +85,7 @@ export class AuthService {
     return {
       message: 'Workspace created successfully',
       tenant,
-      user: { id: user.id, email: user.email, role: user.role, tenantId: user.tenantId },
+      user: this.formatAuthUser(user, [$Enums.UserRole.LANDLORD]),
     };
   }
 
@@ -111,10 +115,11 @@ export class AuthService {
       throw new UnauthorizedException('Invalid login credentials');
     }
 
+    const profiles = await this.roleGrants.syncProfileGrants(user.id, user.tenantId);
     const payload = { sub: user.id, tenantId: user.tenantId, email: user.email, role: user.role };
     return {
       accessToken: this.jwtService.sign(payload),
-      user,
+      user: this.formatAuthUser(user, profiles),
     };
   }
 
@@ -132,7 +137,46 @@ export class AuthService {
         updatedAt: true,
       },
     });
-    return { user };
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const profiles = await this.roleGrants.syncProfileGrants(userId, tenantId);
+    return {
+      user: {
+        ...user,
+        role: this.roleGrants.toApiRole(user.role),
+        activeRole: this.roleGrants.toApiRole(user.role),
+      },
+      profiles,
+    };
+  }
+
+  async switchProfile(userId: string, tenantId: string, targetRole: string) {
+    this.roleGrants.assertSwitchableRole(targetRole);
+    const { user, profiles } = await this.roleGrants.activateProfile(userId, tenantId, targetRole);
+    const prismaRole = this.roleGrants.toPrismaRole(targetRole);
+    const payload = { sub: user.id, tenantId: user.tenantId, email: user.email, role: prismaRole };
+    return {
+      accessToken: this.jwtService.sign(payload),
+      user,
+      profiles,
+      message: `Switched to ${this.roleGrants.profileLabel(targetRole)} profile`,
+    };
+  }
+
+  private formatAuthUser(
+    user: { id: string; email: string; tenantId: string; role: $Enums.UserRole | string },
+    profileRoles: Array<$Enums.UserRole | string>,
+  ) {
+    return {
+      id: user.id,
+      email: user.email,
+      tenantId: user.tenantId,
+      role: this.roleGrants.toApiRole(user.role),
+      activeRole: this.roleGrants.toApiRole(user.role),
+      profiles: profileRoles.map((p) => this.roleGrants.toApiRole(p)),
+    };
   }
 
   async forgotPassword(dto: ForgotPasswordDto): Promise<any> {

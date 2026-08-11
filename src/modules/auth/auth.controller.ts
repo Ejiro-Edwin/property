@@ -6,6 +6,7 @@ import {
   RegisterDto,
   ResendVerificationDto,
   ResetPasswordDto,
+  SwitchProfileDto,
   VerifyEmailDto,
 } from '../../common/tenantsea-dtos';
 import { AuthService } from './auth.service';
@@ -54,5 +55,13 @@ export class AuthController {
   @Get('me')
   getMe(@Request() req: any) {
     return this.authService.getMe(req.user.id, req.user.tenantId);
+  }
+
+  /** Activate a different operating profile (e.g. landlord ↔ tenant) for this session. */
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard)
+  @Post('switch-profile')
+  switchProfile(@Body() dto: SwitchProfileDto, @Request() req: any) {
+    return this.authService.switchProfile(req.user.id, req.user.tenantId, dto.role);
   }
 }

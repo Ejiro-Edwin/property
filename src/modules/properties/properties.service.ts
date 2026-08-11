@@ -1,13 +1,19 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { $Enums } from '@prisma/client';
 import { CreatePropertyDto, UpdatePropertyDto } from '../../common/tenantsea-dtos';
 import { PrismaService } from '../../common/prisma.service';
 import { CacheService } from '../../common/cache.service';
+import { RoleGrantsService } from '../../common/roles/role-grants.service';
 import { buildSafeOrderBy } from '../../common/utils/sort.util';
 import { ActorContext, isTenantRole } from '../../common/utils/role.util';
 
 @Injectable()
 export class PropertiesService {
-  constructor(private readonly prisma: PrismaService, private readonly cache: CacheService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cache: CacheService,
+    private readonly roleGrants: RoleGrantsService,
+  ) {}
 
   async createProperty(dto: CreatePropertyDto): Promise<any> {
     const landlord = await this.prisma.user.findFirst({ where: { id: dto.landlordId, tenantId: dto.tenantId } });
@@ -34,6 +40,11 @@ export class PropertiesService {
         currency: dto.currency ?? 'NGN',
       },
     });
+
+    await Promise.all([
+      this.roleGrants.ensureGrant(dto.landlordId, $Enums.UserRole.LANDLORD),
+      dto.agentId ? this.roleGrants.ensureGrant(dto.agentId, $Enums.UserRole.LETTING_AGENT) : Promise.resolve(),
+    ]);
 
     await this.cache.delByPattern(`properties:${dto.tenantId}:*`);
 
@@ -72,6 +83,15 @@ export class PropertiesService {
         currency: dto.currency ?? undefined,
       },
     });
+
+    await Promise.all([
+      dto.landlordId
+        ? this.roleGrants.ensureGrant(dto.landlordId, $Enums.UserRole.LANDLORD)
+        : Promise.resolve(),
+      dto.agentId !== undefined && dto.agentId !== null
+        ? this.roleGrants.ensureGrant(dto.agentId, $Enums.UserRole.LETTING_AGENT)
+        : Promise.resolve(),
+    ]);
 
     await this.cache.delByPattern(`properties:${dto.tenantId}:*`);
     return { message: 'Property updated', property };

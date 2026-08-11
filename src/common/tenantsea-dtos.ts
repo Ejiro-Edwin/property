@@ -164,6 +164,17 @@ export class LoginDto {
   tenantId?: string;
 }
 
+/** Switch the active operating profile (landlord mode vs tenant mode, etc.). */
+export class SwitchProfileDto {
+  @ApiProperty({
+    enum: UserRole,
+    example: UserRole.TENANT,
+    description: 'Operating profile to activate for this session',
+  })
+  @IsEnum(UserRole)
+  role: UserRole;
+}
+
 export class ForgotPasswordDto {
   @ApiProperty({ example: 'jane@example.com' })
   @IsEmail()

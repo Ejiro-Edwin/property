@@ -1,14 +1,19 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { TenancyStatus as PrismaTenancyStatus } from '@prisma/client';
+import { $Enums, TenancyStatus as PrismaTenancyStatus } from '@prisma/client';
 import { CreateTenancyDto, TenancyStatus, UpdateTenancyDto } from '../../common/tenantsea-dtos';
 import { PrismaService } from '../../common/prisma.service';
 import { CacheService } from '../../common/cache.service';
+import { RoleGrantsService } from '../../common/roles/role-grants.service';
 import { buildSafeOrderBy } from '../../common/utils/sort.util';
 import { ActorContext, isTenantRole } from '../../common/utils/role.util';
 
 @Injectable()
 export class TenanciesService {
-  constructor(private readonly prisma: PrismaService, private readonly cache: CacheService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cache: CacheService,
+    private readonly roleGrants: RoleGrantsService,
+  ) {}
 
   async createTenancy(dto: CreateTenancyDto): Promise<any> {
     const property = await this.prisma.property.findFirst({ where: { id: dto.propertyId, tenantId: dto.tenantId } });
@@ -40,6 +45,12 @@ export class TenanciesService {
         status: this.toPrismaStatus(dto.status ?? TenancyStatus.ACTIVE),
       },
     });
+
+    await Promise.all([
+      this.roleGrants.ensureGrant(dto.tenantUserId, $Enums.UserRole.TENANT),
+      this.roleGrants.ensureGrant(dto.landlordId, $Enums.UserRole.LANDLORD),
+      dto.agentId ? this.roleGrants.ensureGrant(dto.agentId, $Enums.UserRole.LETTING_AGENT) : Promise.resolve(),
+    ]);
 
     await this.cache.delByPattern(`tenancies:${dto.tenantId}:*`);
 
@@ -94,6 +105,18 @@ export class TenanciesService {
         status: dto.status ? this.toPrismaStatus(dto.status) : undefined,
       },
     });
+
+    await Promise.all([
+      dto.tenantUserId
+        ? this.roleGrants.ensureGrant(dto.tenantUserId, $Enums.UserRole.TENANT)
+        : Promise.resolve(),
+      dto.landlordId
+        ? this.roleGrants.ensureGrant(dto.landlordId, $Enums.UserRole.LANDLORD)
+        : Promise.resolve(),
+      dto.agentId
+        ? this.roleGrants.ensureGrant(dto.agentId, $Enums.UserRole.LETTING_AGENT)
+        : Promise.resolve(),
+    ]);
 
     await this.cache.delByPattern(`tenancies:${dto.tenantId}:*`);
     return { message: 'Tenancy updated', tenancy };

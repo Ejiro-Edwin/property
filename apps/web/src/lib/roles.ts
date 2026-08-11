@@ -7,6 +7,26 @@ export function isPrivilegedRole(role?: string | null) {
   return r === "landlord" || r === "letting_agent" || r === "admin";
 }
 
+export function profileLabel(role: string): string {
+  switch (role.toLowerCase()) {
+    case "landlord":
+      return "Landlord";
+    case "tenant":
+      return "Tenant";
+    case "letting_agent":
+      return "Agent";
+    case "admin":
+      return "Admin";
+    default:
+      return role;
+  }
+}
+
+/** Operating profiles that share the portfolio/management UI (not tenant portal). */
+export function isManagementProfile(role?: string | null) {
+  return isPrivilegedRole(role);
+}
+
 export const landlordNav = [
   { href: "app", label: "Overview", exact: true },
   { href: "app/properties", label: "Properties" },

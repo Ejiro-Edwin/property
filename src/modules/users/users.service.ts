@@ -4,11 +4,16 @@ import * as bcrypt from 'bcryptjs';
 import { CreateUserDto, UpdateUserDto } from '../../common/tenantsea-dtos';
 import { PrismaService } from '../../common/prisma.service';
 import { CacheService } from '../../common/cache.service';
+import { RoleGrantsService } from '../../common/roles/role-grants.service';
 import { buildSafeOrderBy } from '../../common/utils/sort.util';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService, private readonly cache: CacheService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cache: CacheService,
+    private readonly roleGrants: RoleGrantsService,
+  ) {}
 
   async createUser(dto: CreateUserDto): Promise<any> {
     const rounds = Number(process.env.BCRYPT_SALT_ROUNDS || '10');
@@ -24,6 +29,8 @@ export class UsersService {
         phone: dto.phone,
       },
     });
+
+    await this.roleGrants.seedInitialGrant(user.id, this.toPrismaRole(dto.role));
 
     await this.cache.delByPattern(`users:${dto.tenantId}:*`);
 
@@ -65,6 +72,10 @@ export class UsersService {
         updatedAt: true,
       },
     });
+
+    if (dto.role) {
+      await this.roleGrants.addGrantForRoleChange(id, this.toPrismaRole(dto.role));
+    }
 
     await this.cache.delByPattern(`users:${dto.tenantId}:*`);
     return { message: 'User updated', user };

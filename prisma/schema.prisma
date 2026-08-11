@@ -77,9 +77,21 @@ model User {
   notifications Notification[]
   auditLogs AuditLog[]
   sentInvitations Invitation[] @relation("InvitationInviter")
+  roleGrants      UserRoleGrant[]
 
   @@unique([tenantId, email])
   @@index([tenantId])
+}
+
+model UserRoleGrant {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      UserRole
+  createdAt DateTime @default(now())
+
+  @@unique([userId, role])
+  @@index([userId])
 }
 
 model Property {

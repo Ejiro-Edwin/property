@@ -19,11 +19,13 @@ import { InvitesModule } from './modules/invites/invites.module';
 import { envValidationSchema } from './config/env.validation';
 import { EmailModule } from './common/email/email.module';
 import { PrismaModule } from './common/prisma.module';
+import { RoleGrantsModule } from './common/roles/role-grants.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, validationSchema: envValidationSchema }),
     PrismaModule,
+    RoleGrantsModule,
     AuthModule,
     UsersModule,
     PropertiesModule,

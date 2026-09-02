@@ -24,11 +24,16 @@ async function handler(req: Request, ctx: { params: Promise<{ path: string[] }> 
     headers.set("authorization", `Bearer ${token}`);
   }
 
-  const upstream = await fetch(upstreamUrl.toString(), {
-    method: req.method,
-    headers,
-    body: ["GET", "HEAD"].includes(req.method) ? undefined : await req.text(),
-  });
+  let upstream: Response;
+  try {
+    upstream = await fetch(upstreamUrl.toString(), {
+      method: req.method,
+      headers,
+      body: ["GET", "HEAD"].includes(req.method) ? undefined : await req.text(),
+    });
+  } catch {
+    return NextResponse.json({ message: "API service is unavailable" }, { status: 503 });
+  }
 
   const contentType = upstream.headers.get("content-type") || "";
   const payload = contentType.includes("application/json")

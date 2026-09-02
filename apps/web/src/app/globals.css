@@ -12,11 +12,11 @@
   --muted: #737373;
   --border: rgba(26, 26, 26, 0.10);
 
-  /* Brand — coral primary */
-  --brand: #e8624a;
-  --brand-hover: #d9553f;
-  --brand-ink: #7c2d12;
-  --brand-soft: #fef3f0;
+  /* Brand — TenantSea teal, lime, and mint */
+  --brand: #baff00;
+  --brand-hover: #a9eb00;
+  --brand-ink: #004b49;
+  --brand-soft: #efffee;
 
   /* Neutrals */
   --charcoal: #1a1a1a;
@@ -141,3 +141,6 @@ a {
 .auth-pitch-shape-two { width: 220px; height: 220px; left: -115px; bottom: -75px; background: rgba(186, 255, 0, 0.1); }
 .text-lime { color: var(--auth-lime); }
 .text-teal { color: var(--auth-teal); }
+
+.app-workspace { background: var(--auth-mint); }
+.app-sidebar { background: #fff; }

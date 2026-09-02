@@ -83,8 +83,8 @@ export function AppShell({
   );
 
   return (
-    <div className="min-h-dvh flex flex-col md:flex-row">
-      <header className="flex items-center justify-between border-b border-border px-4 py-3 md:hidden">
+    <div className="app-workspace min-h-dvh flex flex-col md:flex-row">
+      <header className="app-sidebar flex items-center justify-between border-b border-border px-4 py-3 md:hidden">
         <Link href={`/t/${tenantId}/app`} className="flex items-center gap-2">
           <Mark />
           <span className="text-sm font-semibold tracking-tight">TenantSea</span>
@@ -117,7 +117,7 @@ export function AppShell({
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[264px] flex-col gap-5 border-r border-border bg-background px-4 py-6 transition-transform md:static md:sticky md:top-0 md:z-auto md:h-dvh md:translate-x-0",
+          "app-sidebar fixed inset-y-0 left-0 z-50 flex w-[264px] flex-col gap-5 border-r border-border px-4 py-6 transition-transform md:static md:sticky md:top-0 md:z-auto md:h-dvh md:translate-x-0",
           mobileOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >

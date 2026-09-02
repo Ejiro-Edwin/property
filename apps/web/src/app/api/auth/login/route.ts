@@ -9,11 +9,16 @@ function apiBase() {
 export async function POST(req: Request) {
   const body = await req.json();
 
-  const upstream = await fetch(`${apiBase()}/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+  let upstream: Response;
+  try {
+    upstream = await fetch(`${apiBase()}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    return NextResponse.json({ message: "Authentication service is unavailable" }, { status: 503 });
+  }
 
   const data = await upstream.json().catch(() => ({}));
   if (!upstream.ok) {

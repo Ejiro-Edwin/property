@@ -20,14 +20,14 @@ services:
       - db
     environment:
       NODE_ENV: development
-      PORT: 3000
+      PORT: 3100
       DATABASE_URL: postgresql://postgres:postgres@db:5432/tenantsea?schema=public
       JWT_SECRET: change_me_to_a_long_random_secret_at_least_16_chars
       JWT_EXPIRES_IN: 3600s
       BCRYPT_SALT_ROUNDS: 10
       CORS_ORIGINS: ''
     ports:
-      - '3000:3000'
+      - '3100:3100'
 
 volumes:
   postgres_data:

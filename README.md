@@ -23,6 +23,9 @@ npm run start:dev
 ## API base
 All endpoints are available under `/api/v1`.
 
+The API listens on port `3100` by default so it does not conflict with the web
+app on port `3000`.
+
 ## Swagger docs
 OpenAPI docs are available at `/api/docs`.
 

@@ -4,7 +4,7 @@ export function Mark({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "flex h-10 w-10 items-center justify-center rounded-[12px] bg-brand text-sm font-bold tracking-tight text-white shadow-sm",
+        "flex h-10 w-10 items-center justify-center rounded-[12px] bg-brand text-sm font-bold tracking-tight text-brand-ink shadow-sm",
         className,
       )}
       aria-hidden="true"

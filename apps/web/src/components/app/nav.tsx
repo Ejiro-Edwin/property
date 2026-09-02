@@ -29,6 +29,10 @@ const iconByHref: Record<string, React.ComponentType<{ width?: number; height?: 
   "app/notifications": IconBell,
   "app/profile": IconUser,
   "app/audit": IconScroll,
+  "app/documents": IconScroll,
+  "app/messages": IconUsers,
+  "app/maintenance": IconKey,
+  "app/settings": IconUser,
 };
 
 const landlordItems = [
@@ -41,6 +45,10 @@ const landlordItems = [
   { href: "app/notifications", label: "Notifications" },
   { href: "app/profile", label: "Profile" },
   { href: "app/audit", label: "Audit", adminOnly: true },
+  { href: "app/documents", label: "Documents" },
+  { href: "app/messages", label: "Messages" },
+  { href: "app/maintenance", label: "Maintenance" },
+  { href: "app/settings", label: "Settings" },
 ];
 
 const tenantItems = [
@@ -50,6 +58,10 @@ const tenantItems = [
   { href: "app/my-trust", label: "Trust score" },
   { href: "app/notifications", label: "Notifications" },
   { href: "app/profile", label: "Profile" },
+  { href: "app/documents", label: "Documents" },
+  { href: "app/messages", label: "Messages" },
+  { href: "app/maintenance", label: "Maintenance" },
+  { href: "app/settings", label: "Settings" },
 ];
 
 export function AppNav({

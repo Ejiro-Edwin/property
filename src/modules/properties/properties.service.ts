@@ -157,4 +157,17 @@ export class PropertiesService {
     await this.cache.set(cacheKey, result, 60);
     return result;
   }
+
+  async getProperty(tenantId: string, id: string, actor?: ActorContext): Promise<any> {
+    const property = await this.prisma.property.findFirst({
+      where: { id, tenantId },
+      include: { amenities: true, rules: true },
+    });
+    if (!property) throw new NotFoundException('Property not found');
+    if (actor && isTenantRole(actor.role)) {
+      const tenancy = await this.prisma.tenancy.findFirst({ where: { tenantId, propertyId: id, tenantUserId: actor.id } });
+      if (!tenancy) throw new NotFoundException('Property not found');
+    }
+    return { tenantId, property };
+  }
 }

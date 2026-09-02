@@ -30,6 +30,9 @@ export class PaymentsService {
     if (!payer) {
       throw new BadRequestException('Referenced payer user does not exist in this tenant');
     }
+    if (tenancy.tenantUserId !== payer.id) {
+      throw new BadRequestException('Payer must be the tenant assigned to this tenancy');
+    }
 
     if (actor && isTenantRole(actor.role)) {
       if (dto.payerId !== actor.id || tenancy.tenantUserId !== actor.id) {
@@ -93,6 +96,11 @@ export class PaymentsService {
     const where: any = { tenantId, ...(tenancyId ? { tenancyId } : {}) };
     if (actor && isTenantRole(actor.role)) {
       where.payerId = actor.id;
+      const ownTenancies = await this.prisma.tenancy.findMany({ where: { tenantId, tenantUserId: actor.id }, select: { id: true } });
+      const ownTenancyIds = ownTenancies.map((t) => t.id);
+      where.tenancyId = tenancyId
+        ? ownTenancyIds.includes(tenancyId) ? tenancyId : '__none__'
+        : { in: ownTenancyIds.length ? ownTenancyIds : ['__none__'] };
     }
     if (pagination?.search) {
       where.OR = [{ reference: { contains: pagination.search, mode: 'insensitive' } }];

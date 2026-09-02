@@ -31,6 +31,11 @@ export class TenanciesService {
       throw new BadRequestException('Referenced landlord user does not exist in this tenant');
     }
 
+    if (dto.agentId) {
+      const agent = await this.prisma.user.findFirst({ where: { id: dto.agentId, tenantId: dto.tenantId } });
+      if (!agent) throw new BadRequestException('Referenced agent user does not exist in this tenant');
+    }
+
     const tenancy = await this.prisma.tenancy.create({
       data: {
         tenantId: dto.tenantId,
@@ -196,6 +201,22 @@ export class TenanciesService {
 
   async listTenanciesByTenant(tenantId: string): Promise<any> {
     return this.prisma.tenancy.findMany({ where: { tenantId } });
+  }
+
+  async getTenancy(tenantId: string, id: string, actor?: ActorContext): Promise<any> {
+    const where: any = { id, tenantId };
+    if (actor && isTenantRole(actor.role)) where.tenantUserId = actor.id;
+    const tenancy = await this.prisma.tenancy.findFirst({
+      where,
+      include: {
+        property: { include: { amenities: true, rules: true } },
+        tenantUser: { select: { id: true, name: true, email: true } },
+        landlord: { select: { id: true, name: true, email: true } },
+        agent: { select: { id: true, name: true, email: true } },
+      },
+    });
+    if (!tenancy) throw new NotFoundException('Tenancy not found');
+    return { tenantId, tenancy };
   }
 
   private toPrismaStatus(status: string): PrismaTenancyStatus {

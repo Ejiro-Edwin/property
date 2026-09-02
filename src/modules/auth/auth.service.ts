@@ -180,9 +180,14 @@ export class AuthService {
   }
 
   async forgotPassword(dto: ForgotPasswordDto): Promise<any> {
-    const user = await this.prisma.user.findFirst({
+    const users = await this.prisma.user.findMany({
       where: dto.tenantId ? { email: dto.email, tenantId: dto.tenantId } : { email: dto.email },
+      take: 2,
     });
+    if (!dto.tenantId && users.length > 1) {
+      return { message: 'If an account exists for that email, a password reset link has been issued.' };
+    }
+    const user = users[0];
 
     if (!user) {
       return {
@@ -238,6 +243,19 @@ export class AuthService {
     });
 
     return { message: 'Password updated successfully' };
+  }
+
+  async changePassword(userId: string, tenantId: string, dto: { currentPassword: string; newPassword: string }) {
+    const user = await this.prisma.user.findFirst({ where: { id: userId, tenantId } });
+    if (!user?.password || !(await bcrypt.compare(dto.currentPassword, user.password))) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+    const rounds = Number(process.env.BCRYPT_SALT_ROUNDS || '10');
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { password: await bcrypt.hash(dto.newPassword, rounds), resetToken: null, resetTokenExpiresAt: null },
+    });
+    return { message: 'Password changed successfully' };
   }
 
   async verifyEmail(dto: VerifyEmailDto) {

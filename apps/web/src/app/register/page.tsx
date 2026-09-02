@@ -6,6 +6,7 @@ import { api, ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { AuthShell } from "@/components/auth/auth-shell";
 
 export default function RegisterPage() {
   const [workspaceName, setWorkspaceName] = React.useState("");
@@ -64,8 +65,8 @@ export default function RegisterPage() {
 
   if (done) {
     return (
-      <div className="mx-auto w-full max-w-md pt-10">
-        <div className="card p-6">
+      <AuthShell eyebrow="You&apos;re almost there" title="Secure, digital and transparent." description="One account for your properties, people and payments.">
+        <div className="mx-auto w-full max-w-md">
           <div className="text-lg font-semibold tracking-tight">
             Account created — check your inbox
           </div>
@@ -92,13 +93,13 @@ export default function RegisterPage() {
             ) : null}
           </div>
         </div>
-      </div>
+      </AuthShell>
     );
   }
 
   return (
-    <div className="mx-auto w-full max-w-md pt-10">
-      <div className="card p-6">
+    <AuthShell eyebrow="Create your account" title="Secure, digital and transparent." description="Set up your workspace and bring your rental operations into one place.">
+      <div className="mx-auto w-full max-w-md">
         <div className="text-lg font-semibold tracking-tight">Create your account</div>
         <div className="mt-1 text-sm leading-6 text-muted">
           Sign up as a landlord. Tenants and agents join through email
@@ -162,6 +163,6 @@ export default function RegisterPage() {
           </div>
         </form>
       </div>
-    </div>
+    </AuthShell>
   );
 }

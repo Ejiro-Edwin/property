@@ -7,6 +7,7 @@ import { api, ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { AuthShell } from "@/components/auth/auth-shell";
 
 function ResetPasswordForm() {
   const search = useSearchParams();
@@ -42,7 +43,7 @@ function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <div className="card p-6">
+      <div className="p-1">
         <div className="text-lg font-semibold tracking-tight">Invalid link</div>
         <div className="mt-2 text-sm leading-6 text-muted">
           This reset link is missing its token. Request a new one from the
@@ -61,7 +62,7 @@ function ResetPasswordForm() {
 
   if (done) {
     return (
-      <div className="card p-6">
+      <div className="p-1">
         <div className="text-lg font-semibold tracking-tight">Password updated</div>
         <div className="mt-2 text-sm leading-6 text-muted">
           Your password has been reset. You can sign in with your new password now.
@@ -76,7 +77,7 @@ function ResetPasswordForm() {
   }
 
   return (
-    <div className="card p-6">
+    <div className="p-1">
       <div className="text-lg font-semibold tracking-tight">Choose a new password</div>
       <div className="mt-1 text-sm text-muted">Set a new password for your account.</div>
 
@@ -115,10 +116,10 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <div className="mx-auto w-full max-w-md pt-10">
+    <AuthShell eyebrow="Reset password" title="Create a new password." description="Choose a strong password to keep your account secure.">
       <React.Suspense fallback={<div className="text-sm text-muted">Loading…</div>}>
         <ResetPasswordForm />
       </React.Suspense>
-    </div>
+    </AuthShell>
   );
 }

@@ -49,6 +49,9 @@ export class UsersController {
         role: undefined,
       });
     }
+    if (dto.role && req?.user?.role !== 'ADMIN' && dto.role.toLowerCase() === 'admin') {
+      throw new ForbiddenException('Only administrators can assign the admin role');
+    }
     return this.usersService.updateUser(id, dto);
   }
 

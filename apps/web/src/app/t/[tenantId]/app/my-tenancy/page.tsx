@@ -36,12 +36,21 @@ export default function MyTenancyPage() {
 
   const [tenancies, setTenancies] = React.useState<Tenancy[] | null>(null);
   const [properties, setProperties] = React.useState<Property[]>([]);
+  const [loadError, setLoadError] = React.useState(false);
 
-  React.useEffect(() => {
+  function loadTenancy() {
+    setTenancies(null);
+    setLoadError(false);
     api<{ tenancies: Tenancy[] }>("tenancies", { tenantId, query: { limit: 20 } })
       .then((r) => setTenancies(r.tenancies ?? []))
-      .catch(() => setTenancies([]));
+      .catch(() => {
+        setLoadError(true);
+        setTenancies([]);
+      });
+  }
 
+  React.useEffect(() => {
+    loadTenancy();
     api<{ properties: Property[] }>("properties", { tenantId, query: { limit: 20 } })
       .then((r) => setProperties(r.properties ?? []))
       .catch(() => setProperties([]));
@@ -66,15 +75,23 @@ export default function MyTenancyPage() {
 
       {tenancies === null ? (
         <Skeleton className="h-[240px]" />
+      ) : loadError ? (
+        <EmptyState
+          title="We couldn&apos;t load your tenancy"
+          body="Something went wrong while fetching your tenancy details."
+          action={<Button onClick={loadTenancy}>Try again</Button>}
+        />
       ) : tenancies.length === 0 ? (
         <EmptyState
-          title="No tenancy yet"
-          body="When your landlord assigns you to a property, the details will show up here."
+          title="Tenancy record not found"
+          body="We couldn&apos;t find a tenancy connected to this workspace."
+          action={<Button onClick={loadTenancy}>Refresh</Button>}
         />
       ) : (
         <div className="grid gap-4">
           {tenancies.map((t) => {
             const property = propertyMap.get(t.propertyId);
+            const terminated = t.status.toLowerCase() === "terminated";
             return (
               <div key={t.id} className="card overflow-hidden">
                 {property ? <div className="property-art h-32" /> : null}
@@ -82,7 +99,7 @@ export default function MyTenancyPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="text-lg font-semibold tracking-tight">
-                        {property?.title ?? "Your property"}
+                        {terminated ? "Terminated tenancy" : property?.title ?? "Your property"}
                       </div>
                       {property ? (
                         <div className="mt-1 text-sm text-muted">{property.address}</div>

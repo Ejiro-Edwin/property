@@ -29,6 +29,11 @@ export class PropertiesController {
     });
   }
 
+  @Get(':id')
+  getProperty(@Param('id') id: string, @Query('tenantId') tenantId: string, @Request() req: any) {
+    return this.propertiesService.getProperty(tenantId, id, { id: req.user.id, role: req.user.role });
+  }
+
   @Roles('LANDLORD', 'LETTING_AGENT', 'ADMIN')
   @Patch(':id')
   updateProperty(@Param('id') id: string, @Body() dto: UpdatePropertyDto) {

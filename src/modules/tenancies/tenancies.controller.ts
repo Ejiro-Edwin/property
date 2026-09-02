@@ -29,6 +29,11 @@ export class TenanciesController {
     });
   }
 
+  @Get(':id')
+  getTenancy(@Param('id') id: string, @Query('tenantId') tenantId: string, @Request() req: any) {
+    return this.tenanciesService.getTenancy(tenantId, id, { id: req.user.id, role: req.user.role });
+  }
+
   @Roles('LANDLORD', 'LETTING_AGENT', 'ADMIN')
   @Patch(':id')
   updateTenancy(@Param('id') id: string, @Body() dto: UpdateTenancyDto) {

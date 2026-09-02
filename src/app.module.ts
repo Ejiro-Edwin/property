@@ -20,12 +20,24 @@ import { envValidationSchema } from './config/env.validation';
 import { EmailModule } from './common/email/email.module';
 import { PrismaModule } from './common/prisma.module';
 import { RoleGrantsModule } from './common/roles/role-grants.module';
+import { DocumentsModule } from './modules/documents/documents.module';
+import { MessagesModule } from './modules/messages/messages.module';
+import { PaymentMethodsModule } from './modules/payment-methods/payment-methods.module';
+import { PropertyFeaturesModule } from './modules/property-features/property-features.module';
+import { SettingsModule } from './modules/settings/settings.module';
+import { MaintenanceModule } from './modules/maintenance/maintenance.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, validationSchema: envValidationSchema }),
     PrismaModule,
     RoleGrantsModule,
+    DocumentsModule,
+    MessagesModule,
+    PaymentMethodsModule,
+    PropertyFeaturesModule,
+    SettingsModule,
+    MaintenanceModule,
     AuthModule,
     UsersModule,
     PropertiesModule,

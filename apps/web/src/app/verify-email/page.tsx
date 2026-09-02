@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { api, ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { AuthShell } from "@/components/auth/auth-shell";
 
 function VerifyEmailInner() {
   const search = useSearchParams();
@@ -67,7 +68,7 @@ function VerifyEmailInner() {
   }
 
   return (
-    <div className="card p-6 text-center">
+    <div className="p-1 text-center">
       {state === "verifying" ? (
         <>
           <div className="text-lg font-semibold tracking-tight">Verifying your email…</div>
@@ -117,10 +118,10 @@ function VerifyEmailInner() {
 
 export default function VerifyEmailPage() {
   return (
-    <div className="mx-auto w-full max-w-md pt-10">
+    <AuthShell eyebrow="Account verification" title="One last step." description="Verify your email to access your TenantSea workspace.">
       <React.Suspense fallback={<div className="text-sm text-muted">Loading…</div>}>
         <VerifyEmailInner />
       </React.Suspense>
-    </div>
+    </AuthShell>
   );
 }

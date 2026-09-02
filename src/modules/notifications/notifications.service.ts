@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma.service';
 import { RealtimeGateway } from '../../common/gateway/realtime.gateway';
 import { buildSafeOrderBy } from '../../common/utils/sort.util';
@@ -41,19 +41,10 @@ export class NotificationsService {
   }
 
   async markRead(tenantId: string, id: string, read: boolean) {
-    const notification = await this.prisma.notification.update({
-      where: { id },
-      data: { read },
-    });
-
-    if (notification.tenantId === tenantId) {
-      this.realtime.emitNotification({
-        tenantId,
-        userId: notification.userId,
-        notification,
-        event: 'notification:updated',
-      });
-    }
+    const existing = await this.prisma.notification.findFirst({ where: { id, tenantId } });
+    if (!existing) throw new NotFoundException('Notification not found');
+    const notification = await this.prisma.notification.update({ where: { id }, data: { read } });
+    this.realtime.emitNotification({ tenantId, userId: notification.userId, notification, event: 'notification:updated' });
 
     return { tenantId, notification };
   }

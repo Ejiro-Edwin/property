@@ -294,6 +294,11 @@ curl -s -X POST http://localhost:3100/api/v1/properties \
 
 Lists properties.
 
+### GET `/properties/:id?tenantId=...`
+
+Returns one property with its amenities and house rules. Tenant users can only
+read properties connected to one of their own tenancies.
+
 ---
 
 ## Tenancies (JWT + tenant-scoped)
@@ -401,6 +406,11 @@ Checks for overdue schedules and creates notifications for those missing a PAID 
 
 Lists payments.
 
+### GET `/tenancies/:id?tenantId=...`
+
+Returns one tenancy with its property, amenities, rules, and linked users.
+Tenant users can only read their own tenancy records.
+
 ---
 
 ## Trust (JWT + tenant-scoped)
@@ -424,6 +434,110 @@ Returns a trust profile for a tenant user:
 Lists the latest audit logs (currently returns the last 100 records).
 
 ---
+
+## Documents, messages, payment methods, and property details (JWT + tenant-scoped)
+
+### GET `/documents?tenantId=...&propertyId=...&tenancyId=...`
+
+Lists workspace documents. Tenants see documents owned by them or attached to
+their tenancy/property; privileged workspace roles see all documents.
+
+### POST `/documents` (Roles: `LANDLORD`, `LETTING_AGENT`, `ADMIN`)
+
+Creates a document record from a storage URL. The API intentionally stores file
+metadata and a URL; binary storage is supplied by the deployment's storage
+provider rather than written to the application server.
+
+```bash
+curl -s -X POST http://localhost:3100/api/v1/documents \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"tenantId":"acme-corp","name":"Lease agreement","category":"lease","url":"https://storage.example/lease.pdf","mimeType":"application/pdf","propertyId":"property_id"}'
+```
+
+### DELETE `/documents/:id?tenantId=...`
+
+Deletes a document. The uploader may delete their own document; privileged
+roles may delete any document in the workspace.
+
+### POST `/documents/:id/share` (Roles: `LANDLORD`, `LETTING_AGENT`, `ADMIN`)
+
+Shares a document with a workspace user. Body: `{ "tenantId": "acme-corp", "userId": "user_id", "canEdit": false }`.
+
+### PATCH `/documents/:id/visibility`
+
+Changes document visibility between `PRIVATE` and `WORKSPACE`. The uploader or
+a privileged workspace role can change visibility.
+
+### GET `/messages?tenantId=...&unread=true|false`
+
+Lists messages. Tenants see conversations they sent or received; privileged
+roles see workspace messages.
+
+### POST `/messages`
+
+Sends a message. Body: `{ "tenantId": "acme-corp", "body": "...", "recipientId": "user_id" }`.
+Omit `recipientId` for a workspace-wide message.
+
+### PATCH `/messages/:id/read`
+
+Marks a received message read or unread. Body: `{ "tenantId": "acme-corp", "read": true }`.
+
+### GET `/payment-methods?tenantId=...`
+
+Lists the authenticated user's saved payment methods. Card numbers are never
+accepted or stored; only provider references and display metadata are stored.
+
+### POST `/payment-methods`, PATCH `/payment-methods/:id`, DELETE `/payment-methods/:id`
+
+Creates, updates, or removes a user's payment method. Create body:
+`{ "tenantId": "acme-corp", "type": "card", "label": "Visa ending 4242", "last4": "4242", "provider": "stripe", "providerRef": "pm_...", "isDefault": true }`.
+
+### GET `/properties/:propertyId/amenities` and `/properties/:propertyId/rules`
+
+Lists property amenities and house rules. Privileged roles can add them with
+`POST` and remove them with `DELETE` using the same nested paths. Amenity body:
+`{ "tenantId": "acme-corp", "name": "Parking" }`; rule body:
+`{ "tenantId": "acme-corp", "name": "No smoking", "details": " indoors" }`.
+
+## Settings (JWT + tenant-scoped)
+
+### GET `/settings?tenantId=...`
+
+Returns the authenticated user's lease, payment, notification, and privacy
+preferences. Missing preferences return empty objects.
+
+### PATCH `/settings`
+
+Partially updates settings. Body fields are optional JSON objects:
+`leasePreferences`, `paymentPreferences`, `notificationPreferences`, and
+`privacyPreferences`, plus required `tenantId`.
+
+### POST `/auth/change-password` (JWT required)
+
+Changes the authenticated user's password after verifying the current password.
+Body: `{ "currentPassword": "...", "newPassword": "..." }`.
+
+## Maintenance (JWT + tenant-scoped)
+
+### GET `/maintenance?tenantId=...&status=...`
+
+Lists maintenance requests. Tenants see requests they reported or requests
+linked to their tenancy; privileged workspace roles see all requests.
+
+### GET `/maintenance/:id?tenantId=...`
+
+Returns one maintenance request with its property, tenancy, requester, and
+assignee.
+
+### POST `/maintenance`
+
+Creates a request. Body: `{ "tenantId": "acme-corp", "title": "Leaking tap", "description": "Kitchen tap is dripping", "propertyId": "property_id", "tenancyId": "tenancy_id", "priority": "normal" }`.
+
+### PATCH `/maintenance/:id`
+
+Updates status, priority, or assignee. Status values are `open`, `in_progress`,
+`resolved`, and `closed`; priority values are `low`, `normal`, `high`, and
+`urgent`.
 
 ## Notifications (JWT + tenant-scoped)
 

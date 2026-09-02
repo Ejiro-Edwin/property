@@ -6,6 +6,7 @@ import { api, ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { AuthShell } from "@/components/auth/auth-shell";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = React.useState("");
@@ -31,8 +32,8 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-md pt-10">
-      <div className="card p-6">
+    <AuthShell eyebrow="Forgot password" title="Get back to your account." description="We&apos;ll help you reset your password securely.">
+      <div className="mx-auto w-full max-w-md">
         <div className="text-lg font-semibold tracking-tight">Reset your password</div>
         <div className="mt-1 text-sm text-muted">
           Enter your email and we&apos;ll send you a reset link.
@@ -78,6 +79,6 @@ export default function ForgotPasswordPage() {
           </form>
         )}
       </div>
-    </div>
+    </AuthShell>
   );
 }

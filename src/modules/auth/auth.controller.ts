@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import { IsString, MinLength } from 'class-validator';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import {
   ForgotPasswordDto,
@@ -12,6 +13,15 @@ import {
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { LocalAuthGuard } from './local-auth.guard';
+
+class ChangePasswordDto {
+  @IsString()
+  currentPassword: string;
+
+  @IsString()
+  @MinLength(8)
+  newPassword: string;
+}
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -63,5 +73,12 @@ export class AuthController {
   @Post('switch-profile')
   switchProfile(@Body() dto: SwitchProfileDto, @Request() req: any) {
     return this.authService.switchProfile(req.user.id, req.user.tenantId, dto.role);
+  }
+
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard)
+  @Post('change-password')
+  changePassword(@Body() dto: ChangePasswordDto, @Request() req: any) {
+    return this.authService.changePassword(req.user.id, req.user.tenantId, dto);
   }
 }

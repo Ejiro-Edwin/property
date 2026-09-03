@@ -26,6 +26,12 @@ All endpoints are available under `/api/v1`.
 The API listens on port `3100` by default so it does not conflict with the web
 app on port `3000`.
 
+For a hosted web deployment, set `API_BASE_URL` on the web service to the
+backend URL including `/api/v1`. Do not leave it as `localhost`. The backend
+also requires `DATABASE_URL` and a `JWT_SECRET` with at least 16 characters.
+
+Swagger is available at `<backend-origin>/api/docs`.
+
 ## Swagger docs
 OpenAPI docs are available at `/api/docs`.
 

@@ -13,7 +13,7 @@ type DocumentItem = { id: string; name: string; category: string; url: string; v
 export default function DocumentsPage() {
   const { tenantId } = useParams<{ tenantId: string }>();
   const [items, setItems] = React.useState<DocumentItem[] | null>(null);
-  const [form, setForm] = React.useState({ name: "", category: "lease", url: "" });
+  const [form, setForm] = React.useState({ name: "", category: "lease", url: "", visibility: "PRIVATE" });
   const [error, setError] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState(false);
 
@@ -29,7 +29,7 @@ export default function DocumentsPage() {
     event.preventDefault(); setBusy(true); setError(null);
     try {
       await api("documents", { method: "POST", tenantId, body: form });
-      setForm({ name: "", category: "lease", url: "" }); await load();
+      setForm({ name: "", category: "lease", url: "", visibility: "PRIVATE" }); await load();
     } catch (err) { setError(err instanceof ApiError ? err.message : "Could not upload document"); }
     finally { setBusy(false); }
   }
@@ -41,10 +41,11 @@ export default function DocumentsPage() {
         <Field label="Document name"><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></Field>
         <Field label="Category"><Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} required /></Field>
         <Field label="Storage URL"><Input type="url" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} required /></Field>
+        <Field label="Visibility"><select className="h-11 rounded-[4px] border border-border bg-background px-3 text-sm" value={form.visibility} onChange={(e) => setForm({ ...form, visibility: e.target.value })}><option value="PRIVATE">Private</option><option value="WORKSPACE">Workspace</option></select></Field>
         <Button className="sm:col-span-3" disabled={busy}>{busy ? "Uploading…" : "Upload document"}</Button>
         {error ? <div className="text-sm text-danger sm:col-span-3">{error}</div> : null}
       </form>
-      {items === null ? <div className="card p-6 text-sm text-muted">Loading documents…</div> : items.length === 0 ? <EmptyState title="No documents yet" body="Uploaded leases and tenancy records will appear here." /> : <div className="card divide-y divide-border">{items.map((item) => <a key={item.id} href={item.url} target="_blank" rel="noreferrer" className="flex items-center justify-between gap-4 px-5 py-4 hover:bg-black/[0.02]"><div><div className="text-sm font-semibold">{item.name}</div><div className="mt-1 text-xs text-muted">{item.category} · {item.visibility.toLowerCase()}</div></div><span className="text-sm text-teal">Open</span></a>)}</div>}
+      {items === null ? <div className="card p-6 text-sm text-muted">Loading documents…</div> : items.length === 0 ? <EmptyState title="No documents yet" body="Uploaded leases and tenancy records will appear here." /> : <div className="card divide-y divide-border">{items.map((item) => <div key={item.id} className="flex flex-wrap items-center justify-between gap-4 px-5 py-4"><a href={item.url} target="_blank" rel="noreferrer" className="min-w-0 flex-1 hover:underline"><div className="text-sm font-semibold">{item.name}</div><div className="mt-1 text-xs text-muted">{item.category} · {item.visibility.toLowerCase()}</div></a><div className="flex items-center gap-2"><Button size="sm" variant="secondary" onClick={async () => { await api(`documents/${item.id}/visibility`, { method: "PATCH", tenantId, body: { visibility: item.visibility === "PRIVATE" ? "WORKSPACE" : "PRIVATE" } }); await load(); }}>{item.visibility === "PRIVATE" ? "Share" : "Private"}</Button><Button size="sm" variant="danger" onClick={async () => { if (confirm("Delete this document?")) { await api(`documents/${item.id}`, { method: "DELETE", tenantId }); await load(); } }}>Delete</Button></div></div>)}</div>}
     </div>
   );
 }

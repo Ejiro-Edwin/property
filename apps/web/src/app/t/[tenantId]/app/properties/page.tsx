@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -306,7 +307,7 @@ function PropertiesPageContent() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((p) => (
-            <div key={p.id} className="card overflow-hidden">
+            <Link key={p.id} href={`/t/${tenantId}/app/properties/${p.id}`} className="card overflow-hidden transition hover:-translate-y-0.5 hover:shadow-lg">
               <div className="property-art h-28" />
               <div className="p-4">
                 <div className="truncate text-sm font-semibold tracking-tight">{p.title}</div>
@@ -331,7 +332,7 @@ function PropertiesPageContent() {
                   </Button>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

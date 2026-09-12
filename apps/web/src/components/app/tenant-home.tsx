@@ -96,37 +96,29 @@ export function TenantHome() {
   }
 
   return (
-    <div className="mx-auto grid w-full max-w-4xl gap-6 pb-8">
-      <section className="card p-6 sm:p-8">
-        <Badge tone="brand" className="w-fit">
-          Tenant portal
-        </Badge>
-        <h1 className="mt-4 text-3xl font-semibold tracking-tight">
-          {me ? `Hi, ${me.name.split(" ")[0]}` : "Welcome"}
-        </h1>
-        <p className="mt-2 max-w-xl text-sm leading-6 text-muted">
-          View your tenancy, rent payments and trust score — all in one place.
-        </p>
-        <div className="mt-6 flex flex-wrap gap-3">
+    <div className="mx-auto grid w-full max-w-6xl gap-5 pb-8">
+      <section className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-5">
+        <div><p className="text-xs font-bold uppercase tracking-[0.18em] text-teal">Tenant workspace</p><h1 className="mt-2 text-3xl font-bold tracking-tight text-teal">{me ? `Good morning, ${me.name.split(" ")[0]}.` : "Welcome back."}</h1><p className="mt-1 text-sm text-muted">Your home, payments, and trust profile at a glance.</p></div>
+        <div className="flex flex-wrap gap-2">
           <Link href={`/t/${tenantId}/app/my-tenancy`}>
-            <Button>My tenancy</Button>
+            <Button variant="secondary">My tenancy</Button>
           </Link>
           <Link href={`/t/${tenantId}/app/payments`}>
-            <Button variant="secondary">My payments</Button>
+            <Button>My payments</Button>
           </Link>
           {tenancy ? <Button onClick={() => setPayOpen(true)}>Pay rent</Button> : null}
         </div>
       </section>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="card p-5">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="card p-4">
           <div className="text-xs font-medium uppercase tracking-wide text-muted">Trust score</div>
           <div className="mt-1 text-3xl font-semibold tracking-tight text-success">
             {trust ? trust.trustScore : "…"}
           </div>
           <div className="mt-1 text-xs text-muted">Based on your payment history</div>
         </div>
-        <div className="card p-5">
+        <div className="card p-4">
           <div className="text-xs font-medium uppercase tracking-wide text-muted">Tenancy</div>
           <div className="mt-1 text-lg font-semibold tracking-tight">
             {tenancy ? (
@@ -139,7 +131,7 @@ export function TenantHome() {
             {property?.title ?? "Not assigned yet"}
           </div>
         </div>
-        <div className="card p-5">
+        <div className="card p-4">
           <div className="text-xs font-medium uppercase tracking-wide text-muted">Recent payments</div>
           <div className="mt-1 text-3xl font-semibold tracking-tight">
             {payments === null ? "…" : payments.length}
@@ -198,7 +190,7 @@ export function TenantHome() {
             ) : payState === "processing" ? (
               <div className="py-8 text-center"><div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-teal border-t-transparent" /><h2 className="mt-5 text-lg font-semibold text-teal">Processing payment</h2><p className="mt-2 text-sm text-muted">Please wait while we confirm your payment.</p></div>
             ) : payState === "success" ? (
-              <div className="text-center"><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--auth-lime)] text-xl text-teal">✓</div><h2 className="mt-5 text-lg font-semibold text-teal">Payment successful</h2><p className="mt-2 text-sm text-muted">Your rent payment has been recorded.</p><div className="mt-6 rounded-[4px] border border-border p-4 text-left"><div className="flex justify-between text-sm"><span className="text-muted">Amount paid</span><span className="font-semibold">{formatMoney(tenancy?.rentAmount ?? 0, tenancy?.currency ?? "NGN")}</span></div><div className="mt-2 flex justify-between text-sm"><span className="text-muted">Property</span><span className="font-medium">{property?.title ?? "Current tenancy"}</span></div></div><Button className="mt-6 w-full" onClick={closePayment}>Done</Button></div>
+              <div className="text-center"><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--auth-lime)] text-xl text-teal">✓</div><h2 className="mt-5 text-lg font-semibold text-teal">Payment submitted</h2><p className="mt-2 text-sm text-muted">Your payment is pending landlord verification.</p><div className="mt-6 rounded-[4px] border border-border p-4 text-left"><div className="flex justify-between text-sm"><span className="text-muted">Amount submitted</span><span className="font-semibold">{formatMoney(tenancy?.rentAmount ?? 0, tenancy?.currency ?? "NGN")}</span></div><div className="mt-2 flex justify-between text-sm"><span className="text-muted">Property</span><span className="font-medium">{property?.title ?? "Current tenancy"}</span></div><div className="mt-2 flex justify-between text-sm"><span className="text-muted">Status</span><span className="font-medium text-warning">Pending verification</span></div></div><Button className="mt-6 w-full" onClick={closePayment}>Done</Button></div>
             ) : (
               <div className="text-center"><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-danger-soft text-danger">!</div><h2 className="mt-5 text-lg font-semibold text-teal">Payment failed</h2><p className="mt-2 text-sm text-muted">{payError ?? "We could not complete your payment."}</p><div className="mt-6 flex gap-3"><Button variant="secondary" className="flex-1" onClick={closePayment}>Close</Button><Button className="flex-1" onClick={() => setPayState("form")}>Try again</Button></div></div>
             )}

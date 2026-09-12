@@ -43,6 +43,7 @@ type Tenancy = {
 
 type Property = { id: string; title: string };
 type Member = { id: string; name: string; role: string };
+type PaymentMethod = { id: string; type: string; label: string; last4?: string | null; isDefault: boolean };
 
 function canManagePayments(role: string | undefined) {
   const r = (role ?? "").toLowerCase();
@@ -63,6 +64,7 @@ export default function PaymentsPage() {
   const [busy, setBusy] = React.useState<string | null>(null);
   const [notice, setNotice] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
+  const [paymentMethods, setPaymentMethods] = React.useState<PaymentMethod[] | null>(null);
 
   const [scheduleForm, setScheduleForm] = React.useState({
     tenancyId: "",
@@ -154,6 +156,13 @@ export default function PaymentsPage() {
     api<{ users: Member[] }>("users", { tenantId, query: { limit: 100 } })
       .then((r) => setMembers(r.users ?? []))
       .catch(() => setMembers([]));
+  }, [tenantId, role]);
+
+  React.useEffect(() => {
+    if (!isTenantRole(role)) return;
+    api<{ paymentMethods: PaymentMethod[] }>("payment-methods", { tenantId })
+      .then((r) => setPaymentMethods(r.paymentMethods ?? []))
+      .catch(() => setPaymentMethods([]));
   }, [tenantId, role]);
 
   function onScheduleTenancyChange(tenancyId: string) {
@@ -531,6 +540,16 @@ export default function PaymentsPage() {
               {busy === "verify" ? "Saving…" : "Verify"}
             </Button>
           </form>
+        </section>
+      ) : null}
+
+      {isTenant ? (
+        <section className="card overflow-hidden">
+          <div className="flex items-center justify-between border-b border-border px-5 py-4">
+            <div><h2 className="font-semibold text-teal">Payment methods</h2><p className="mt-1 text-xs text-muted">Choose how you pay rent.</p></div>
+            <Button size="sm">Add method</Button>
+          </div>
+          {paymentMethods === null ? <div className="p-5"><Skeleton className="h-16" /></div> : paymentMethods.length === 0 ? <div className="p-6 text-sm text-muted">No payment methods saved yet.</div> : <div className="divide-y divide-border">{paymentMethods.map((method) => <div key={method.id} className="flex items-center justify-between px-5 py-4"><div><div className="text-sm font-medium">{method.label}</div><div className="mt-1 text-xs text-muted">{method.type}{method.last4 ? ` ending ${method.last4}` : ""}</div></div>{method.isDefault ? <Badge tone="brand">Default</Badge> : null}</div>)}</div>}
         </section>
       ) : null}
 

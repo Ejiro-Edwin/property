@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { api } from "@/lib/api";
 import { PageHeader } from "@/components/app/page-header";
@@ -339,7 +340,9 @@ function TenanciesPageContent() {
               {items.map((t) => (
                 <tr key={t.id}>
                   <td className="px-4 py-4">
-                    {propertyMap.get(t.propertyId)?.title ?? t.propertyId}
+                    <Link href={`/t/${tenantId}/app/tenancies/${t.id}`} className="font-medium text-teal hover:underline">
+                      {propertyMap.get(t.propertyId)?.title ?? t.propertyId}
+                    </Link>
                   </td>
                   <td className="px-4 py-4">
                     {memberMap.get(t.tenantUserId)?.name ?? t.tenantUserId}

@@ -79,84 +79,82 @@ function LoginForm() {
 
   return (
     <AuthShell eyebrow="Welcome back" title="Everything you need for a better rental experience." description="Sign in to manage your rental journey with clarity.">
-      <div className="mx-auto w-full max-w-md">
-        {signedIn ? (
-          <div className="py-12 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border-2 border-teal border-t-transparent animate-spin" />
-            <div className="mt-6 text-2xl font-bold tracking-tight text-teal">Welcome back.</div>
-            <div className="mt-2 text-sm text-muted">Taking you to your workspace…</div>
-          </div>
-        ) : (
-          <>
-        <div className="text-lg font-semibold tracking-tight">Sign in</div>
-        <div className="mt-1 text-sm text-muted">
-          Use your email and password. We&apos;ll take you to your workspace.
+      {signedIn ? (
+        <div className="py-12 text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border-2 border-teal border-t-transparent animate-spin" />
+          <div className="mt-6 text-2xl font-bold tracking-tight text-teal">Welcome back.</div>
+          <div className="mt-2 text-sm text-muted">Taking you to your workspace…</div>
         </div>
+      ) : (
+        <>
+          <div className="mb-2 text-lg font-semibold tracking-tight">Sign in</div>
+          <div className="text-sm text-muted">
+            Use your email and password. We&apos;ll take you to your workspace.
+          </div>
 
-        <form className="mt-6 grid gap-4" onSubmit={onSubmit}>
-          <Field label="Email">
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="jane@example.com"
-              autoComplete="email"
-              required
-            />
-          </Field>
-          <Field label="Password">
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Your password"
-              autoComplete="current-password"
-              required
-            />
-          </Field>
-
-          {needsWorkspace ? (
-            <Field
-              label="Workspace"
-              hint="This email belongs to more than one workspace. Enter which one to use."
-            >
+          <form className="mt-6 grid gap-4" onSubmit={onSubmit}>
+            <Field label="Email">
               <Input
-                value={workspace}
-                onChange={(e) => setWorkspace(e.target.value)}
-                placeholder="e.g. thelinx"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="jane@example.com"
+                autoComplete="email"
                 required
               />
             </Field>
-          ) : null}
+            <Field label="Password">
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Your password"
+                autoComplete="current-password"
+                required
+              />
+            </Field>
 
-          {error ? (
-            <div className="rounded-[4px] border border-danger/20 bg-danger-soft px-4 py-3 text-sm leading-6 text-danger">
-              <div className="font-semibold">
-                {errorKind === "unverified" ? "Verify your account" : errorKind === "suspended" ? "Account unavailable" : errorKind === "network" ? "Something went wrong" : "Unable to sign in"}
+            {needsWorkspace ? (
+              <Field
+                label="Workspace"
+                hint="This email belongs to more than one workspace. Enter which one to use."
+              >
+                <Input
+                  value={workspace}
+                  onChange={(e) => setWorkspace(e.target.value)}
+                  placeholder="e.g. thelinx"
+                  required
+                />
+              </Field>
+            ) : null}
+
+            {error ? (
+              <div className="rounded-[12px] border border-danger/20 bg-danger-soft px-4 py-3 text-sm leading-6 text-danger">
+                <div className="font-semibold">
+                  {errorKind === "unverified" ? "Verify your account" : errorKind === "suspended" ? "Account unavailable" : errorKind === "network" ? "Something went wrong" : "Unable to sign in"}
+                </div>
+                <div className="mt-1">{error}</div>
+                {errorKind === "unverified" ? <Link href="/verify-email" className="mt-2 inline-block font-semibold underline">Resend verification email</Link> : null}
+                {errorKind === "suspended" ? <Link href="/forgot-password" className="mt-2 inline-block font-semibold underline">Contact support</Link> : null}
+                {errorKind === "network" ? <button type="button" className="mt-2 block font-semibold underline" onClick={() => setError(null)}>Try again</button> : null}
               </div>
-              <div className="mt-1">{error}</div>
-              {errorKind === "unverified" ? <Link href="/verify-email" className="mt-2 inline-block font-semibold underline">Resend verification email</Link> : null}
-              {errorKind === "suspended" ? <Link href="/forgot-password" className="mt-2 inline-block font-semibold underline">Contact support</Link> : null}
-              {errorKind === "network" ? <button type="button" className="mt-2 block font-semibold underline" onClick={() => setError(null)}>Try again</button> : null}
+            ) : null}
+
+            <Button disabled={busy} type="submit">
+              {busy ? "Signing in…" : "Sign in"}
+            </Button>
+
+            <div className="flex items-center justify-between text-sm">
+              <Link href="/forgot-password" className="text-muted hover:text-foreground">
+                Forgot password
+              </Link>
+              <Link href="/register" className="text-muted hover:text-foreground">
+                Sign up
+              </Link>
             </div>
-          ) : null}
-
-          <Button disabled={busy} type="submit">
-            {busy ? "Signing in…" : "Sign in"}
-          </Button>
-
-          <div className="flex items-center justify-between text-sm">
-            <Link href="/forgot-password" className="text-muted hover:text-foreground">
-              Forgot password
-            </Link>
-            <Link href="/register" className="text-muted hover:text-foreground">
-              Sign up
-            </Link>
-          </div>
-        </form>
-          </>
-        )}
-      </div>
+          </form>
+        </>
+      )}
     </AuthShell>
   );
 }

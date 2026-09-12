@@ -198,37 +198,37 @@ function TenanciesPageContent() {
           items ? `${total} tenanc${total === 1 ? "y" : "ies"} in this workspace.` : undefined
         }
         action={
-          <Button variant="secondary" onClick={resetForm}>
+          <Button className="bg-[#baff00] text-[#0d1b1d] hover:bg-[#a7ea00]" onClick={resetForm}>
             New tenancy
           </Button>
         }
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">Active</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight">
+        <div className="metric-card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Active</div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
             {items === null ? "…" : activeCount}
           </div>
-          <div className="mt-1 text-xs text-muted">Currently occupied tenancies</div>
+          <div className="mt-1 text-xs text-slate-500">Currently occupied tenancies</div>
         </div>
-        <div className="card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">Pending</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight">
+        <div className="metric-card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Pending</div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
             {items === null ? "…" : pendingCount}
           </div>
-          <div className="mt-1 text-xs text-muted">Awaiting move-in</div>
+          <div className="mt-1 text-xs text-slate-500">Awaiting move-in</div>
         </div>
-        <div className="card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">Ended</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight">
+        <div className="metric-card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Ended</div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
             {items === null ? "…" : endedCount}
           </div>
-          <div className="mt-1 text-xs text-muted">Archived tenancy records</div>
+          <div className="mt-1 text-xs text-slate-500">Archived tenancy records</div>
         </div>
       </div>
 
-      <div className="card p-4">
+      <div className="card rounded-[22px] p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
         <form className="grid gap-3 sm:grid-cols-2" onSubmit={submitTenancy}>
           <Select
             value={form.propertyId}
@@ -309,7 +309,7 @@ function TenanciesPageContent() {
           </div>
         </form>
         {tenants.length === 0 ? (
-          <div className="mt-3 text-sm text-muted">
+          <div className="mt-3 text-sm text-slate-600">
             Invite tenants from the People page before creating a tenancy.
           </div>
         ) : null}
@@ -324,7 +324,7 @@ function TenanciesPageContent() {
           body="When a tenant is placed in a property, the tenancy—its rent, dates and status—will appear here."
         />
       ) : (
-        <div className="card overflow-x-auto">
+        <div className="card overflow-x-auto rounded-[22px]">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">

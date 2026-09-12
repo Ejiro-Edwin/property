@@ -82,14 +82,14 @@ export default function ProfilePage() {
       />
 
       {me ? (
-        <div className="card p-6">
+        <div className="card rounded-[22px] p-6 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
           <div className="flex items-start gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xl font-semibold text-brand-ink">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#efffee] text-xl font-semibold text-[#004b49]">
               {me.name?.charAt(0).toUpperCase() || "?"}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-lg font-semibold tracking-tight">{me.name}</div>
-              <div className="mt-0.5 truncate text-sm text-muted">{me.email}</div>
+              <div className="text-lg font-semibold tracking-tight text-[#0f172a]">{me.name}</div>
+              <div className="mt-0.5 truncate text-sm text-slate-600">{me.email}</div>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 {me.role ? (
                   <Badge tone={roleTone(me.role)} className="capitalize">
@@ -132,13 +132,13 @@ export default function ProfilePage() {
           </form>
 
           <form action={logoutAction} method="post" className="mt-4 border-t border-border pt-4">
-            <Button type="submit" variant="secondary">
+            <Button type="submit" variant="secondary" className="border-slate-200 bg-white text-slate-800 hover:bg-slate-100">
               Sign out
             </Button>
           </form>
         </div>
       ) : (
-        <div className="card p-6 text-sm text-muted">
+        <div className="card rounded-[22px] p-6 text-sm text-slate-600">
           Could not load your profile. Try signing in again.
         </div>
       )}

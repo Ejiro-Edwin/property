@@ -25,6 +25,12 @@ export function AuthShell({
             <h1 className="mt-5 text-4xl font-black leading-[0.98] tracking-[-0.04em] text-white sm:text-5xl">{title}</h1>
             {description ? <p className="mt-5 max-w-sm text-sm leading-6 text-white/70">{description}</p> : null}
           </div>
+          <div className="relative z-10 flex items-center gap-3 text-xs text-white/70">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-2.5 py-1.5">
+              <span className="h-2 w-2 rounded-full bg-[#baff00]" />
+              Trust-first renting
+            </span>
+          </div>
           <div className="auth-pitch-shape auth-pitch-shape-one" />
           <div className="auth-pitch-shape auth-pitch-shape-two" />
         </section>
@@ -32,7 +38,7 @@ export function AuthShell({
           <div className="mb-8 lg:hidden">
             <Link href="/" className="text-xs font-semibold text-teal hover:underline">Back to home</Link>
           </div>
-          {children}
+          <div className="mx-auto w-full max-w-md">{children}</div>
         </section>
       </div>
     </main>

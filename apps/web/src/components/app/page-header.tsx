@@ -15,28 +15,29 @@ export function PageHeader({
   className?: string;
 }) {
   return (
-    <section className={cn("relative border-b border-border/60 pb-5", className)}>
-      <div
-        className="absolute left-0 top-1 h-10 w-1 rounded-full bg-brand"
-        aria-hidden
-      />
-      <div className="grid gap-5 pl-4 lg:grid-cols-[1fr_auto] lg:items-end">
+    <section
+      className={cn(
+        "rounded-[22px] border border-[#dfe7e3] bg-white/85 px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)] backdrop-blur-sm",
+        className,
+      )}
+    >
+      <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
         <div>
           {eyebrow ? (
-            <div className="text-xs font-medium uppercase tracking-[0.18em] text-muted">
+            <div className="text-xs font-bold uppercase tracking-[0.18em] text-[#1f6b67]">
               {eyebrow}
             </div>
           ) : null}
           <h1
             className={cn(
-              "text-2xl font-semibold tracking-tight sm:text-3xl",
+              "text-2xl font-bold tracking-tight text-[#0f172a] sm:text-3xl",
               eyebrow ? "mt-2" : "mt-0",
             )}
           >
             {title}
           </h1>
           {description ? (
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">{description}</p>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">{description}</p>
           ) : null}
         </div>
         {action ? <div className="lg:justify-self-end">{action}</div> : null}

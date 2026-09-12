@@ -261,46 +261,38 @@ function PeoplePageContent() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">
-            Members
-          </div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight">
+        <div className="metric-card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Members</div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
             {members === null ? "…" : memberCount}
           </div>
-          <div className="mt-1 text-xs text-muted">Active workspace users</div>
+          <div className="mt-1 text-xs text-slate-500">Active workspace users</div>
         </div>
-        <div className="card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">
-            Verified
-          </div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight">
+        <div className="metric-card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Verified</div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
             {members === null ? "…" : verifiedCount}
           </div>
-          <div className="mt-1 text-xs text-muted">Email-verified accounts</div>
+          <div className="mt-1 text-xs text-slate-500">Email-verified accounts</div>
         </div>
-        <div className="card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">
-            Invites
-          </div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight">
+        <div className="metric-card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Invites</div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
             {invites === null ? "…" : inviteCount}
           </div>
-          <div className="mt-1 text-xs text-muted">All invitation records</div>
+          <div className="mt-1 text-xs text-slate-500">All invitation records</div>
         </div>
-        <div className="card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">
-            Pending
-          </div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight">
+        <div className="metric-card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Pending</div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
             {invites === null ? "…" : pendingCount}
           </div>
-          <div className="mt-1 text-xs text-muted">Waiting to accept</div>
+          <div className="mt-1 text-xs text-slate-500">Waiting to accept</div>
         </div>
       </div>
 
       {canInvite ? (
-        <section className="card grid gap-4 p-5">
+        <section className="card grid gap-4 rounded-[22px] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
           <h2 className="text-sm font-semibold tracking-tight">Invite someone</h2>
           <form onSubmit={sendInvite} className="grid gap-3 sm:grid-cols-[1.4fr_1fr_auto_auto]">
             <Input

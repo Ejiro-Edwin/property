@@ -84,7 +84,7 @@ export default function NotificationsPage() {
         description="Overdue rent alerts, payment updates and workspace activity."
         action={
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex rounded-[12px] border border-border p-0.5">
+            <div className="flex rounded-[12px] border border-slate-200 bg-white p-0.5 shadow-sm">
               {(["all", "unread"] as const).map((f) => (
                 <button
                   key={f}
@@ -92,15 +92,15 @@ export default function NotificationsPage() {
                   className={cn(
                     "rounded-[10px] px-3 py-1.5 text-sm capitalize transition-colors",
                     filter === f
-                      ? "bg-brand-soft font-medium text-brand-ink"
-                      : "text-muted hover:text-foreground",
+                      ? "bg-[#efffee] font-medium text-[#004b49]"
+                      : "text-slate-500 hover:text-slate-800",
                   )}
                 >
                   {f}
                 </button>
               ))}
             </div>
-            <Button variant="secondary" onClick={markAllRead} disabled={unreadCount === 0}>
+            <Button variant="secondary" className="border-slate-200 bg-white text-slate-800 hover:bg-slate-100" onClick={markAllRead} disabled={unreadCount === 0}>
               Mark all read
             </Button>
           </div>
@@ -108,32 +108,26 @@ export default function NotificationsPage() {
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">
-            Total
-          </div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight">
+        <div className="metric-card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Total</div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
             {items === null ? "…" : totalCount}
           </div>
-          <div className="mt-1 text-xs text-muted">Workspace notifications</div>
+          <div className="mt-1 text-xs text-slate-500">Workspace notifications</div>
         </div>
-        <div className="card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">
-            Unread
-          </div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight">
+        <div className="metric-card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Unread</div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
             {items === null ? "…" : unreadCount}
           </div>
-          <div className="mt-1 text-xs text-muted">Needs your attention</div>
+          <div className="mt-1 text-xs text-slate-500">Needs your attention</div>
         </div>
-        <div className="card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">
-            Read
-          </div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight">
+        <div className="metric-card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Read</div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
             {items === null ? "…" : readCount}
           </div>
-          <div className="mt-1 text-xs text-muted">Already acknowledged</div>
+          <div className="mt-1 text-xs text-slate-500">Already acknowledged</div>
         </div>
       </div>
 

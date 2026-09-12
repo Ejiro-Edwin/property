@@ -84,22 +84,22 @@ export function AppShell({
 
   return (
     <div className="app-workspace min-h-dvh flex flex-col md:flex-row">
-      <header className="app-sidebar flex items-center justify-between border-b border-border px-4 py-3 md:hidden">
+      <header className="app-sidebar flex items-center justify-between border-b border-white/10 px-4 py-3 text-white md:hidden">
         <Link href={`/t/${tenantId}/app`} className="flex items-center gap-2">
-          <Mark />
+          <Mark className="h-7 w-7 text-[#e6ffb3]" />
           <span className="text-sm font-semibold tracking-tight">TenantSea</span>
         </Link>
         <div className="flex items-center gap-2">
           <Link
             href={`/t/${tenantId}/app/profile`}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-soft text-sm font-semibold text-brand-ink"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-[#203d39] text-sm font-semibold text-[#efffee]"
           >
             {user?.name?.charAt(0).toUpperCase() || "?"}
           </Link>
           <button
             type="button"
             aria-label="Open menu"
-            className="rounded-[10px] px-3 py-2 text-sm font-medium text-muted hover:bg-black/5 hover:text-foreground"
+            className="rounded-[10px] border border-white/10 bg-white/5 px-3 py-2 text-sm font-medium text-white/80 hover:bg-white/10"
             onClick={() => setMobileOpen((v) => !v)}
           >
             Menu
@@ -117,14 +117,14 @@ export function AppShell({
 
       <aside
         className={cn(
-          "app-sidebar fixed inset-y-0 left-0 z-50 flex w-[264px] flex-col gap-5 border-r border-border px-4 py-6 transition-transform md:static md:sticky md:top-0 md:z-auto md:h-dvh md:translate-x-0",
+          "app-sidebar fixed inset-y-0 left-0 z-50 flex w-[264px] flex-col gap-5 border-r border-white/10 px-4 py-6 text-white transition-transform md:static md:sticky md:top-0 md:z-auto md:h-dvh md:translate-x-0",
           mobileOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         {sidebar}
       </aside>
 
-      <div className="min-w-0 flex-1">
+      <div className="page-shell min-w-0 flex-1 rounded-t-[24px] md:rounded-l-[24px] md:rounded-tr-[0] md:mt-4 md:mr-4 md:mb-4">
         <main className="px-4 py-6 md:px-6 md:py-8">{children}</main>
       </div>
     </div>

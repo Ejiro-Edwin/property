@@ -97,83 +97,81 @@ export function TenantHome() {
 
   return (
     <div className="mx-auto grid w-full max-w-6xl gap-5 pb-8">
-      <section className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-5">
-        <div><p className="text-xs font-bold uppercase tracking-[0.18em] text-teal">Tenant workspace</p><h1 className="mt-2 text-3xl font-bold tracking-tight text-teal">{me ? `Good morning, ${me.name.split(" ")[0]}.` : "Welcome back."}</h1><p className="mt-1 text-sm text-muted">Your home, payments, and trust profile at a glance.</p></div>
+      <section className="flex flex-wrap items-end justify-between gap-4 rounded-[22px] border border-[#dfe7e3] bg-white/80 px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)] backdrop-blur-sm">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#1f6b67]">Tenant workspace</p>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-[#0f172a]">{me ? `Good morning, ${me.name.split(" ")[0]}.` : "Welcome back."}</h1>
+          <p className="mt-1 text-sm text-slate-600">Your home, payments, and trust profile at a glance.</p>
+        </div>
         <div className="flex flex-wrap gap-2">
           <Link href={`/t/${tenantId}/app/my-tenancy`}>
-            <Button variant="secondary">My tenancy</Button>
+            <Button variant="secondary" className="border-slate-200 bg-white text-slate-800 hover:bg-slate-100">My tenancy</Button>
           </Link>
           <Link href={`/t/${tenantId}/app/payments`}>
-            <Button>My payments</Button>
+            <Button className="bg-[#baff00] text-[#0d1b1d] hover:bg-[#a7ea00]">My payments</Button>
           </Link>
-          {tenancy ? <Button onClick={() => setPayOpen(true)}>Pay rent</Button> : null}
+          {tenancy ? <Button onClick={() => setPayOpen(true)} className="bg-[#0d1b1d] text-white hover:bg-[#18282a]">Pay rent</Button> : null}
         </div>
       </section>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <div className="card p-4">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">Trust score</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-success">
-            {trust ? trust.trustScore : "…"}
-          </div>
-          <div className="mt-1 text-xs text-muted">Based on your payment history</div>
+        <div className="metric-card p-4">
+          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Trust score</div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f8b68]">{trust ? trust.trustScore : "…"}</div>
+          <div className="mt-1 text-xs text-slate-500">Based on your payment history</div>
         </div>
-        <div className="card p-4">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">Tenancy</div>
-          <div className="mt-1 text-lg font-semibold tracking-tight">
+        <div className="metric-card p-4">
+          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Tenancy</div>
+          <div className="mt-1 text-lg font-semibold tracking-tight text-[#0f172a]">
             {tenancy ? (
               <Badge tone={tenancyStatusTone(tenancy.status)}>{tenancy.status.toLowerCase()}</Badge>
             ) : (
               "None"
             )}
           </div>
-          <div className="mt-1 text-xs text-muted">
-            {property?.title ?? "Not assigned yet"}
-          </div>
+          <div className="mt-1 text-xs text-slate-500">{property?.title ?? "Not assigned yet"}</div>
         </div>
-        <div className="card p-4">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">Recent payments</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight">
-            {payments === null ? "…" : payments.length}
-          </div>
-          <div className="mt-1 text-xs text-muted">Recorded for you</div>
+        <div className="metric-card p-4">
+          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Recent payments</div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">{payments === null ? "…" : payments.length}</div>
+          <div className="mt-1 text-xs text-slate-500">Recorded for you</div>
         </div>
       </div>
 
       {tenancy && property ? (
-        <section className="card p-5">
-          <h2 className="text-sm font-semibold tracking-tight">Current home</h2>
+        <section className="card rounded-[22px] p-5">
+          <h2 className="text-sm font-semibold tracking-tight text-[#0f172a]">Current home</h2>
           <div className="mt-3 grid gap-1">
-            <div className="text-base font-medium">{property.title}</div>
-            <div className="text-sm text-muted">{property.address}</div>
-            <div className="mt-2 text-sm">
+            <div className="text-base font-medium text-[#0f172a]">{property.title}</div>
+            <div className="text-sm text-slate-600">{property.address}</div>
+            <div className="mt-2 text-sm text-slate-700">
               {formatMoney(tenancy.rentAmount, tenancy.currency)} / yr · from{" "}
               {formatDate(tenancy.startDate)}
             </div>
           </div>
         </section>
       ) : (
-        <section className="card p-5 text-sm text-muted">
+        <section className="card rounded-[22px] p-5 text-sm text-slate-600">
           You don&apos;t have an active tenancy yet. Your landlord will set this up and
           you&apos;ll see your property details here.
         </section>
       )}
 
       {payments && payments.length > 0 ? (
-        <section className="card divide-y divide-border">
-          <div className="px-5 py-3 text-sm font-semibold tracking-tight">Recent payments</div>
+        <section className="card divide-y divide-slate-200 overflow-hidden rounded-[22px]">
+          <div className="px-5 py-3 text-sm font-semibold tracking-tight text-[#0f172a]">Recent payments</div>
           {payments.map((p) => (
             <div key={p.id} className="flex items-center justify-between px-5 py-3.5">
               <div>
-                <div className="text-sm font-medium">{formatMoney(p.amount, p.currency)}</div>
-                <div className="text-xs text-muted">{formatDate(p.dueDate)}</div>
+                <div className="text-sm font-medium text-[#0f172a]">{formatMoney(p.amount, p.currency)}</div>
+                <div className="text-xs text-slate-500">{formatDate(p.dueDate)}</div>
               </div>
               <Badge tone={paymentStatusTone(p.status)}>{p.status}</Badge>
             </div>
           ))}
         </section>
       ) : payments !== null ? (
-        <section className="card p-5 text-sm text-muted">No payments recorded yet.</section>
+        <section className="card rounded-[22px] p-5 text-sm text-slate-600">No payments recorded yet.</section>
       ) : (
         <Skeleton className="h-[120px]" />
       )}

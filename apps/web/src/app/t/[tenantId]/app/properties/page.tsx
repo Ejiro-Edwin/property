@@ -184,39 +184,39 @@ function PropertiesPageContent() {
         title="Properties"
         description={items ? `${total} propert${total === 1 ? "y" : "ies"} in this workspace.` : undefined}
         action={
-          <Button onClick={resetForm} className="shrink-0" variant="secondary">
+          <Button onClick={resetForm} className="shrink-0 bg-[#baff00] text-[#0d1b1d] hover:bg-[#a7ea00]">
             Add property
           </Button>
         }
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">Properties</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight">
+        <div className="metric-card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Properties</div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
             {items === null ? "…" : total}
           </div>
-          <div className="mt-1 text-xs text-muted">Listings in this workspace</div>
+          <div className="mt-1 text-xs text-slate-500">Listings in this workspace</div>
         </div>
-        <div className="card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+        <div className="metric-card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
             Portfolio value
           </div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight">
+          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
             {items === null ? "…" : formatMoney(portfolioValue)}
           </div>
-          <div className="mt-1 text-xs text-muted">Annual rent across all properties</div>
+          <div className="mt-1 text-xs text-slate-500">Annual rent across all properties</div>
         </div>
-        <div className="card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">Average rent</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight">
+        <div className="metric-card p-5">
+          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Average rent</div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
             {items === null ? "…" : formatMoney(avgRent)}
           </div>
-          <div className="mt-1 text-xs text-muted">Per property, on average</div>
+          <div className="mt-1 text-xs text-slate-500">Per property, on average</div>
         </div>
       </div>
 
-      <div className="card p-4">
+      <div className="card rounded-[22px] p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
         <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
           <form className="grid gap-3 sm:grid-cols-2" onSubmit={submitProperty}>
             <Input
@@ -280,7 +280,7 @@ function PropertiesPageContent() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by title or address…"
             />
-            <div className="rounded-[16px] border border-border bg-brand-soft/60 p-4 text-sm text-muted">
+            <div className="rounded-[16px] border border-[#dfe7e3] bg-[#f6fff0] p-4 text-sm leading-6 text-slate-600">
               You are recorded as the landlord automatically. Assign an agent
               from your workspace if someone manages this property for you.
             </div>
@@ -307,15 +307,15 @@ function PropertiesPageContent() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((p) => (
-            <Link key={p.id} href={`/t/${tenantId}/app/properties/${p.id}`} className="card overflow-hidden transition hover:-translate-y-0.5 hover:shadow-lg">
+            <Link key={p.id} href={`/t/${tenantId}/app/properties/${p.id}`} className="card overflow-hidden rounded-[22px] transition hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
               <div className="property-art h-28" />
               <div className="p-4">
-                <div className="truncate text-sm font-semibold tracking-tight">{p.title}</div>
-                <div className="mt-0.5 truncate text-xs text-muted">{p.address}</div>
+                <div className="truncate text-sm font-semibold tracking-tight text-[#0f172a]">{p.title}</div>
+                <div className="mt-0.5 truncate text-xs text-slate-500">{p.address}</div>
                 <div className="mt-3 flex items-center justify-between gap-2">
-                  <div className="text-sm font-medium">
+                  <div className="text-sm font-medium text-[#0f172a]">
                     {formatMoney(p.rentAmount, p.currency)}
-                    <span className="text-xs font-normal text-muted"> / yr</span>
+                    <span className="text-xs font-normal text-slate-500"> / yr</span>
                   </div>
                   {p.bedrooms != null ? (
                     <Badge tone="sand" className="shrink-0">
@@ -324,7 +324,7 @@ function PropertiesPageContent() {
                   ) : null}
                 </div>
                 <div className="mt-4 flex items-center gap-2">
-                  <Button size="sm" variant="secondary" onClick={() => startEdit(p)}>
+                  <Button size="sm" variant="secondary" className="border-slate-200 bg-white text-slate-800 hover:bg-slate-100" onClick={() => startEdit(p)}>
                     Edit
                   </Button>
                   <Button size="sm" variant="danger" onClick={() => deleteProperty(p.id)}>

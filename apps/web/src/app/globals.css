@@ -78,7 +78,7 @@ html {
 }
 
 body {
-  background: var(--background);
+  background: #0d0f12;
   color: var(--foreground);
   min-height: 100dvh;
 }
@@ -149,5 +149,34 @@ a {
 .text-lime { color: var(--auth-lime); }
 .text-teal { color: var(--auth-teal); }
 
-.app-workspace { background: var(--auth-mint); }
-.app-sidebar { background: #fff; }
+.app-workspace {
+  background:
+    radial-gradient(circle at top left, rgba(186, 255, 0, 0.12), transparent 28%),
+    linear-gradient(180deg, #0d1115 0%, #111a1b 100%);
+}
+.app-sidebar {
+  background: rgba(16, 21, 24, 0.96);
+  backdrop-filter: blur(10px);
+}
+
+.page-shell {
+  background: #f5f7f4;
+  color: var(--foreground);
+}
+
+.metric-card,
+.card,
+.panel {
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+}
+
+.metric-card {
+  border-radius: 18px;
+}
+
+.deck-grid {
+  display: grid;
+  gap: 1rem;
+}

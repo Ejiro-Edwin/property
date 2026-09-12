@@ -93,37 +93,37 @@ export default function MyTenancyPage() {
             const property = propertyMap.get(t.propertyId);
             const terminated = t.status.toLowerCase() === "terminated";
             return (
-              <div key={t.id} className="card overflow-hidden">
+              <div key={t.id} className="card overflow-hidden rounded-[22px] shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
                 {property ? <div className="property-art h-32" /> : null}
                 <div className="p-5">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <div className="text-lg font-semibold tracking-tight">
+                      <div className="text-lg font-semibold tracking-tight text-[#0f172a]">
                         {terminated ? "Terminated tenancy" : property?.title ?? "Your property"}
                       </div>
                       {property ? (
-                        <div className="mt-1 text-sm text-muted">{property.address}</div>
+                        <div className="mt-1 text-sm text-slate-600">{property.address}</div>
                       ) : null}
                     </div>
                     <Badge tone={tenancyStatusTone(t.status)}>{t.status.toLowerCase()}</Badge>
                   </div>
                   <div className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
                     <div>
-                      <span className="text-muted">Rent · </span>
-                      <span className="font-medium">
+                      <span className="text-slate-500">Rent · </span>
+                      <span className="font-medium text-[#0f172a]">
                         {formatMoney(t.rentAmount, t.currency)} / yr
                       </span>
                     </div>
                     <div>
-                      <span className="text-muted">Period · </span>
-                      <span className="font-medium">
+                      <span className="text-slate-500">Period · </span>
+                      <span className="font-medium text-[#0f172a]">
                         {formatDate(t.startDate)} — {t.endDate ? formatDate(t.endDate) : "ongoing"}
                       </span>
                     </div>
                     {property?.bedrooms != null ? (
                       <div>
-                        <span className="text-muted">Bedrooms · </span>
-                        <span className="font-medium">{property.bedrooms}</span>
+                        <span className="text-slate-500">Bedrooms · </span>
+                        <span className="font-medium text-[#0f172a]">{property.bedrooms}</span>
                       </div>
                     ) : null}
                   </div>

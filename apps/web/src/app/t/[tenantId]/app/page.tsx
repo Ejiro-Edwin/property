@@ -44,9 +44,24 @@ export default function OverviewPage() {
 
   return (
     <div className="mx-auto grid w-full max-w-[1440px] gap-5 pb-8">
-      <section className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-5">
-        <div><p className="text-xs font-bold uppercase tracking-[0.18em] text-teal">Workspace overview</p><h1 className="mt-2 text-3xl font-bold tracking-tight text-teal">Good morning, landlord.</h1><p className="mt-1 text-sm text-muted">Here&apos;s what&apos;s happening across your portfolio today.</p></div>
-        <div className="flex gap-2"><Link href={`/t/${tenantId}/app/properties`}><Button><IconBuilding width={16} height={16} />Add property</Button></Link><Link href={`/t/${tenantId}/app/people`}><Button variant="secondary"><IconUsers width={16} height={16} />Invite tenant</Button></Link></div>
+      <section className="flex flex-wrap items-end justify-between gap-4 rounded-[22px] border border-[#dfe7e3] bg-white/80 px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)] backdrop-blur-sm">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#1f6b67]">Workspace overview</p>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-[#0f172a]">Good morning, landlord.</h1>
+          <p className="mt-1 text-sm text-slate-600">Here&apos;s what&apos;s happening across your portfolio today.</p>
+        </div>
+        <div className="flex gap-2">
+          <Link href={`/t/${tenantId}/app/properties`}>
+            <Button className="bg-[#baff00] text-[#0d1b1d] hover:bg-[#a7ea00]">
+              <IconBuilding width={16} height={16} />Add property
+            </Button>
+          </Link>
+          <Link href={`/t/${tenantId}/app/people`}>
+            <Button variant="secondary" className="border-slate-200 bg-white text-slate-800 hover:bg-slate-100">
+              <IconUsers width={16} height={16} />Invite tenant
+            </Button>
+          </Link>
+        </div>
       </section>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -57,11 +72,39 @@ export default function OverviewPage() {
       </div>
 
       <div className="grid items-start gap-5 xl:grid-cols-[1.55fr_0.85fr]">
-        <section className="card overflow-hidden"><div className="flex items-center justify-between border-b border-border px-5 py-4"><div><h2 className="font-semibold text-teal">Properties</h2><p className="mt-1 text-xs text-muted">Your latest portfolio activity</p></div><Link href={`/t/${tenantId}/app/properties`} className="text-sm font-medium text-teal hover:underline">View all</Link></div>{properties === null ? <div className="grid gap-3 p-5"><Skeleton className="h-16" /><Skeleton className="h-16" /></div> : properties.length === 0 ? <div className="p-8 text-center text-sm text-muted">No properties yet. Add your first property to get started.</div> : <div className="divide-y divide-border">{properties.map((property) => <Link key={property.id} href={`/t/${tenantId}/app/properties`} className="grid gap-3 px-5 py-4 transition hover:bg-brand-soft/40 sm:grid-cols-[1fr_auto_auto] sm:items-center"><div><div className="font-medium text-teal">{property.title}</div><div className="mt-1 text-xs text-muted">{property.address}</div></div><div className="text-sm font-semibold">{formatMoney(property.rentAmount, property.currency)}<span className="ml-1 text-xs font-normal text-muted">/yr</span></div><Badge tone="success">Active</Badge></Link>)}</div>}</section>
-        <section className="card overflow-hidden"><div className="flex items-center justify-between border-b border-border px-5 py-4"><div><h2 className="font-semibold text-teal">Notifications</h2><p className="mt-1 text-xs text-muted">Recent workspace updates</p></div><Link href={`/t/${tenantId}/app/notifications`} className="text-sm font-medium text-teal hover:underline">View all</Link></div>{notifications === null ? <div className="p-5"><Skeleton className="h-32" /></div> : notifications.length === 0 ? <div className="p-8 text-center text-sm text-muted">You&apos;re all caught up.</div> : <div className="divide-y divide-border">{notifications.map((notice) => <div key={notice.id} className="flex gap-3 px-5 py-4"><span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${notice.read ? "bg-border" : "bg-brand"}`} /><div><div className="text-sm leading-5">{notice.message}</div><div className="mt-1 text-xs text-muted">{formatDateTime(notice.createdAt)}</div></div></div>)}</div>}</section>
+        <section className="card overflow-hidden rounded-[22px]">
+          <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+            <div>
+              <h2 className="font-semibold text-[#0f172a]">Properties</h2>
+              <p className="mt-1 text-xs text-slate-500">Your latest portfolio activity</p>
+            </div>
+            <Link href={`/t/${tenantId}/app/properties`} className="text-sm font-medium text-[#1f6b67] hover:underline">View all</Link>
+          </div>
+          {properties === null ? <div className="grid gap-3 p-5"><Skeleton className="h-16" /><Skeleton className="h-16" /></div> : properties.length === 0 ? <div className="p-8 text-center text-sm text-slate-600">No properties yet. Add your first property to get started.</div> : <div className="divide-y divide-slate-200">{properties.map((property) => <Link key={property.id} href={`/t/${tenantId}/app/properties`} className="grid gap-3 px-5 py-4 transition hover:bg-[#f6fff0] sm:grid-cols-[1fr_auto_auto] sm:items-center"><div><div className="font-medium text-[#0f172a]">{property.title}</div><div className="mt-1 text-xs text-slate-500">{property.address}</div></div><div className="text-sm font-semibold text-[#0f172a]">{formatMoney(property.rentAmount, property.currency)}<span className="ml-1 text-xs font-normal text-slate-500">/yr</span></div><Badge tone="success">Active</Badge></Link>)}</div>}
+        </section>
+
+        <section className="card overflow-hidden rounded-[22px]">
+          <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+            <div>
+              <h2 className="font-semibold text-[#0f172a]">Notifications</h2>
+              <p className="mt-1 text-xs text-slate-500">Recent workspace updates</p>
+            </div>
+            <Link href={`/t/${tenantId}/app/notifications`} className="text-sm font-medium text-[#1f6b67] hover:underline">View all</Link>
+          </div>
+          {notifications === null ? <div className="p-5"><Skeleton className="h-32" /></div> : notifications.length === 0 ? <div className="p-8 text-center text-sm text-slate-600">You&apos;re all caught up.</div> : <div className="divide-y divide-slate-200">{notifications.map((notice) => <div key={notice.id} className="flex gap-3 px-5 py-4"><span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${notice.read ? "bg-slate-300" : "bg-[#baff00]"}`} /><div><div className="text-sm leading-5 text-slate-700">{notice.message}</div><div className="mt-1 text-xs text-slate-500">{formatDateTime(notice.createdAt)}</div></div></div>)}</div>}
+        </section>
       </div>
 
-      <section className="card overflow-hidden"><div className="flex items-center justify-between border-b border-border px-5 py-4"><div><h2 className="font-semibold text-teal">Recent payments</h2><p className="mt-1 text-xs text-muted">Collection activity across your tenancies</p></div><Link href={`/t/${tenantId}/app/payments`} className="text-sm font-medium text-teal hover:underline">View payments</Link></div>{payments === null ? <div className="p-5"><Skeleton className="h-32" /></div> : payments.length === 0 ? <div className="p-8 text-center text-sm text-muted">No payments recorded yet.</div> : <div className="divide-y divide-border">{payments.map((payment) => <div key={payment.id} className="grid gap-2 px-5 py-4 sm:grid-cols-[1fr_auto_auto] sm:items-center"><div><div className="text-sm font-medium">Payment recorded</div><div className="mt-1 text-xs text-muted">{formatDateTime(payment.createdAt)}</div></div><div className="text-sm font-semibold">{formatMoney(payment.amount, payment.currency)}</div><Badge tone={paymentStatusTone(payment.status)}>{payment.status}</Badge></div>)}</div>}</section>
+      <section className="card overflow-hidden rounded-[22px]">
+        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+          <div>
+            <h2 className="font-semibold text-[#0f172a]">Recent payments</h2>
+            <p className="mt-1 text-xs text-slate-500">Collection activity across your tenancies</p>
+          </div>
+          <Link href={`/t/${tenantId}/app/payments`} className="text-sm font-medium text-[#1f6b67] hover:underline">View payments</Link>
+        </div>
+        {payments === null ? <div className="p-5"><Skeleton className="h-32" /></div> : payments.length === 0 ? <div className="p-8 text-center text-sm text-slate-600">No payments recorded yet.</div> : <div className="divide-y divide-slate-200">{payments.map((payment) => <div key={payment.id} className="grid gap-2 px-5 py-4 sm:grid-cols-[1fr_auto_auto] sm:items-center"><div><div className="text-sm font-medium text-[#0f172a]">Payment recorded</div><div className="mt-1 text-xs text-slate-500">{formatDateTime(payment.createdAt)}</div></div><div className="text-sm font-semibold text-[#0f172a]">{formatMoney(payment.amount, payment.currency)}</div><Badge tone={paymentStatusTone(payment.status)}>{payment.status}</Badge></div>)}</div>}
+      </section>
     </div>
   );
 }

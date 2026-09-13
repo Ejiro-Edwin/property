@@ -39,6 +39,7 @@ export default function DocumentsPage() {
   return (
     <div className="mx-auto grid w-full max-w-5xl gap-6 pb-8">
       <PageHeader
+        eyebrow="Workspace files"
         title="Documents"
         description="Store and share tenancy documents securely."
       />
@@ -61,7 +62,7 @@ export default function DocumentsPage() {
         </div>
       </div>
 
-      <form className="card grid gap-4 rounded-[22px] p-6 sm:grid-cols-3" onSubmit={submit}>
+      <form className="card grid gap-4 rounded-[20px] p-5 sm:grid-cols-3" onSubmit={submit}>
         <Field label="Document name"><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></Field>
         <Field label="Category"><Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} required /></Field>
         <Field label="Storage URL"><Input type="url" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} required /></Field>

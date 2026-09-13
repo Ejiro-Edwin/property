@@ -17,20 +17,20 @@ export function PageHeader({
   return (
     <section
       className={cn(
-        "rounded-[22px] border border-[#dfe7e3] bg-white/85 px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)] backdrop-blur-sm",
+        "rounded-[18px] border border-[#dfe7e3] bg-white px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]",
         className,
       )}
     >
-      <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
+      <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
         <div>
           {eyebrow ? (
-            <div className="text-xs font-bold uppercase tracking-[0.18em] text-[#1f6b67]">
+            <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#1f6b67]">
               {eyebrow}
             </div>
           ) : null}
           <h1
             className={cn(
-              "text-2xl font-bold tracking-tight text-[#0f172a] sm:text-3xl",
+              "text-[2rem] font-bold tracking-[-0.04em] text-[#0f172a]",
               eyebrow ? "mt-2" : "mt-0",
             )}
           >

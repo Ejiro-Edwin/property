@@ -96,15 +96,15 @@ function AuditPageContent() {
         description="The last 100 actions recorded in this workspace."
       />
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="card p-5">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="metric-card p-5">
           <div className="text-xs font-medium uppercase tracking-wide text-muted">Entries</div>
           <div className="mt-1 text-3xl font-semibold tracking-tight">
             {logs === null ? "…" : totalLogs}
           </div>
           <div className="mt-1 text-xs text-muted">Recent activity recorded</div>
         </div>
-        <div className="card p-5">
+        <div className="metric-card p-5">
           <div className="text-xs font-medium uppercase tracking-wide text-muted">
             Successful
           </div>
@@ -113,7 +113,7 @@ function AuditPageContent() {
           </div>
           <div className="mt-1 text-xs text-muted">Below 400 status code</div>
         </div>
-        <div className="card p-5">
+        <div className="metric-card p-5">
           <div className="text-xs font-medium uppercase tracking-wide text-muted">Failed</div>
           <div className="mt-1 text-3xl font-semibold tracking-tight">
             {logs === null ? "…" : failedLogs}
@@ -130,7 +130,7 @@ function AuditPageContent() {
           body="Actions performed in this workspace will be recorded here for accountability."
         />
       ) : (
-        <div className="card divide-y divide-border">
+        <div className="card-flat divide-y divide-border">
           {logs.map((log) => (
             <div key={log.id} className="flex items-center gap-4 px-5 py-4">
               <Badge tone={methodTone(log.method)} className="w-16 justify-center">

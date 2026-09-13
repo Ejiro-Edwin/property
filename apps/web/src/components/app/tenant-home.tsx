@@ -97,10 +97,10 @@ export function TenantHome() {
 
   return (
     <div className="mx-auto grid w-full max-w-6xl gap-5 pb-8">
-      <section className="flex flex-wrap items-end justify-between gap-4 rounded-[22px] border border-[#dfe7e3] bg-white/80 px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)] backdrop-blur-sm">
+      <section className="flex flex-wrap items-end justify-between gap-4 rounded-[18px] border border-[#dfe7e3] bg-white px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#1f6b67]">Tenant workspace</p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-[#0f172a]">{me ? `Good morning, ${me.name.split(" ")[0]}.` : "Welcome back."}</h1>
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#1f6b67]">Tenant workspace</p>
+          <h1 className="mt-2 text-[2rem] font-bold tracking-[-0.04em] text-[#0f172a]">{me ? `Good morning, ${me.name.split(" ")[0]}.` : "Welcome back."}</h1>
           <p className="mt-1 text-sm text-slate-600">Your home, payments, and trust profile at a glance.</p>
         </div>
         <div className="flex flex-wrap gap-2">

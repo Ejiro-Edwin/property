@@ -78,7 +78,13 @@ function LoginForm() {
   }
 
   return (
-    <AuthShell eyebrow="Welcome back" title="Everything you need for a better rental experience." description="Sign in to manage your rental journey with clarity.">
+    <AuthShell
+      eyebrow="Welcome back"
+      title="Everything you need for a better rental experience."
+      description="Sign in to manage your rental journey with clarity."
+      titleClassName="text-[2.2rem] sm:text-[2.75rem] lg:text-[4.2rem]"
+      descriptionClassName="text-[1.2rem] sm:text-[1.45rem]"
+    >
       {signedIn ? (
         <div className="py-12 text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border-2 border-teal border-t-transparent animate-spin" />
@@ -87,7 +93,7 @@ function LoginForm() {
         </div>
       ) : (
         <>
-          <div className="mb-2 text-lg font-semibold tracking-tight">Sign in</div>
+          <div className="mb-2 text-[1.625rem] font-bold tracking-[-0.04em] text-[#0f172a]">Sign in</div>
           <div className="text-sm text-muted">
             Use your email and password. We&apos;ll take you to your workspace.
           </div>
@@ -140,7 +146,7 @@ function LoginForm() {
               </div>
             ) : null}
 
-            <Button disabled={busy} type="submit">
+            <Button disabled={busy} type="submit" className="mt-2">
               {busy ? "Signing in…" : "Sign in"}
             </Button>
 

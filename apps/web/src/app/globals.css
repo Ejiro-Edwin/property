@@ -78,7 +78,7 @@ html {
 }
 
 body {
-  background: #0d0f12;
+  background: #f4f7f3;
   color: var(--foreground);
   min-height: 100dvh;
 }
@@ -92,16 +92,16 @@ a {
 }
 
 .card {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
-  background: var(--surface);
+  border: 1px solid #dfe7e3;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+  background: rgba(255, 255, 255, 0.98);
 }
 
 .card-flat {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--surface);
+  border: 1px solid #dfe7e3;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.98);
 }
 
 @media (min-width: 1536px) {

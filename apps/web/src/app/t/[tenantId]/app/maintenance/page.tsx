@@ -74,7 +74,7 @@ export default function MaintenancePage() {
         </div>
       </div>
 
-      <form className="card grid gap-4 rounded-[22px] p-6 sm:grid-cols-2" onSubmit={submit}>
+      <form className="card grid gap-4 rounded-[20px] p-5 sm:grid-cols-2" onSubmit={submit}>
         <Field label="Issue">
           <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
         </Field>

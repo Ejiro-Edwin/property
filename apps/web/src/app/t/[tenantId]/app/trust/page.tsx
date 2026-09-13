@@ -117,13 +117,13 @@ function TrustPageContent() {
 
       {profile ? (
         <div className="grid gap-6">
-          <div className="card flex items-center gap-6 p-6">
+          <div className="card flex flex-col gap-6 p-6 sm:flex-row sm:items-center">
             <div>
-              <div className="text-xs font-medium uppercase tracking-wide text-muted">
+              <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#1f6b67]">
                 Trust score
               </div>
               <div
-                className={`mt-1 text-5xl font-semibold tracking-tight ${scoreTone(profile.trustScore)}`}
+                className={`mt-2 text-5xl font-semibold tracking-[-0.05em] ${scoreTone(profile.trustScore)}`}
               >
                 {profile.trustScore}
               </div>

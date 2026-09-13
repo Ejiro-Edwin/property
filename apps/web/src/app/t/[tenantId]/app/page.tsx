@@ -44,10 +44,10 @@ export default function OverviewPage() {
 
   return (
     <div className="mx-auto grid w-full max-w-[1440px] gap-5 pb-8">
-      <section className="flex flex-wrap items-end justify-between gap-4 rounded-[22px] border border-[#dfe7e3] bg-white/80 px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)] backdrop-blur-sm">
+      <section className="flex flex-wrap items-end justify-between gap-4 rounded-[18px] border border-[#dfe7e3] bg-white px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#1f6b67]">Workspace overview</p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-[#0f172a]">Good morning, landlord.</h1>
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#1f6b67]">Workspace overview</p>
+          <h1 className="mt-2 text-[2rem] font-bold tracking-[-0.04em] text-[#0f172a]">Good morning, landlord.</h1>
           <p className="mt-1 text-sm text-slate-600">Here&apos;s what&apos;s happening across your portfolio today.</p>
         </div>
         <div className="flex gap-2">

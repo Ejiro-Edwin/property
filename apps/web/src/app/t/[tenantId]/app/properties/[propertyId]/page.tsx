@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { api, ApiError } from "@/lib/api";
+import { PageHeader } from "@/components/app/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -55,23 +56,21 @@ export default function PropertyDetailPage() {
 
   return (
     <div className="mx-auto grid w-full max-w-6xl gap-6 pb-8">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-[22px] border border-[#dfe7e3] bg-white/85 px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
-        <div>
-          <Link href={`/t/${tenantId}/app/properties`} className="text-xs font-medium text-slate-500 hover:text-[#004b49]">
-            Properties / Overview
-          </Link>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-[#0f172a]">{property.title}</h1>
-          <p className="mt-1 text-sm text-slate-600">{property.address}</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="secondary" className="border-slate-200 bg-white text-slate-800 hover:bg-slate-100">
-            Edit property
-          </Button>
-          <Button className="bg-[#baff00] text-[#0d1b1d] hover:bg-[#a7ea00]">Share property</Button>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Property overview"
+        title={property.title}
+        description={property.address}
+        action={
+          <div className="flex flex-wrap gap-2">
+            <Button variant="secondary" className="border-slate-200 bg-white text-slate-800 hover:bg-slate-100">
+              Edit property
+            </Button>
+            <Button className="bg-[#baff00] text-[#0d1b1d] hover:bg-[#a7ea00]">Share property</Button>
+          </div>
+        }
+      />
 
-      <div className="property-art h-64 overflow-hidden rounded-[22px] shadow-[0_10px_30px_rgba(15,23,42,0.04)] sm:h-80">
+      <div className="property-art h-64 overflow-hidden rounded-[20px] shadow-[0_10px_30px_rgba(15,23,42,0.04)] sm:h-80">
         <div className="flex h-full items-end bg-gradient-to-t from-[#0f172a]/75 via-transparent to-transparent p-6">
           <div className="text-white">
             <div className="text-xs font-bold uppercase tracking-[0.18em] text-[#baff00]">Active property</div>
@@ -86,7 +85,7 @@ export default function PropertyDetailPage() {
         <Stat label="Status" value="Available" />
       </div>
 
-      <div className="flex gap-2 rounded-[14px] border border-slate-200 bg-white p-1 shadow-sm">
+      <div className="flex gap-2 rounded-[12px] border border-[#dfe7e3] bg-[#f8faf9] p-1 shadow-sm">
         {(["overview", "amenities", "rules"] as Tab[]).map((item) => (
           <button
             key={item}
@@ -103,7 +102,7 @@ export default function PropertyDetailPage() {
 
       {tab === "overview" ? (
         <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
-          <section className="card rounded-[22px] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+          <section className="card rounded-[20px] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
             <h2 className="text-lg font-semibold text-[#0f172a]">Property overview</h2>
             <p className="mt-3 text-sm leading-6 text-slate-600">
               Manage the property details, occupancy, amenities, and house rules from one place.
@@ -116,7 +115,7 @@ export default function PropertyDetailPage() {
             </div>
           </section>
 
-          <section className="card rounded-[22px] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+          <section className="card rounded-[20px] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-lg font-semibold text-[#0f172a]">Workspace notes</h2>
               <Badge tone="brand">Live</Badge>
@@ -172,7 +171,7 @@ function Info({ label, value }: { label: string; value: string }) {
 
 function FeatureList({ title, empty, items }: { title: string; empty: string; items: string[] }) {
   return (
-    <section className="card rounded-[22px] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+    <section className="card rounded-[20px] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-[#0f172a]">{title}</h2>
         <Button size="sm" className="bg-[#baff00] text-[#0d1b1d] hover:bg-[#a7ea00]">

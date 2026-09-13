@@ -292,8 +292,8 @@ function PeoplePageContent() {
       </div>
 
       {canInvite ? (
-        <section className="card grid gap-4 rounded-[22px] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
-          <h2 className="text-sm font-semibold tracking-tight">Invite someone</h2>
+        <section className="card grid gap-4 rounded-[20px] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+          <h2 className="text-sm font-semibold tracking-tight text-[#0f172a]">Invite someone</h2>
           <form onSubmit={sendInvite} className="grid gap-3 sm:grid-cols-[1.4fr_1fr_auto_auto]">
             <Input
               type="email"
@@ -307,7 +307,7 @@ function PeoplePageContent() {
               onChange={(e) => setName(e.target.value)}
               placeholder="Name (optional)"
             />
-            <div className="flex rounded-[12px] border border-border p-0.5">
+            <div className="flex rounded-[12px] border border-[#dfe7e3] bg-[#f8faf9] p-0.5">
               {inviteRoles.map((r) => (
                 <button
                   key={r.value}
@@ -316,8 +316,8 @@ function PeoplePageContent() {
                   className={cn(
                     "rounded-[10px] px-3 py-1.5 text-sm transition-colors",
                     role === r.value
-                      ? "bg-brand-soft font-medium text-brand-ink"
-                      : "text-muted hover:text-foreground",
+                      ? "bg-[#efffee] font-medium text-[#004b49]"
+                      : "text-slate-500 hover:text-slate-800",
                   )}
                 >
                   {r.label}

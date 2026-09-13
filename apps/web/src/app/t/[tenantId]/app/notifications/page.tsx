@@ -84,7 +84,7 @@ export default function NotificationsPage() {
         description="Overdue rent alerts, payment updates and workspace activity."
         action={
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex rounded-[12px] border border-slate-200 bg-white p-0.5 shadow-sm">
+            <div className="flex rounded-[12px] border border-slate-200 bg-[#f8faf9] p-0.5 shadow-sm">
               {(["all", "unread"] as const).map((f) => (
                 <button
                   key={f}

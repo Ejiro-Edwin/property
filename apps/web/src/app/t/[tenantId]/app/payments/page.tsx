@@ -324,8 +324,8 @@ export default function PaymentsPage() {
       {error ? <div className="text-sm text-danger">{error}</div> : null}
       {notice ? <div className="text-sm text-success">{notice}</div> : null}
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="card p-5">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="metric-card p-5">
           <div className="text-xs font-medium uppercase tracking-wide text-muted">Payments</div>
           <div className="mt-1 text-3xl font-semibold tracking-tight">
             {payments === null ? "…" : totalPayments}
@@ -334,7 +334,7 @@ export default function PaymentsPage() {
             {isTenant ? "Linked to your tenancy" : "Recorded in this workspace"}
           </div>
         </div>
-        <div className="card p-5">
+        <div className="metric-card p-5">
           <div className="text-xs font-medium uppercase tracking-wide text-muted">On time</div>
           <div className="mt-1 text-3xl font-semibold tracking-tight">
             {payments === null ? "…" : onTimeCount}
@@ -346,7 +346,7 @@ export default function PaymentsPage() {
           </div>
         </div>
         {!isTenant ? (
-          <div className="card p-5">
+          <div className="metric-card p-5">
             <div className="text-xs font-medium uppercase tracking-wide text-muted">
               Active schedules
             </div>
@@ -356,7 +356,7 @@ export default function PaymentsPage() {
             <div className="mt-1 text-xs text-muted">Recurring rent plans</div>
           </div>
         ) : null}
-        <div className="card p-5">
+        <div className="metric-card p-5">
           <div className="text-xs font-medium uppercase tracking-wide text-muted">
             Late / missed
           </div>

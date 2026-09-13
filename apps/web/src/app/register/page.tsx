@@ -65,8 +65,14 @@ export default function RegisterPage() {
 
   if (done) {
     return (
-      <AuthShell eyebrow="You&apos;re almost there" title="Secure, digital and transparent." description="One account for your properties, people and payments.">
-        <div className="text-lg font-semibold tracking-tight">
+      <AuthShell
+        eyebrow="You&apos;re almost there"
+        title="Secure, digital and transparent."
+        description="One account for your properties, people and payments."
+        titleClassName="text-[2.2rem] sm:text-[2.75rem] lg:text-[4.2rem]"
+        descriptionClassName="text-[1.2rem] sm:text-[1.45rem]"
+      >
+        <div className="text-[1.625rem] font-bold tracking-[-0.04em] text-[#0f172a]">
           Account created — check your inbox
         </div>
         <div className="mt-2 text-sm leading-6 text-muted">
@@ -96,8 +102,14 @@ export default function RegisterPage() {
   }
 
   return (
-    <AuthShell eyebrow="Create your account" title="Secure, digital and transparent." description="Set up your workspace and bring your rental operations into one place.">
-      <div className="text-lg font-semibold tracking-tight">Create your account</div>
+    <AuthShell
+      eyebrow="Create your account"
+      title="Secure, digital and transparent."
+      description="Set up your workspace and bring your rental operations into one place."
+      titleClassName="text-[2.2rem] sm:text-[2.75rem] lg:text-[4.2rem]"
+      descriptionClassName="text-[1.2rem] sm:text-[1.45rem]"
+    >
+      <div className="text-[1.625rem] font-bold tracking-[-0.04em] text-[#0f172a]">Create your account</div>
       <div className="mt-1 text-sm leading-6 text-muted">
         Sign up as a landlord. Tenants and agents join through email
         invitations — not this form.
@@ -148,7 +160,7 @@ export default function RegisterPage() {
 
         {error ? <div className="text-sm text-danger">{error}</div> : null}
 
-        <Button disabled={busy} type="submit">
+        <Button disabled={busy} type="submit" className="mt-2">
           {busy ? "Creating account…" : "Create account"}
         </Button>
 

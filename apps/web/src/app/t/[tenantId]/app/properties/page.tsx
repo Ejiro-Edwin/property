@@ -216,7 +216,7 @@ function PropertiesPageContent() {
         </div>
       </div>
 
-      <div className="card rounded-[22px] p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+      <div className="card rounded-[20px] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
         <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
           <form className="grid gap-3 sm:grid-cols-2" onSubmit={submitProperty}>
             <Input

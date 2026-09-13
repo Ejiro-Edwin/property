@@ -125,7 +125,7 @@ export function AppShell({
       </aside>
 
       <div className="page-shell min-w-0 flex-1 rounded-t-[24px] md:rounded-l-[24px] md:rounded-tr-[0] md:mt-4 md:mr-4 md:mb-4">
-        <main className="px-4 py-6 md:px-6 md:py-8">{children}</main>
+        <main className="px-4 py-6 md:px-7 md:py-8">{children}</main>
       </div>
     </div>
   );

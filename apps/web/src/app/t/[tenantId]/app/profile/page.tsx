@@ -77,12 +77,13 @@ export default function ProfilePage() {
   return (
     <div className="mx-auto grid w-full max-w-2xl gap-6 pb-8">
       <PageHeader
+        eyebrow="Account"
         title="Profile"
         description="Your account in this workspace."
       />
 
       {me ? (
-        <div className="card rounded-[22px] p-6 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+        <div className="card rounded-[20px] p-6 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
           <div className="flex items-start gap-4">
             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#efffee] text-xl font-semibold text-[#004b49]">
               {me.name?.charAt(0).toUpperCase() || "?"}

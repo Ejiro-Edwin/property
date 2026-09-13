@@ -44,10 +44,10 @@ export default function OverviewPage() {
 
   return (
     <div className="mx-auto grid w-full max-w-[1440px] gap-5 pb-8">
-      <section className="flex flex-wrap items-end justify-between gap-4 rounded-[18px] border border-[#dfe7e3] bg-white px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+      <section className="flex flex-wrap items-end justify-between gap-4 rounded-[22px] border border-[#dfe7e3] bg-white px-5 py-5 shadow-[0_14px_32px_rgba(15,23,42,0.04)]">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#1f6b67]">Workspace overview</p>
-          <h1 className="mt-2 text-[2rem] font-bold tracking-[-0.04em] text-[#0f172a]">Good morning, landlord.</h1>
+          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#1f6b67]">Workspace overview</p>
+          <h1 className="mt-2 text-[2.1rem] font-black tracking-[-0.06em] text-[#0f172a]">Good morning, landlord.</h1>
           <p className="mt-1 text-sm text-slate-600">Here&apos;s what&apos;s happening across your portfolio today.</p>
         </div>
         <div className="flex gap-2">
@@ -110,5 +110,16 @@ export default function OverviewPage() {
 }
 
 function Metric({ label, value, detail, icon, danger = false }: { label: string; value: string | number; detail: string; icon: React.ReactNode; danger?: boolean }) {
-  return <div className="card flex items-start gap-3 p-4"><div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[4px] ${danger ? "bg-danger-soft text-danger" : "bg-brand-soft text-brand-ink"}`}>{icon}</div><div><div className="text-xs font-medium uppercase tracking-wide text-muted">{label}</div><div className="mt-1 text-2xl font-bold tracking-tight text-teal">{value}</div><div className="mt-1 text-xs text-muted">{detail}</div></div></div>;
+  return (
+    <div className="metric-card flex items-start gap-3 p-4">
+      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] ${danger ? "bg-[#fef2f2] text-[#b91c1c]" : "bg-[#efffee] text-[#004b49]"}`}>
+        {icon}
+      </div>
+      <div>
+        <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">{label}</div>
+        <div className="mt-1 text-2xl font-black tracking-[-0.05em] text-[#0f172a]">{value}</div>
+        <div className="mt-1 text-xs text-slate-500">{detail}</div>
+      </div>
+    </div>
+  );
 }

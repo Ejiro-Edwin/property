@@ -58,23 +58,23 @@ export default function MaintenancePage() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Open</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">{items === null ? "…" : openCount}</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Open</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">{items === null ? "…" : openCount}</div>
           <div className="mt-1 text-xs text-slate-500">Active requests</div>
         </div>
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Urgent</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">{items === null ? "…" : urgentCount}</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Urgent</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">{items === null ? "…" : urgentCount}</div>
           <div className="mt-1 text-xs text-slate-500">Priority cases</div>
         </div>
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Requests</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">{items === null ? "…" : items.length}</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Requests</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">{items === null ? "…" : items.length}</div>
           <div className="mt-1 text-xs text-slate-500">Tracked this month</div>
         </div>
       </div>
 
-      <form className="card grid gap-4 rounded-[20px] p-5 sm:grid-cols-2" onSubmit={submit}>
+      <form className="card grid gap-4 rounded-[22px] p-5 shadow-[0_14px_30px_rgba(15,23,42,0.04)] sm:grid-cols-2" onSubmit={submit}>
         <Field label="Issue">
           <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
         </Field>

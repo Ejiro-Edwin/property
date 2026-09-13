@@ -57,13 +57,13 @@ export function AppShell({
     <>
       <Link
         href={`/t/${tenantId}/app`}
-        className="flex shrink-0 items-center gap-3 px-1"
+        className="flex shrink-0 items-center gap-3 rounded-[14px] border border-white/10 bg-white/4 px-2 py-2"
         onClick={closeMobile}
       >
-        <Mark />
+        <Mark className="h-8 w-8 text-[#d6ff6d]" />
         <div className="leading-tight">
-          <div className="text-sm font-semibold tracking-tight">TenantSea</div>
-          <div className="text-xs text-muted">{tenantId}</div>
+          <div className="text-sm font-semibold tracking-tight text-white">TenantSea</div>
+          <div className="text-[10px] uppercase tracking-[0.18em] text-white/65">{tenantId}</div>
         </div>
       </Link>
 
@@ -74,7 +74,7 @@ export function AppShell({
         onSwitched={() => loadSession()}
       />
 
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="min-h-0 flex-1 overflow-y-auto pb-2">
         <AppNav tenantId={tenantId} role={activeRole} showAudit={canSeeAudit(activeRole)} />
       </div>
 
@@ -124,8 +124,8 @@ export function AppShell({
         {sidebar}
       </aside>
 
-      <div className="page-shell min-w-0 flex-1 rounded-t-[24px] md:rounded-l-[24px] md:rounded-tr-[0] md:mt-4 md:mr-4 md:mb-4">
-        <main className="px-4 py-6 md:px-7 md:py-8">{children}</main>
+      <div className="page-shell min-w-0 flex-1 rounded-t-[28px] md:rounded-l-[28px] md:rounded-tr-[0] md:mt-4 md:mr-4 md:mb-4">
+        <main className="px-4 py-6 md:px-7 md:py-8 xl:px-8">{children}</main>
       </div>
     </div>
   );

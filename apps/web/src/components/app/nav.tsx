@@ -90,8 +90,8 @@ export function AppNav({
             className={cn(
               "flex items-center gap-3 rounded-[12px] border px-3 py-2.5 text-sm transition-all",
               active
-                ? "border-[#1a5654] bg-[#1f3b39] font-medium text-[#efffee] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
-                : "border-transparent text-white/70 hover:border-white/10 hover:bg-white/5 hover:text-white",
+                ? "border-[#1d4f4c] bg-[#1b3635] font-medium text-[#efffee] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+                : "border-transparent text-white/75 hover:border-white/10 hover:bg-white/5 hover:text-white",
             )}
           >
             <Icon width={17} height={17} />

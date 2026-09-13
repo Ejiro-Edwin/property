@@ -82,8 +82,8 @@ function LoginForm() {
       eyebrow="Welcome back"
       title="Everything you need for a better rental experience."
       description="Sign in to manage your rental journey with clarity."
-      titleClassName="text-[2.2rem] sm:text-[2.75rem] lg:text-[4.2rem]"
-      descriptionClassName="text-[1.2rem] sm:text-[1.45rem]"
+      titleClassName="text-[3.3rem] leading-[0.85] sm:text-[5rem] lg:text-[7rem]"
+      descriptionClassName="text-[1.15rem] leading-[1.15] sm:text-[1.85rem]"
     >
       {signedIn ? (
         <div className="py-12 text-center">

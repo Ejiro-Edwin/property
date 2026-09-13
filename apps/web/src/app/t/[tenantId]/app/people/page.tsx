@@ -262,29 +262,29 @@ function PeoplePageContent() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Members</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Members</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
             {members === null ? "…" : memberCount}
           </div>
           <div className="mt-1 text-xs text-slate-500">Active workspace users</div>
         </div>
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Verified</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Verified</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
             {members === null ? "…" : verifiedCount}
           </div>
           <div className="mt-1 text-xs text-slate-500">Email-verified accounts</div>
         </div>
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Invites</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Invites</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
             {invites === null ? "…" : inviteCount}
           </div>
           <div className="mt-1 text-xs text-slate-500">All invitation records</div>
         </div>
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Pending</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Pending</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
             {invites === null ? "…" : pendingCount}
           </div>
           <div className="mt-1 text-xs text-slate-500">Waiting to accept</div>

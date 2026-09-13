@@ -206,29 +206,29 @@ function TenanciesPageContent() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Active</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Active</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
             {items === null ? "…" : activeCount}
           </div>
           <div className="mt-1 text-xs text-slate-500">Currently occupied tenancies</div>
         </div>
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Pending</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Pending</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
             {items === null ? "…" : pendingCount}
           </div>
           <div className="mt-1 text-xs text-slate-500">Awaiting move-in</div>
         </div>
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Ended</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Ended</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
             {items === null ? "…" : endedCount}
           </div>
           <div className="mt-1 text-xs text-slate-500">Archived tenancy records</div>
         </div>
       </div>
 
-      <div className="card rounded-[22px] p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+      <div className="card rounded-[22px] p-4 shadow-[0_14px_30px_rgba(15,23,42,0.04)]">
         <form className="grid gap-3 sm:grid-cols-2" onSubmit={submitTenancy}>
           <Select
             value={form.propertyId}

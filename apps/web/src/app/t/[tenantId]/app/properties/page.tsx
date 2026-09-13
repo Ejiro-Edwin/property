@@ -192,31 +192,31 @@ function PropertiesPageContent() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Properties</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Properties</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
             {items === null ? "…" : total}
           </div>
           <div className="mt-1 text-xs text-slate-500">Listings in this workspace</div>
         </div>
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
             Portfolio value
           </div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
             {items === null ? "…" : formatMoney(portfolioValue)}
           </div>
           <div className="mt-1 text-xs text-slate-500">Annual rent across all properties</div>
         </div>
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Average rent</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Average rent</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
             {items === null ? "…" : formatMoney(avgRent)}
           </div>
           <div className="mt-1 text-xs text-slate-500">Per property, on average</div>
         </div>
       </div>
 
-      <div className="card rounded-[20px] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+      <div className="card rounded-[22px] p-5 shadow-[0_14px_30px_rgba(15,23,42,0.04)]">
         <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
           <form className="grid gap-3 sm:grid-cols-2" onSubmit={submitProperty}>
             <Input

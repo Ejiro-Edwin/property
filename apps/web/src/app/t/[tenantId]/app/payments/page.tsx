@@ -326,20 +326,20 @@ export default function PaymentsPage() {
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">Payments</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Payments</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
             {payments === null ? "…" : totalPayments}
           </div>
-          <div className="mt-1 text-xs text-muted">
+          <div className="mt-1 text-xs text-slate-500">
             {isTenant ? "Linked to your tenancy" : "Recorded in this workspace"}
           </div>
         </div>
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">On time</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">On time</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
             {payments === null ? "…" : onTimeCount}
           </div>
-          <div className="mt-1 text-xs text-muted">
+          <div className="mt-1 text-xs text-slate-500">
             {payments && payments.length > 0
               ? `${Math.round((onTimeCount / payments.length) * 100)}% of payments`
               : "Nothing to compare yet"}
@@ -347,23 +347,23 @@ export default function PaymentsPage() {
         </div>
         {!isTenant ? (
           <div className="metric-card p-5">
-            <div className="text-xs font-medium uppercase tracking-wide text-muted">
+            <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
               Active schedules
             </div>
-            <div className="mt-1 text-3xl font-semibold tracking-tight">
+            <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
               {schedules === null ? "…" : activeSchedules}
             </div>
-            <div className="mt-1 text-xs text-muted">Recurring rent plans</div>
+            <div className="mt-1 text-xs text-slate-500">Recurring rent plans</div>
           </div>
         ) : null}
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
             Late / missed
           </div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight">
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
             {payments === null ? "…" : lateOrMissed}
           </div>
-          <div className="mt-1 text-xs text-muted">Needs attention now</div>
+          <div className="mt-1 text-xs text-slate-500">Needs attention now</div>
         </div>
       </div>
 

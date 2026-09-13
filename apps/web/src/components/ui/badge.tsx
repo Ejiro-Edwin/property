@@ -4,12 +4,12 @@ import { cn } from "@/lib/cn";
 type BadgeTone = "neutral" | "brand" | "success" | "warning" | "danger" | "sand";
 
 const tones: Record<BadgeTone, string> = {
-  neutral: "bg-charcoal-soft text-foreground",
-  brand: "bg-brand-soft text-brand-ink",
-  success: "bg-success-soft text-success",
-  warning: "bg-warning-soft text-warning",
-  danger: "bg-danger-soft text-danger",
-  sand: "bg-sand text-sand-ink",
+  neutral: "bg-[#f3f4f6] text-[#374151]",
+  brand: "bg-[#efffee] text-[#004b49]",
+  success: "bg-[#ecfdf5] text-[#15803d]",
+  warning: "bg-[#fff7ed] text-[#b45309]",
+  danger: "bg-[#fef2f2] text-[#b91c1c]",
+  sand: "bg-[#f5f0eb] text-[#7c5a36]",
 };
 
 export function Badge({

@@ -50,8 +50,10 @@ export default function SettingsPage() {
               key={item}
               type="button"
               onClick={() => setTab(item)}
-              className={`rounded-[10px] px-3 py-2 text-sm font-medium capitalize transition-colors ${
-                tab === item ? "bg-[#efffee] text-[#004b49]" : "text-slate-500 hover:text-slate-800"
+              className={`rounded-[10px] px-3 py-2 text-sm font-semibold capitalize transition-all ${
+                tab === item
+                  ? "bg-[#efffee] text-[#004b49] shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]"
+                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
               }`}
             >
               {item === "lease" ? "Lease preferences" : item === "payment" ? "Payment settings" : item}

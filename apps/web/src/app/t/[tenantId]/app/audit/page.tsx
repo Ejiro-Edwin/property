@@ -98,27 +98,27 @@ function AuditPageContent() {
 
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">Entries</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Entries</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
             {logs === null ? "…" : totalLogs}
           </div>
-          <div className="mt-1 text-xs text-muted">Recent activity recorded</div>
+          <div className="mt-1 text-xs text-slate-500">Recent activity recorded</div>
         </div>
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
             Successful
           </div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight">
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
             {logs === null ? "…" : successfulLogs}
           </div>
-          <div className="mt-1 text-xs text-muted">Below 400 status code</div>
+          <div className="mt-1 text-xs text-slate-500">Below 400 status code</div>
         </div>
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">Failed</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Failed</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
             {logs === null ? "…" : failedLogs}
           </div>
-          <div className="mt-1 text-xs text-muted">Needs review or attention</div>
+          <div className="mt-1 text-xs text-slate-500">Needs review or attention</div>
         </div>
       </div>
 

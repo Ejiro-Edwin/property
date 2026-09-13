@@ -49,18 +49,18 @@ export default function MessagesPage() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Total</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">{items === null ? "…" : items.length}</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Total</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">{items === null ? "…" : items.length}</div>
           <div className="mt-1 text-xs text-slate-500">Conversation history</div>
         </div>
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Unread</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">{items === null ? "…" : unreadCount}</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Unread</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">{items === null ? "…" : unreadCount}</div>
           <div className="mt-1 text-xs text-slate-500">Needs a reply</div>
         </div>
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Status</div>
-          <div className="mt-1 text-lg font-semibold tracking-tight text-[#0f172a]">Workspace</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Status</div>
+          <div className="mt-1 text-lg font-black tracking-[-0.02em] text-[#0f172a]">Workspace</div>
           <div className="mt-1 text-xs text-slate-500">Shared room</div>
         </div>
       </div>
@@ -85,7 +85,7 @@ export default function MessagesPage() {
         </div>
       )}
 
-      <form className="card flex flex-col gap-3 rounded-[22px] p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)] sm:flex-row" onSubmit={send}>
+      <form className="card flex flex-col gap-3 rounded-[22px] p-4 shadow-[0_14px_30px_rgba(15,23,42,0.04)] sm:flex-row" onSubmit={send}>
         <Input value={body} onChange={(e) => setBody(e.target.value)} placeholder="Write a message" aria-label="Message" className="flex-1" />
         <Button className="bg-[#baff00] text-[#0d1b1d] hover:bg-[#a7ea00]">Send</Button>
       </form>

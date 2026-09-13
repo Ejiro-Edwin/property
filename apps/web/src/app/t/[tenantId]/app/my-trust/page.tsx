@@ -64,13 +64,13 @@ export default function MyTrustPage() {
         <div className="grid gap-6">
           <div className="card flex flex-col items-center p-8 text-center sm:flex-row sm:text-left">
             <div>
-              <div className="text-xs font-medium uppercase tracking-wide text-muted">
+              <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
                 Trust score
               </div>
-              <div className={`mt-1 text-6xl font-semibold tracking-tight ${scoreTone(profile.trustScore)}`}>
+              <div className={`mt-1 text-6xl font-black tracking-[-0.05em] ${scoreTone(profile.trustScore)}`}>
                 {profile.trustScore}
               </div>
-              <div className="mt-1 text-sm text-muted">out of 100</div>
+              <div className="mt-1 text-sm text-slate-500">out of 100</div>
             </div>
             <div className="mt-6 grid flex-1 grid-cols-2 gap-4 text-sm sm:mt-0 sm:ml-auto sm:grid-cols-4">
               <div>

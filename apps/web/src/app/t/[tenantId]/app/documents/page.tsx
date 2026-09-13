@@ -46,23 +46,23 @@ export default function DocumentsPage() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Files</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">{items === null ? "…" : items.length}</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Files</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">{items === null ? "…" : items.length}</div>
           <div className="mt-1 text-xs text-slate-500">Stored in workspace</div>
         </div>
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Private</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">{items === null ? "…" : items.filter((item) => item.visibility === "PRIVATE").length}</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Private</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">{items === null ? "…" : items.filter((item) => item.visibility === "PRIVATE").length}</div>
           <div className="mt-1 text-xs text-slate-500">Restricted access</div>
         </div>
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Shared</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">{items === null ? "…" : items.filter((item) => item.visibility !== "PRIVATE").length}</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Shared</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">{items === null ? "…" : items.filter((item) => item.visibility !== "PRIVATE").length}</div>
           <div className="mt-1 text-xs text-slate-500">Visible to workspace</div>
         </div>
       </div>
 
-      <form className="card grid gap-4 rounded-[20px] p-5 sm:grid-cols-3" onSubmit={submit}>
+      <form className="card grid gap-4 rounded-[22px] p-5 shadow-[0_14px_30px_rgba(15,23,42,0.04)] sm:grid-cols-3" onSubmit={submit}>
         <Field label="Document name"><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></Field>
         <Field label="Category"><Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} required /></Field>
         <Field label="Storage URL"><Input type="url" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} required /></Field>

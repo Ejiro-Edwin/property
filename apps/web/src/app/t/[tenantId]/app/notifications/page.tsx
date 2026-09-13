@@ -109,22 +109,22 @@ export default function NotificationsPage() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Total</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Total</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
             {items === null ? "…" : totalCount}
           </div>
           <div className="mt-1 text-xs text-slate-500">Workspace notifications</div>
         </div>
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Unread</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Unread</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
             {items === null ? "…" : unreadCount}
           </div>
           <div className="mt-1 text-xs text-slate-500">Needs your attention</div>
         </div>
         <div className="metric-card p-5">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Read</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Read</div>
+          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
             {items === null ? "…" : readCount}
           </div>
           <div className="mt-1 text-xs text-slate-500">Already acknowledged</div>

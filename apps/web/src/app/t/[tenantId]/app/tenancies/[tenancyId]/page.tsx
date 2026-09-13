@@ -191,8 +191,8 @@ export default function TenancyDetailPage() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="metric-card p-5">
-      <div className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</div>
-      <div className="mt-2 text-2xl font-bold tracking-tight text-[#0f172a]">{value}</div>
+      <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">{label}</div>
+      <div className="mt-2 text-2xl font-black tracking-[-0.05em] text-[#0f172a]">{value}</div>
     </div>
   );
 }

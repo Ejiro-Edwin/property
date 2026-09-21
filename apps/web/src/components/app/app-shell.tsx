@@ -57,13 +57,13 @@ export function AppShell({
     <>
       <Link
         href={`/t/${tenantId}/app`}
-        className="flex shrink-0 items-center gap-3 rounded-[14px] border border-white/10 bg-white/4 px-2 py-2"
+        className="flex shrink-0 items-center gap-3 px-2 py-2"
         onClick={closeMobile}
       >
-        <Mark className="h-8 w-8 text-[#d6ff6d]" />
+        <Mark className="h-11 w-11" />
         <div className="leading-tight">
-          <div className="text-sm font-semibold tracking-tight text-white">TenantSea</div>
-          <div className="text-[10px] uppercase tracking-[0.18em] text-white/65">{tenantId}</div>
+          <div className="text-base font-semibold tracking-tight text-[#1f1f1f]">TenantSea</div>
+          <div className="text-xs text-[#77716d]">{tenantId}</div>
         </div>
       </Link>
 
@@ -84,22 +84,22 @@ export function AppShell({
 
   return (
     <div className="app-workspace min-h-dvh flex flex-col md:flex-row">
-      <header className="app-sidebar flex items-center justify-between border-b border-white/10 px-4 py-3 text-white md:hidden">
+      <header className="app-sidebar flex items-center justify-between border-b border-[#e7e2dd] px-4 py-3 text-[#1f1f1f] md:hidden">
         <Link href={`/t/${tenantId}/app`} className="flex items-center gap-2">
-          <Mark className="h-7 w-7 text-[#e6ffb3]" />
+          <Mark className="h-8 w-8" />
           <span className="text-sm font-semibold tracking-tight">TenantSea</span>
         </Link>
         <div className="flex items-center gap-2">
           <Link
             href={`/t/${tenantId}/app/profile`}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-[#203d39] text-sm font-semibold text-[#efffee]"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-[#e5f4fb] text-sm font-semibold text-[#1399d8]"
           >
             {user?.name?.charAt(0).toUpperCase() || "?"}
           </Link>
           <button
             type="button"
             aria-label="Open menu"
-            className="rounded-[10px] border border-white/10 bg-white/5 px-3 py-2 text-sm font-medium text-white/80 hover:bg-white/10"
+            className="rounded-[10px] border border-[#ded8d2] bg-white px-3 py-2 text-sm font-medium text-[#4b4744] hover:bg-[#f4f1ed]"
             onClick={() => setMobileOpen((v) => !v)}
           >
             Menu
@@ -117,15 +117,18 @@ export function AppShell({
 
       <aside
         className={cn(
-          "app-sidebar fixed inset-y-0 left-0 z-50 flex w-[264px] flex-col gap-5 border-r border-white/10 px-4 py-6 text-white transition-transform md:static md:sticky md:top-0 md:z-auto md:h-dvh md:translate-x-0",
+          "app-sidebar fixed inset-y-0 left-0 z-50 flex w-[330px] flex-col gap-5 border-r border-[#e7e2dd] px-10 py-8 text-[#292624] transition-transform md:static md:sticky md:top-0 md:z-auto md:h-dvh md:translate-x-0",
           mobileOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         {sidebar}
       </aside>
 
-      <div className="page-shell min-w-0 flex-1 rounded-t-[28px] md:rounded-l-[28px] md:rounded-tr-[0] md:mt-4 md:mr-4 md:mb-4">
-        <main className="px-4 py-6 md:px-7 md:py-8 xl:px-8">{children}</main>
+      <div className="page-shell min-w-0 flex-1">
+        <header className="hidden h-[100px] items-center justify-end border-b border-[#e7e2dd] px-14 md:flex">
+          <Link href={`/t/${tenantId}/app/profile`} className="text-base text-[#716b66] hover:text-[#1f1f1f]">Sign in</Link>
+        </header>
+        <main className="px-6 py-10 md:px-14 md:py-10">{children}</main>
       </div>
     </div>
   );

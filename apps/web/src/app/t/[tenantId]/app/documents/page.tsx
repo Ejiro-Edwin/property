@@ -42,6 +42,7 @@ export default function DocumentsPage() {
         eyebrow="Workspace files"
         title="Documents"
         description="Store and share tenancy documents securely."
+        action={<a href={`/t/${tenantId}/app/documents/upload`} className="rounded-[8px] bg-[#baff00] px-4 py-2 text-sm font-semibold text-[#004b49]">Upload Document</a>}
       />
 
       <div className="grid gap-4 sm:grid-cols-3">

@@ -184,9 +184,7 @@ function PropertiesPageContent() {
         title="Properties"
         description={items ? `${total} propert${total === 1 ? "y" : "ies"} in this workspace.` : undefined}
         action={
-          <Button onClick={resetForm} className="shrink-0 bg-[#baff00] text-[#0d1b1d] hover:bg-[#a7ea00]">
-            Add property
-          </Button>
+          <Link href={`/t/${tenantId}/app/properties/add`}><Button className="shrink-0 bg-[#baff00] text-[#0d1b1d] hover:bg-[#a7ea00]">Add property</Button></Link>
         }
       />
 

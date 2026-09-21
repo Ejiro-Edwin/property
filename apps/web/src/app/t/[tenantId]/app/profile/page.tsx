@@ -83,13 +83,13 @@ export default function ProfilePage() {
       />
 
       {me ? (
-        <div className="card rounded-[20px] p-6 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+        <div className="card rounded-[20px] p-6 shadow-[0_14px_32px_rgba(15,23,42,0.04)]">
           <div className="flex items-start gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#efffee] text-xl font-semibold text-[#004b49]">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#efffee] text-xl font-black text-[#004b49]">
               {me.name?.charAt(0).toUpperCase() || "?"}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-lg font-semibold tracking-tight text-[#0f172a]">{me.name}</div>
+              <div className="text-xl font-black tracking-[-0.04em] text-[#0f172a]">{me.name}</div>
               <div className="mt-0.5 truncate text-sm text-slate-600">{me.email}</div>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 {me.role ? (
@@ -127,7 +127,7 @@ export default function ProfilePage() {
             {error ? <div className="text-sm text-danger">{error}</div> : null}
             {notice ? <div className="text-sm text-success">{notice}</div> : null}
 
-            <Button type="submit" disabled={busy}>
+            <Button type="submit" disabled={busy} className="bg-[#baff00] text-[#0d1b1d] hover:bg-[#a7ea00]">
               {busy ? "Saving…" : "Save changes"}
             </Button>
           </form>

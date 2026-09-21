@@ -65,6 +65,10 @@ export default function PaymentsPage() {
   const [notice, setNotice] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [paymentMethods, setPaymentMethods] = React.useState<PaymentMethod[] | null>(null);
+  const [methodModal, setMethodModal] = React.useState<"choose" | "card" | "bank" | "success" | null>(null);
+  const [methodBusy, setMethodBusy] = React.useState(false);
+  const [cardForm, setCardForm] = React.useState({ cardholderName: "", cardNumber: "", expiry: "", cvv: "", billingAddress: "" });
+  const [bankForm, setBankForm] = React.useState({ bankName: "", accountNumber: "", accountName: "", accountType: "savings" });
 
   const [scheduleForm, setScheduleForm] = React.useState({
     tenancyId: "",
@@ -286,6 +290,20 @@ export default function PaymentsPage() {
       setError(err instanceof ApiError ? err.message : "Could not reconcile schedules");
     } finally {
       setBusy(null);
+    }
+  }
+
+  async function addPaymentMethod(event: React.FormEvent) {
+    event.preventDefault();
+    setMethodBusy(true);
+    try {
+      await api("payment-methods", { method: "POST", tenantId, body: { tenantId, type: methodModal === "bank" ? "BANK_ACCOUNT" : "CARD", ...(methodModal === "bank" ? bankForm : cardForm) } });
+      setMethodModal("success");
+      api<{ paymentMethods: PaymentMethod[] }>("payment-methods", { tenantId }).then((result) => setPaymentMethods(result.paymentMethods ?? []));
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Could not add payment method");
+    } finally {
+      setMethodBusy(false);
     }
   }
 
@@ -547,10 +565,22 @@ export default function PaymentsPage() {
         <section className="card overflow-hidden">
           <div className="flex items-center justify-between border-b border-border px-5 py-4">
             <div><h2 className="font-semibold text-teal">Payment methods</h2><p className="mt-1 text-xs text-muted">Choose how you pay rent.</p></div>
-            <Button size="sm">Add method</Button>
+            <Button size="sm" onClick={() => setMethodModal("choose")} className="bg-[#baff00] text-[#004b49] hover:bg-[#a9eb00]">Add Payment Method</Button>
           </div>
           {paymentMethods === null ? <div className="p-5"><Skeleton className="h-16" /></div> : paymentMethods.length === 0 ? <div className="p-6 text-sm text-muted">No payment methods saved yet.</div> : <div className="divide-y divide-border">{paymentMethods.map((method) => <div key={method.id} className="flex items-center justify-between px-5 py-4"><div><div className="text-sm font-medium">{method.label}</div><div className="mt-1 text-xs text-muted">{method.type}{method.last4 ? ` ending ${method.last4}` : ""}</div></div>{method.isDefault ? <Badge tone="brand">Default</Badge> : null}</div>)}</div>}
         </section>
+      ) : null}
+
+      {isTenant && methodModal ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#004b49]/40 p-4" role="dialog" aria-modal="true">
+          <div className="w-full max-w-[430px] rounded-[10px] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.18)]">
+            <div className="flex items-start justify-between gap-4"><div><div className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#71817e]">{methodModal === "choose" ? "Add payment method" : methodModal === "success" ? "Card status" : methodModal === "bank" ? "Link bank account" : "Add debit or credit card"}</div><h2 className="mt-2 text-lg font-bold text-[#004b49]">{methodModal === "choose" ? "How would you like to pay?" : methodModal === "success" ? "Card added successfully" : methodModal === "bank" ? "Connect your bank account" : "Enter card details"}</h2></div><button type="button" onClick={() => setMethodModal(null)} className="text-[#71817e]">×</button></div>
+            {methodModal === "choose" ? <div className="mt-6 grid gap-3"><button type="button" onClick={() => setMethodModal("card")} className="rounded-[8px] border border-[#b9dcae] p-4 text-left hover:bg-[#f2fff0]"><div className="font-semibold text-[#24211f]">Debit or Credit Card</div><div className="mt-1 text-xs text-[#71817e]">Visa, Mastercard and more</div></button><button type="button" onClick={() => setMethodModal("bank")} className="rounded-[8px] border border-[#dfe7e3] p-4 text-left hover:bg-[#f2fff0]"><div className="font-semibold text-[#24211f]">Bank Account</div><div className="mt-1 text-xs text-[#71817e]">Pay directly from your bank</div></button></div> : null}
+            {methodModal === "card" ? <form className="mt-5 grid gap-3" onSubmit={addPaymentMethod}><Input value={cardForm.cardholderName} onChange={(event) => setCardForm({ ...cardForm, cardholderName: event.target.value })} placeholder="Cardholder name" required /><Input value={cardForm.cardNumber} onChange={(event) => setCardForm({ ...cardForm, cardNumber: event.target.value })} placeholder="Card number" required /><div className="grid grid-cols-2 gap-3"><Input value={cardForm.expiry} onChange={(event) => setCardForm({ ...cardForm, expiry: event.target.value })} placeholder="MM/YY" required /><Input value={cardForm.cvv} onChange={(event) => setCardForm({ ...cardForm, cvv: event.target.value })} placeholder="CVV" required /></div><Input value={cardForm.billingAddress} onChange={(event) => setCardForm({ ...cardForm, billingAddress: event.target.value })} placeholder="Billing address (optional)" /><Button disabled={methodBusy} className="bg-[#baff00] text-[#004b49] hover:bg-[#a9eb00]">{methodBusy ? "Saving…" : "Continue"}</Button></form> : null}
+            {methodModal === "bank" ? <form className="mt-5 grid gap-3" onSubmit={addPaymentMethod}><Input value={bankForm.bankName} onChange={(event) => setBankForm({ ...bankForm, bankName: event.target.value })} placeholder="Select your bank" required /><Input value={bankForm.accountNumber} onChange={(event) => setBankForm({ ...bankForm, accountNumber: event.target.value })} placeholder="Account number" required /><Input value={bankForm.accountName} onChange={(event) => setBankForm({ ...bankForm, accountName: event.target.value })} placeholder="Account name" required /><Select value={bankForm.accountType} onChange={(event) => setBankForm({ ...bankForm, accountType: event.target.value })}><option value="savings">Savings</option><option value="current">Current</option></Select><Button disabled={methodBusy} className="bg-[#baff00] text-[#004b49] hover:bg-[#a9eb00]">{methodBusy ? "Linking…" : "Link bank account"}</Button></form> : null}
+            {methodModal === "success" ? <div className="mt-6 text-center"><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#baff00] text-xl text-[#004b49]">✓</div><p className="mt-4 text-sm text-[#71817e]">Your payment method has been added successfully and is ready to use.</p><Button className="mt-6 w-full" onClick={() => setMethodModal(null)}>Done</Button><button type="button" onClick={() => setMethodModal("choose")} className="mt-3 text-xs text-[#71817e]">Add another method</button></div> : null}
+          </div>
+        </div>
       ) : null}
 
       <section className="grid gap-3">

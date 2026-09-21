@@ -118,7 +118,7 @@ function VerifyEmailInner() {
 
 export default function VerifyEmailPage() {
   return (
-    <AuthShell eyebrow="Account verification" title="One last step." description="Verify your email to access your TenantSea workspace.">
+    <AuthShell variant="centered" eyebrow="Account verification" title="One last step." description="Verify your email to access your TenantSea workspace.">
       <React.Suspense fallback={<div className="text-sm text-muted">Loading…</div>}>
         <VerifyEmailInner />
       </React.Suspense>

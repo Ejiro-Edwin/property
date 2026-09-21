@@ -61,10 +61,10 @@ export function ProfileSwitcher({
 
   return (
     <div className="grid gap-2 px-1">
-      <div className="px-2 text-[10px] font-bold uppercase tracking-[0.18em] text-white/60">
+      <div className="px-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#77716d]">
         Operating as
       </div>
-      <div className="flex flex-wrap gap-1 rounded-[12px] border border-white/10 bg-[#112121] p-1">
+      <div className="flex flex-wrap gap-1 rounded-[12px] border border-[#ded8d2] bg-white p-1">
         {visible.map((role) => {
           const active = role === (activeRole ?? "").toLowerCase();
           return (
@@ -76,8 +76,8 @@ export function ProfileSwitcher({
               className={cn(
                 "flex-1 rounded-[10px] px-2 py-1.5 text-xs font-medium transition sm:flex-none sm:px-3 sm:text-sm",
                 active
-                  ? "bg-[#efffee] text-[#004b49] shadow-[0_1px_0_rgba(255,255,255,0.06)]"
-                  : "text-white/70 hover:bg-white/5 hover:text-white",
+                  ? "bg-[#e2f3fb] text-[#1f1f1f] shadow-[0_1px_0_rgba(255,255,255,0.06)]"
+                  : "text-[#77716d] hover:bg-[#f4f1ed] hover:text-[#1f1f1f]",
                 busy === role && "opacity-60",
               )}
             >

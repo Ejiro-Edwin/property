@@ -116,7 +116,7 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <AuthShell eyebrow="Reset password" title="Create a new password." description="Choose a strong password to keep your account secure.">
+    <AuthShell variant="centered" eyebrow="Reset password" title="Create a new password." description="Choose a strong password to keep your account secure.">
       <React.Suspense fallback={<div className="text-sm text-muted">Loading…</div>}>
         <ResetPasswordForm />
       </React.Suspense>

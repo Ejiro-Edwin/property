@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PaymentStatus as PrismaPaymentStatus } from '@prisma/client';
 import {
   CreatePaymentScheduleDto,
@@ -140,6 +140,20 @@ export class PaymentsService {
     };
     await this.cache.set(cacheKey, result, 60);
     return result;
+  }
+
+  async getPayment(tenantId: string, id: string, actor: ActorContext): Promise<any> {
+    const payment = await this.prisma.payment.findFirst({
+      where: { id, tenantId },
+      include: {
+        tenancy: { include: { property: true, tenantUser: { select: { id: true, name: true, email: true } } } },
+        payer: { select: { id: true, name: true, email: true } },
+      },
+    });
+    if (!payment) throw new NotFoundException('Payment not found');
+    const privileged = ['LANDLORD', 'LETTING_AGENT', 'ADMIN'].includes(actor.role);
+    if (!privileged && payment.payerId !== actor.id) throw new ForbiddenException('You cannot view this payment');
+    return { tenantId, payment: this.normalizePayment(payment) };
   }
 
   async createPaymentSchedule(dto: CreatePaymentScheduleDto): Promise<any> {

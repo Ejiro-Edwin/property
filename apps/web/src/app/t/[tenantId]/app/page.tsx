@@ -42,71 +42,39 @@ export default function OverviewPage() {
   const attention = (dashboard?.paymentSummary.late ?? 0) + (dashboard?.paymentSummary.missed ?? 0);
   const collectionRate = totalPayments ? Math.round((onTime / totalPayments) * 100) : 0;
 
+  const vacantProperties = Math.max((properties?.length ?? 0) - (dashboard?.activeTenancies ?? 0), 0);
+  const portfolioRent = properties?.reduce((total, property) => total + property.rentAmount, 0) ?? 0;
+
   return (
-    <div className="mx-auto grid w-full max-w-[1440px] gap-5 pb-8">
-      <section className="flex flex-wrap items-end justify-between gap-4 rounded-[22px] border border-[#dfe7e3] bg-white px-5 py-5 shadow-[0_14px_32px_rgba(15,23,42,0.04)]">
+    <div className="mx-auto grid w-full max-w-[1140px] gap-5 pb-8">
+      <section className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#1f6b67]">Workspace overview</p>
-          <h1 className="mt-2 text-[2.1rem] font-black tracking-[-0.06em] text-[#0f172a]">Good morning, landlord.</h1>
-          <p className="mt-1 text-sm text-slate-600">Here&apos;s what&apos;s happening across your portfolio today.</p>
+          <h1 className="text-[2rem] font-semibold tracking-[-0.045em] text-[#24211f]">Good morning, landlord.</h1>
+          <p className="mt-1 text-base text-[#77716d]">Here&apos;s what&apos;s happening across your portfolio today.</p>
         </div>
-        <div className="flex gap-2">
-          <Link href={`/t/${tenantId}/app/properties`}>
-            <Button className="bg-[#baff00] text-[#0d1b1d] hover:bg-[#a7ea00]">
-              <IconBuilding width={16} height={16} />Add property
-            </Button>
-          </Link>
-          <Link href={`/t/${tenantId}/app/people`}>
-            <Button variant="secondary" className="border-slate-200 bg-white text-slate-800 hover:bg-slate-100">
-              <IconUsers width={16} height={16} />Invite tenant
-            </Button>
-          </Link>
-        </div>
+        <Link href={`/t/${tenantId}/app/properties`}><Button className="bg-[#baff00] text-[#004b49] hover:bg-[#a9eb00]"><IconBuilding width={16} height={16} />Add property</Button></Link>
       </section>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <Metric label="Properties" value={properties === null ? "…" : properties.length} detail="In your portfolio" icon={<IconBuilding width={18} height={18} />} />
-        <Metric label="Active tenancies" value={dashboard?.activeTenancies ?? "…"} detail="Currently occupied" icon={<IconHome width={18} height={18} />} />
-        <Metric label="Collected this cycle" value={`${collectionRate}%`} detail={`${onTime} on-time payments`} icon={<IconCard width={18} height={18} />} />
-        <Metric label="Needs attention" value={attention} detail={attention ? "Late or missed payments" : "Nothing urgent"} icon={<IconBell width={18} height={18} />} danger={attention > 0} />
+        <Metric label="Total properties" value={properties === null ? "…" : properties.length} detail="Properties in your portfolio" icon={<IconBuilding width={18} height={18} />} />
+        <Metric label="Occupied properties" value={dashboard?.activeTenancies ?? "…"} detail="Currently occupied" icon={<IconHome width={18} height={18} />} />
+        <Metric label="Vacant properties" value={properties === null ? "…" : vacantProperties} detail="Available for letting" icon={<IconBuilding width={18} height={18} />} />
+        <Metric label="Total rent collected" value={properties === null ? "…" : formatMoney(portfolioRent)} detail={`${collectionRate}% collected this cycle`} icon={<IconCard width={18} height={18} />} />
       </div>
 
-      <div className="grid items-start gap-5 xl:grid-cols-[1.55fr_0.85fr]">
-        <section className="card overflow-hidden rounded-[22px]">
-          <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-            <div>
-              <h2 className="font-semibold text-[#0f172a]">Properties</h2>
-              <p className="mt-1 text-xs text-slate-500">Your latest portfolio activity</p>
-            </div>
-            <Link href={`/t/${tenantId}/app/properties`} className="text-sm font-medium text-[#1f6b67] hover:underline">View all</Link>
-          </div>
-          {properties === null ? <div className="grid gap-3 p-5"><Skeleton className="h-16" /><Skeleton className="h-16" /></div> : properties.length === 0 ? <div className="p-8 text-center text-sm text-slate-600">No properties yet. Add your first property to get started.</div> : <div className="divide-y divide-slate-200">{properties.map((property) => <Link key={property.id} href={`/t/${tenantId}/app/properties`} className="grid gap-3 px-5 py-4 transition hover:bg-[#f6fff0] sm:grid-cols-[1fr_auto_auto] sm:items-center"><div><div className="font-medium text-[#0f172a]">{property.title}</div><div className="mt-1 text-xs text-slate-500">{property.address}</div></div><div className="text-sm font-semibold text-[#0f172a]">{formatMoney(property.rentAmount, property.currency)}<span className="ml-1 text-xs font-normal text-slate-500">/yr</span></div><Badge tone="success">Active</Badge></Link>)}</div>}
-        </section>
+      <section className="rounded-[8px] border border-[#dfe7e3] bg-white p-5 shadow-[0_4px_16px_rgba(15,23,42,0.03)]"><div className="flex items-center justify-between"><div><h2 className="text-sm font-semibold text-[#24211f]">Rent Collection</h2><p className="mt-1 text-xs text-[#77716d]">Overview of rent collection this cycle</p></div><Link href={`/t/${tenantId}/app/payments`} className="text-xs font-semibold text-[#45863b]">View payments</Link></div><div className="mt-4 grid gap-4 sm:grid-cols-4"><div><div className="text-[11px] text-[#77716d]">Collected</div><div className="mt-1 font-bold text-[#45863b]">{formatMoney(portfolioRent)}</div></div><div><div className="text-[11px] text-[#77716d]">Pending</div><div className="mt-1 font-bold text-[#d08a28]">{formatMoney(0)}</div></div><div><div className="text-[11px] text-[#77716d]">Overdue</div><div className="mt-1 font-bold text-[#d95c4e]">{formatMoney(0)}</div></div><div className="sm:col-span-1"><div className="h-2 rounded-full bg-[#e8f0e3]"><div className="h-2 rounded-full bg-[#baff00]" style={{ width: `${collectionRate}%` }} /></div><div className="mt-2 text-right text-[10px] text-[#77716d]">{collectionRate}%</div></div></div></section>
 
-        <section className="card overflow-hidden rounded-[22px]">
-          <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-            <div>
-              <h2 className="font-semibold text-[#0f172a]">Notifications</h2>
-              <p className="mt-1 text-xs text-slate-500">Recent workspace updates</p>
-            </div>
-            <Link href={`/t/${tenantId}/app/notifications`} className="text-sm font-medium text-[#1f6b67] hover:underline">View all</Link>
-          </div>
-          {notifications === null ? <div className="p-5"><Skeleton className="h-32" /></div> : notifications.length === 0 ? <div className="p-8 text-center text-sm text-slate-600">You&apos;re all caught up.</div> : <div className="divide-y divide-slate-200">{notifications.map((notice) => <div key={notice.id} className="flex gap-3 px-5 py-4"><span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${notice.read ? "bg-slate-300" : "bg-[#baff00]"}`} /><div><div className="text-sm leading-5 text-slate-700">{notice.message}</div><div className="mt-1 text-xs text-slate-500">{formatDateTime(notice.createdAt)}</div></div></div>)}</div>}
-        </section>
-      </div>
+      <div className="grid gap-5 lg:grid-cols-[1.35fr_0.9fr]"><section><div className="mb-2 flex items-center justify-between"><h2 className="text-sm font-semibold text-[#24211f]">Outstanding Payments</h2><Link href={`/t/${tenantId}/app/payments`} className="text-xs font-semibold text-[#45863b]">View all</Link></div><div className="rounded-[8px] border border-[#dfe7e3] bg-white p-4">{payments === null ? <Skeleton className="h-16" /> : payments.length === 0 ? <div className="py-4 text-center text-sm text-[#77716d]">No outstanding payments</div> : payments.slice(0, 3).map((payment) => <div key={payment.id} className="flex items-center justify-between border-b border-[#edf0ed] py-3 last:border-0"><div><div className="text-sm font-semibold text-[#24211f]">Payment recorded</div><div className="text-xs text-[#77716d]">{formatDateTime(payment.createdAt)}</div></div><Badge tone={paymentStatusTone(payment.status)}>{payment.status}</Badge></div>)}</div></section><section><div className="mb-2 text-sm font-semibold text-[#24211f]">Quick Actions</div><div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1"><QuickAction href={`/t/${tenantId}/app/properties`} label="Add Property" /><QuickAction href={`/t/${tenantId}/app/people`} label="Add Tenant" /><QuickAction href={`/t/${tenantId}/app/tenancies`} label="Create Tenancy" /><QuickAction href={`/t/${tenantId}/app/payments/record`} label="Record Payment" /></div></section></div>
 
-      <section className="card overflow-hidden rounded-[22px]">
-        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-          <div>
-            <h2 className="font-semibold text-[#0f172a]">Recent payments</h2>
-            <p className="mt-1 text-xs text-slate-500">Collection activity across your tenancies</p>
-          </div>
-          <Link href={`/t/${tenantId}/app/payments`} className="text-sm font-medium text-[#1f6b67] hover:underline">View payments</Link>
-        </div>
-        {payments === null ? <div className="p-5"><Skeleton className="h-32" /></div> : payments.length === 0 ? <div className="p-8 text-center text-sm text-slate-600">No payments recorded yet.</div> : <div className="divide-y divide-slate-200">{payments.map((payment) => <div key={payment.id} className="grid gap-2 px-5 py-4 sm:grid-cols-[1fr_auto_auto] sm:items-center"><div><div className="text-sm font-medium text-[#0f172a]">Payment recorded</div><div className="mt-1 text-xs text-slate-500">{formatDateTime(payment.createdAt)}</div></div><div className="text-sm font-semibold text-[#0f172a]">{formatMoney(payment.amount, payment.currency)}</div><Badge tone={paymentStatusTone(payment.status)}>{payment.status}</Badge></div>)}</div>}
-      </section>
+      <section><div className="mb-2 flex items-center justify-between"><h2 className="text-sm font-semibold text-[#24211f]">Your Properties</h2><Link href={`/t/${tenantId}/app/properties`} className="text-xs font-semibold text-[#45863b]">View all properties</Link></div><div className="grid gap-4 sm:grid-cols-3">{properties === null ? <Skeleton className="h-36" /> : properties.length === 0 ? <div className="col-span-full rounded-[8px] border border-[#dfe7e3] bg-white p-8 text-center text-sm text-[#77716d]">No properties yet. Add your first property to get started.</div> : properties.slice(0, 3).map((property) => <Link key={property.id} href={`/t/${tenantId}/app/properties/${property.id}`} className="rounded-[8px] border border-[#dfe7e3] bg-white p-3 shadow-[0_4px_16px_rgba(15,23,42,0.03)]"><div className="property-art h-24 rounded-[6px]" /><div className="mt-3 text-sm font-semibold text-[#24211f]">{property.title}</div><div className="mt-1 text-xs text-[#77716d]">{property.address}</div><div className="mt-2 flex justify-between text-xs"><span>{formatMoney(property.rentAmount, property.currency)}</span><Badge tone="success">Occupied</Badge></div></Link>)}</div></section>
+
+      <section className="grid gap-5 lg:grid-cols-2"><div><div className="mb-2 text-sm font-semibold text-[#24211f]">Tenancy Overview</div><div className="rounded-[8px] border border-[#dfe7e3] bg-white p-4"><div className="grid grid-cols-4 gap-3 text-center text-xs"><div><div className="text-xl font-bold text-[#24211f]">{dashboard?.activeTenancies ?? 0}</div><div className="text-[#77716d]">Active</div></div><div><div className="text-xl font-bold text-[#24211f]">0</div><div className="text-[#77716d]">Pending</div></div><div><div className="text-xl font-bold text-[#24211f]">0</div><div className="text-[#77716d]">Ended</div></div><div><div className="text-xl font-bold text-[#24211f]">{properties?.length ?? 0}</div><div className="text-[#77716d]">Total</div></div></div><Link href={`/t/${tenantId}/app/tenancies`} className="mt-4 block text-center text-xs font-semibold text-[#45863b]">View tenancies</Link></div></div><div><div className="mb-2 text-sm font-semibold text-[#24211f]">Recent Activity</div><div className="rounded-[8px] border border-[#dfe7e3] bg-white p-4">{notifications?.length ? notifications.slice(0, 3).map((notice) => <div key={notice.id} className="border-b border-[#edf0ed] py-2 text-xs last:border-0"><div className="text-[#24211f]">{notice.message}</div><div className="mt-1 text-[#77716d]">{formatDateTime(notice.createdAt)}</div></div>) : <div className="py-4 text-center text-sm text-[#77716d]">No recent activity</div>}</div></div></section>
     </div>
   );
+}
+
+function QuickAction({ href, label }: { href: string; label: string }) {
+  return <Link href={href} className="flex items-center justify-between rounded-[8px] border border-[#dfe7e3] bg-white px-3 py-3 text-sm font-semibold text-[#24211f] hover:bg-[#f2fff0]"><span>{label}</span><span className="text-[#45863b]">+</span></Link>;
 }
 
 function Metric({ label, value, detail, icon, danger = false }: { label: string; value: string | number; detail: string; icon: React.ReactNode; danger?: boolean }) {

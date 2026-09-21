@@ -69,8 +69,6 @@ export default function RegisterPage() {
         eyebrow="You&apos;re almost there"
         title="Secure, digital and transparent."
         description="One account for your properties, people and payments."
-        titleClassName="text-[2.2rem] sm:text-[2.75rem] lg:text-[4.2rem]"
-        descriptionClassName="text-[1.2rem] sm:text-[1.45rem]"
       >
         <div className="text-[1.625rem] font-bold tracking-[-0.04em] text-[#0f172a]">
           Account created — check your inbox
@@ -106,8 +104,6 @@ export default function RegisterPage() {
       eyebrow="Create your account"
       title="Secure, digital and transparent."
       description="Set up your workspace and bring your rental operations into one place."
-      titleClassName="text-[2.2rem] sm:text-[2.75rem] lg:text-[4.2rem]"
-      descriptionClassName="text-[1.2rem] sm:text-[1.45rem]"
     >
       <div className="text-[1.625rem] font-bold tracking-[-0.04em] text-[#0f172a]">Create your account</div>
       <div className="mt-1 text-sm leading-6 text-muted">

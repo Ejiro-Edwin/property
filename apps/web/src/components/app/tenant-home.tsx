@@ -4,9 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { api } from "@/lib/api";
-import { Badge, paymentStatusTone, tenancyStatusTone } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate, formatMoney } from "@/lib/format";
 
 type Me = { id: string; name: string; email: string };
@@ -35,6 +33,7 @@ export function TenantHome() {
   const [payOpen, setPayOpen] = React.useState(false);
   const [payState, setPayState] = React.useState<"form" | "processing" | "success" | "failed">("form");
   const [payError, setPayError] = React.useState<string | null>(null);
+  const [createdPaymentId, setCreatedPaymentId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     api<{ user: Me }>("auth/me", { tenantId }).then((r) => setMe(r.user)).catch(() => setMe(null));
@@ -71,7 +70,7 @@ export function TenantHome() {
     setPayState("processing");
     setPayError(null);
     try {
-      await api("payments/initiate", {
+      const result = await api<{ payment?: { id?: string }; id?: string }>("payments/initiate", {
         method: "POST",
         tenantId,
         body: {
@@ -82,6 +81,7 @@ export function TenantHome() {
           currency: tenancy.currency,
         },
       });
+      setCreatedPaymentId(result.payment?.id ?? result.id ?? null);
       setPayState("success");
     } catch (err) {
       setPayError(err instanceof Error ? err.message : "Payment could not be completed");
@@ -93,92 +93,36 @@ export function TenantHome() {
     setPayOpen(false);
     setPayState("form");
     setPayError(null);
+    setCreatedPaymentId(null);
   }
 
   return (
-    <div className="mx-auto grid w-full max-w-6xl gap-5 pb-8">
-      <section className="flex flex-wrap items-end justify-between gap-4 rounded-[22px] border border-[#dfe7e3] bg-white px-5 py-5 shadow-[0_14px_32px_rgba(15,23,42,0.04)]">
+    <div className="mx-auto grid w-full max-w-[1140px] gap-5 pb-8">
+      <section className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#1f6b67]">Tenant workspace</p>
-          <h1 className="mt-2 text-[2.1rem] font-black tracking-[-0.06em] text-[#0f172a]">{me ? `Good morning, ${me.name.split(" ")[0]}.` : "Welcome back."}</h1>
-          <p className="mt-1 text-sm text-slate-600">Your home, payments, and trust profile at a glance.</p>
+          <h1 className="text-[2rem] font-semibold tracking-[-0.045em] text-[#24211f]">{me ? `Good morning, ${me.name.split(" ")[0]}.` : "Good morning."}</h1>
+          <p className="mt-1 text-base text-[#77716d]">Here&apos;s what&apos;s happening with your tenancy today.</p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Link href={`/t/${tenantId}/app/my-tenancy`}>
-            <Button variant="secondary" className="border-slate-200 bg-white text-slate-800 hover:bg-slate-100">My tenancy</Button>
-          </Link>
-          <Link href={`/t/${tenantId}/app/payments`}>
-            <Button className="bg-[#baff00] text-[#0d1b1d] hover:bg-[#a7ea00]">My payments</Button>
-          </Link>
-          {tenancy ? <Button onClick={() => setPayOpen(true)} className="bg-[#0d1b1d] text-white hover:bg-[#18282a]">Pay rent</Button> : null}
-        </div>
+        <button type="button" className="rounded-full border border-[#b9dcae] bg-[#f0ffe9] px-4 py-2 text-xs font-semibold text-[#45733b]">Tenant profile</button>
       </section>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        <div className="metric-card p-4">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Trust score</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f8b68]">{trust ? trust.trustScore : "…"}</div>
-          <div className="mt-1 text-xs text-slate-500">Based on your payment history</div>
-        </div>
-        <div className="metric-card p-4">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Tenancy</div>
-          <div className="mt-1 text-lg font-semibold tracking-tight text-[#0f172a]">
-            {tenancy ? (
-              <Badge tone={tenancyStatusTone(tenancy.status)}>{tenancy.status.toLowerCase()}</Badge>
-            ) : (
-              "None"
-            )}
+      <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr_1fr]">
+        <section className="rounded-[8px] border border-[#dfe7e3] bg-white p-4 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
+          <div className="text-[11px] font-semibold text-[#77716d]">Current Property</div>
+          <div className="mt-3 flex gap-3">
+            <div className="property-art h-20 w-24 shrink-0 rounded-[6px]" />
+            <div className="min-w-0"><div className="font-semibold text-[#24211f]">{property?.title ?? "No property assigned"}</div><div className="mt-1 text-xs text-[#77716d]">{property?.address ?? "Your property will appear here"}</div><div className="mt-2 text-[11px] text-[#77716d]">{tenancy ? `${formatMoney(tenancy.rentAmount, tenancy.currency)} / year` : "Awaiting tenancy"}</div></div>
           </div>
-          <div className="mt-1 text-xs text-slate-500">{property?.title ?? "Not assigned yet"}</div>
-        </div>
-        <div className="metric-card p-4">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Recent payments</div>
-          <div className="mt-1 text-3xl font-semibold tracking-tight text-[#0f172a]">{payments === null ? "…" : payments.length}</div>
-          <div className="mt-1 text-xs text-slate-500">Recorded for you</div>
-        </div>
+        </section>
+        <section className="rounded-[8px] border border-[#dfe7e3] bg-white p-4 shadow-[0_4px_16px_rgba(15,23,42,0.03)]"><div className="text-[11px] font-semibold text-[#77716d]">Rent Status</div><div className="mt-3 text-2xl font-semibold text-[#24211f]">{tenancy ? formatMoney(tenancy.rentAmount, tenancy.currency) : "--"}</div><div className="mt-1 text-xs text-[#77716d]">Next payment due</div><div className="mt-3 flex gap-2"><Button size="sm" onClick={() => tenancy && setPayOpen(true)} className="bg-[#baff00] text-[#004b49] hover:bg-[#a9eb00]">Pay rent</Button><Link href={`/t/${tenantId}/app/my-tenancy`}><Button size="sm" variant="secondary">History</Button></Link></div></section>
+        <section className="rounded-[8px] border border-[#dfe7e3] bg-white p-4 shadow-[0_4px_16px_rgba(15,23,42,0.03)]"><div className="text-[11px] font-semibold text-[#77716d]">Payment Overview</div><div className="mt-3 grid gap-2 text-xs"><div className="flex justify-between"><span className="text-[#77716d]">Payments made</span><span className="font-semibold">{payments?.length ?? 0}</span></div><div className="flex justify-between"><span className="text-[#77716d]">On time</span><span className="font-semibold text-[#45863b]">{trust?.summary.onTime ?? 0}</span></div><div className="flex justify-between"><span className="text-[#77716d]">Next due</span><span className="font-semibold">{payments?.[0]?.dueDate ? formatDate(payments[0].dueDate) : "--"}</span></div></div></section>
       </div>
 
-      {tenancy && property ? (
-        <section className="card rounded-[22px] p-5">
-          <h2 className="text-sm font-semibold tracking-tight text-[#0f172a]">Current home</h2>
-          <div className="mt-3 grid gap-1">
-            <div className="text-base font-medium text-[#0f172a]">{property.title}</div>
-            <div className="text-sm text-slate-600">{property.address}</div>
-            <div className="mt-2 text-sm text-slate-700">
-              {formatMoney(tenancy.rentAmount, tenancy.currency)} / yr · from{" "}
-              {formatDate(tenancy.startDate)}
-            </div>
-          </div>
-        </section>
-      ) : (
-        <section className="card rounded-[22px] p-5 text-sm text-slate-600">
-          You don&apos;t have an active tenancy yet. Your landlord will set this up and
-          you&apos;ll see your property details here.
-        </section>
-      )}
-
-      {payments && payments.length > 0 ? (
-        <section className="card divide-y divide-slate-200 overflow-hidden rounded-[22px]">
-          <div className="px-5 py-3 text-sm font-semibold tracking-tight text-[#0f172a]">Recent payments</div>
-          {payments.map((p) => (
-            <div key={p.id} className="flex items-center justify-between px-5 py-3.5">
-              <div>
-                <div className="text-sm font-medium text-[#0f172a]">{formatMoney(p.amount, p.currency)}</div>
-                <div className="text-xs text-slate-500">{formatDate(p.dueDate)}</div>
-              </div>
-              <Badge tone={paymentStatusTone(p.status)}>{p.status}</Badge>
-            </div>
-          ))}
-        </section>
-      ) : payments !== null ? (
-        <section className="card rounded-[22px] p-5 text-sm text-slate-600">No payments recorded yet.</section>
-      ) : (
-        <Skeleton className="h-[120px]" />
-      )}
+      <section><div className="mb-2 text-sm font-semibold text-[#24211f]">Quick Actions</div><div className="rounded-[8px] border border-[#dfe7e3] bg-white px-4 py-3 shadow-[0_4px_16px_rgba(15,23,42,0.03)]"><Link href={`/t/${tenantId}/app/my-trust`} className="flex items-center justify-between"><span><span className="block text-sm font-semibold text-[#24211f]">Trust Profile</span><span className="block text-xs text-[#77716d]">Check your verified rental score</span></span><span className="text-xs font-semibold text-[#4c8b40]">View profile →</span></Link></div></section>
 
       {payOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4" role="dialog" aria-modal="true" aria-labelledby="pay-rent-title">
-          <div className="w-full max-w-md rounded-[4px] bg-white p-6 shadow-2xl">
+          <div className="w-full max-w-md rounded-[10px] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.18)]">
             {payState === "form" ? (
               <>
                 <div className="flex items-start justify-between gap-4"><div><h2 id="pay-rent-title" className="text-lg font-semibold tracking-tight">Pay your rent</h2><p className="mt-1 text-sm text-muted">Review the amount before continuing.</p></div><button type="button" onClick={closePayment} className="text-sm text-muted hover:text-foreground" aria-label="Close">Close</button></div>
@@ -188,9 +132,9 @@ export function TenantHome() {
             ) : payState === "processing" ? (
               <div className="py-8 text-center"><div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-teal border-t-transparent" /><h2 className="mt-5 text-lg font-semibold text-teal">Processing payment</h2><p className="mt-2 text-sm text-muted">Please wait while we confirm your payment.</p></div>
             ) : payState === "success" ? (
-              <div className="text-center"><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--auth-lime)] text-xl text-teal">✓</div><h2 className="mt-5 text-lg font-semibold text-teal">Payment submitted</h2><p className="mt-2 text-sm text-muted">Your payment is pending landlord verification.</p><div className="mt-6 rounded-[4px] border border-border p-4 text-left"><div className="flex justify-between text-sm"><span className="text-muted">Amount submitted</span><span className="font-semibold">{formatMoney(tenancy?.rentAmount ?? 0, tenancy?.currency ?? "NGN")}</span></div><div className="mt-2 flex justify-between text-sm"><span className="text-muted">Property</span><span className="font-medium">{property?.title ?? "Current tenancy"}</span></div><div className="mt-2 flex justify-between text-sm"><span className="text-muted">Status</span><span className="font-medium text-warning">Pending verification</span></div></div><Button className="mt-6 w-full" onClick={closePayment}>Done</Button></div>
+              <div className="text-center"><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--auth-lime)] text-xl text-teal">✓</div><h2 className="mt-5 text-lg font-semibold text-teal">Payment submitted</h2><p className="mt-2 text-sm text-muted">Your payment is pending landlord verification.</p><div className="mt-6 rounded-[4px] border border-border p-4 text-left"><div className="flex justify-between text-sm"><span className="text-muted">Amount submitted</span><span className="font-semibold">{formatMoney(tenancy?.rentAmount ?? 0, tenancy?.currency ?? "NGN")}</span></div><div className="mt-2 flex justify-between text-sm"><span className="text-muted">Property</span><span className="font-medium">{property?.title ?? "Current tenancy"}</span></div><div className="mt-2 flex justify-between text-sm"><span className="text-muted">Status</span><span className="font-medium text-warning">Pending verification</span></div></div>{createdPaymentId ? <Link href={`/t/${tenantId}/app/payments/${createdPaymentId}`} className="mt-6 block text-sm font-semibold text-[#004b49] hover:underline">View receipt</Link> : null}<Button className="mt-4 w-full" onClick={closePayment}>Done</Button></div>
             ) : (
-              <div className="text-center"><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-danger-soft text-danger">!</div><h2 className="mt-5 text-lg font-semibold text-teal">Payment failed</h2><p className="mt-2 text-sm text-muted">{payError ?? "We could not complete your payment."}</p><div className="mt-6 flex gap-3"><Button variant="secondary" className="flex-1" onClick={closePayment}>Close</Button><Button className="flex-1" onClick={() => setPayState("form")}>Try again</Button></div></div>
+              <div className="text-center"><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-[#ff6b6b] bg-[#fff1f1] text-[#ff4f4f]">×</div><h2 className="mt-5 text-lg font-semibold text-[#004b49]">Payment unsuccessful</h2><p className="mt-2 text-sm leading-5 text-[#71817e]">We couldn&apos;t process your payment. Please check your payment details and try again.</p><div className="mt-6 flex items-center justify-center gap-5"><button type="button" className="text-xs font-semibold text-[#24211f]" onClick={closePayment}>Use another method</button><Button className="bg-[#baff00] text-[#004b49] hover:bg-[#a9eb00]" onClick={() => setPayState("form")}>Try again</Button></div></div>
             )}
           </div>
         </div>

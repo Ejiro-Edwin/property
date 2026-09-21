@@ -40,7 +40,13 @@ export class MaintenanceService {
       const tenancy = await this.prisma.tenancy.findFirst({ where: { tenantId: dto.tenantId, propertyId: dto.propertyId, tenantUserId: actor.id } });
       if (!tenancy) throw new ForbiddenException('You can only report maintenance for your property');
     }
-    const request = await this.prisma.maintenanceRequest.create({ data: { tenantId: dto.tenantId, propertyId: dto.propertyId, tenancyId: dto.tenancyId, requesterId: actor.id, title: dto.title, description: dto.description, priority: dto.priority ?? 'normal' } });
+    const tenancy = dto.tenancyId ? await this.prisma.tenancy.findFirst({ where: { id: dto.tenancyId, tenantId: dto.tenantId }, select: { landlordId: true, agentId: true, propertyId: true } }) : null;
+    const propertyId = dto.propertyId ?? tenancy?.propertyId;
+    const request = await this.prisma.maintenanceRequest.create({ data: { tenantId: dto.tenantId, propertyId, tenancyId: dto.tenancyId, requesterId: actor.id, title: dto.title, description: dto.description, priority: dto.priority ?? 'normal' } });
+    const recipientIds = Array.from(new Set([tenancy?.landlordId, tenancy?.agentId].filter((id): id is string => Boolean(id))));
+    if (recipientIds.length) {
+      await this.prisma.notification.createMany({ data: recipientIds.map((userId) => ({ tenantId: dto.tenantId, userId, message: `New maintenance request: ${dto.title}`, type: 'maintenance_request' })) });
+    }
     return { message: 'Maintenance request created', request };
   }
 

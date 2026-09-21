@@ -62,14 +62,13 @@ export default function MyTenancyPage() {
   );
 
   return (
-    <div className="mx-auto grid w-full max-w-4xl gap-6 pb-8">
+    <div className="mx-auto grid w-full max-w-[1140px] gap-5 pb-8">
       <PageHeader
-        title="My tenancy"
-        description="Your rental agreement and property details."
+        eyebrow="My tenancy"
+        title="Overview"
+        description="View and manage your tenancy information, agreement and property."
         action={
-          <Link href={`/t/${tenantId}/app/payments`}>
-            <Button variant="secondary">View payments</Button>
-          </Link>
+          <div className="flex gap-2"><Link href={`/t/${tenantId}/app/payments`}><Button className="bg-[#baff00] text-[#004b49] hover:bg-[#a9eb00]">View payments</Button></Link><Button variant="secondary">Contact landlord / agent</Button></div>
         }
       />
 
@@ -88,46 +87,18 @@ export default function MyTenancyPage() {
           action={<Button onClick={loadTenancy}>Refresh</Button>}
         />
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-5">
           {tenancies.map((t) => {
             const property = propertyMap.get(t.propertyId);
             const terminated = t.status.toLowerCase() === "terminated";
             return (
-              <div key={t.id} className="card overflow-hidden rounded-[22px] shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
-                {property ? <div className="property-art h-32" /> : null}
-                <div className="p-5">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-lg font-semibold tracking-tight text-[#0f172a]">
-                        {terminated ? "Terminated tenancy" : property?.title ?? "Your property"}
-                      </div>
-                      {property ? (
-                        <div className="mt-1 text-sm text-slate-600">{property.address}</div>
-                      ) : null}
-                    </div>
-                    <Badge tone={tenancyStatusTone(t.status)}>{t.status.toLowerCase()}</Badge>
-                  </div>
-                  <div className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
-                    <div>
-                      <span className="text-slate-500">Rent · </span>
-                      <span className="font-medium text-[#0f172a]">
-                        {formatMoney(t.rentAmount, t.currency)} / yr
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-slate-500">Period · </span>
-                      <span className="font-medium text-[#0f172a]">
-                        {formatDate(t.startDate)} — {t.endDate ? formatDate(t.endDate) : "ongoing"}
-                      </span>
-                    </div>
-                    {property?.bedrooms != null ? (
-                      <div>
-                        <span className="text-slate-500">Bedrooms · </span>
-                        <span className="font-medium text-[#0f172a]">{property.bedrooms}</span>
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
+              <div key={t.id} className="grid gap-5">
+                <section className="rounded-[8px] border border-[#dfe7e3] bg-white p-5 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
+                  <div className="flex items-start justify-between gap-4"><div><div className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#71817e]">Current tenancy</div><h2 className="mt-2 text-xl font-bold text-[#24211f]">{terminated ? "Terminated Tenancy" : property?.title ?? "Your property"}</h2><div className="mt-1 text-sm text-[#77716d]">{property?.address ?? "Property details pending"}</div></div><Badge tone={tenancyStatusTone(t.status)}>{t.status.toLowerCase()}</Badge></div>
+                  <div className="mt-5 grid gap-4 border-t border-[#e5ebe6] pt-5 sm:grid-cols-3"><Info label="Tenancy starts" value={formatDate(t.startDate)} /><Info label="Tenancy ends" value={t.endDate ? formatDate(t.endDate) : "Ongoing"} /><Info label="Rent status" value={`${formatMoney(t.rentAmount, t.currency)} / month`} /></div>
+                  <div className="mt-6 rounded-[8px] bg-[#f2fff0] p-4"><div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.14em] text-[#71817e]"><span>Tenancy timeline</span><span>{t.status.toLowerCase()}</span></div><div className="mt-4 flex items-center"><div className="h-3 w-3 rounded-full bg-[#baff00] ring-4 ring-[#e9f8df]" /><div className="h-1 flex-1 bg-[#baff00]" /><div className={`h-3 w-3 rounded-full ring-4 ${t.endDate ? "bg-[#baff00] ring-[#e9f8df]" : "bg-white ring-[#dce8dc]"}`} /><div className={`h-1 flex-1 ${t.endDate ? "bg-[#baff00]" : "bg-[#dce8dc]"}`} /><div className="h-3 w-3 rounded-full bg-white ring-4 ring-[#dce8dc]" /></div><div className="mt-2 flex justify-between text-[10px] text-[#71817e]"><span>Lease start</span><span>Today</span><span>Lease end</span></div></div>
+                </section>
+                <div className="grid gap-5 lg:grid-cols-2"><section className="rounded-[8px] border border-[#dfe7e3] bg-white p-5"><div className="text-sm font-semibold text-[#24211f]">Property details</div><div className="mt-4 flex gap-3"><div className="property-art h-16 w-20 rounded-[6px]" /><div><div className="font-semibold text-[#24211f]">{property?.title ?? "Your property"}</div><div className="mt-1 text-xs text-[#77716d]">{property?.bedrooms ?? "--"} bedrooms · Apartment</div></div></div><Button size="sm" variant="secondary" className="mt-4 w-full">View property</Button></section><section className="rounded-[8px] border border-[#dfe7e3] bg-white p-5"><div className="text-sm font-semibold text-[#24211f]">Rent status</div><div className="mt-3 text-2xl font-bold text-[#45863b]">{formatMoney(t.rentAmount, t.currency)}</div><div className="text-xs text-[#77716d]">Monthly rent · next due soon</div><Link href={`/t/${tenantId}/app/payments`}><Button size="sm" variant="secondary" className="mt-4 w-full">View payment history</Button></Link></section></div>
               </div>
             );
           })}
@@ -135,4 +106,8 @@ export default function MyTenancyPage() {
       )}
     </div>
   );
+}
+
+function Info({ label, value }: { label: string; value: string }) {
+  return <div><div className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#71817e]">{label}</div><div className="mt-1 text-sm font-semibold text-[#24211f]">{value}</div></div>;
 }

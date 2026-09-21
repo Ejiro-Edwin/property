@@ -66,24 +66,24 @@ export default function SettingsPage() {
       {error ? <div className="text-sm text-danger">{error}</div> : null}
 
       {tab === "profile" ? (
-        <section className="card max-w-2xl p-6">
-          <h2 className="text-lg font-semibold text-[#0f172a]">Profile settings</h2>
+        <section className="card max-w-2xl rounded-[22px] p-6 shadow-[0_14px_32px_rgba(15,23,42,0.04)]">
+          <h2 className="text-lg font-black tracking-[-0.04em] text-[#0f172a]">Profile settings</h2>
           <form className="mt-6 grid gap-4" onSubmit={async (event) => { event.preventDefault(); if (!userId) return; setBusy(true); try { await api(`users/${userId}`, { method: "PATCH", tenantId, body: { tenantId, name: form.name, phone: form.phone } }); setNotice("Profile saved"); } catch (err) { setError(err instanceof ApiError ? err.message : "Could not save profile"); } finally { setBusy(false); } }}>
             <Field label="Full name"><Input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required /></Field>
             <Field label="Email"><Input value={form.email} disabled /></Field>
             <Field label="Phone"><Input value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} /></Field>
-            <Button disabled={busy}>Save changes</Button>
+            <Button disabled={busy} className="bg-[#baff00] text-[#0d1b1d] hover:bg-[#a7ea00]">Save changes</Button>
           </form>
         </section>
       ) : null}
 
       {tab === "security" ? (
-        <section className="card max-w-2xl p-6">
-          <h2 className="text-lg font-semibold text-[#0f172a]">Security and privacy</h2>
+        <section className="card max-w-2xl rounded-[22px] p-6 shadow-[0_14px_32px_rgba(15,23,42,0.04)]">
+          <h2 className="text-lg font-black tracking-[-0.04em] text-[#0f172a]">Security and privacy</h2>
           <form className="mt-6 grid gap-4" onSubmit={changePassword}>
             <Field label="Current password"><Input type="password" value={password.currentPassword} onChange={(event) => setPassword({ ...password, currentPassword: event.target.value })} required /></Field>
             <Field label="New password" hint="Use at least 8 characters."><Input type="password" minLength={8} value={password.newPassword} onChange={(event) => setPassword({ ...password, newPassword: event.target.value })} required /></Field>
-            <Button disabled={busy}>Update password</Button>
+            <Button disabled={busy} className="bg-[#baff00] text-[#0d1b1d] hover:bg-[#a7ea00]">Update password</Button>
           </form>
         </section>
       ) : null}
@@ -91,15 +91,25 @@ export default function SettingsPage() {
       {tab === "lease" ? <PreferenceSection title="Lease preferences" preferences={settings?.leasePreferences ?? {}} fields={["rentReminderDays", "preferredLeaseTerm"]} onSave={(value) => saveSettings("leasePreferences", value)} busy={busy} /> : null}
       {tab === "payment" ? <PreferenceSection title="Payment settings" preferences={settings?.paymentPreferences ?? {}} fields={["defaultCurrency", "autoPay"]} onSave={(value) => saveSettings("paymentPreferences", value)} busy={busy} /> : null}
       {tab === "notifications" ? (
-        <section className="card max-w-2xl p-6">
-          <h2 className="text-lg font-semibold text-[#0f172a]">Notification preferences</h2>
+        <section className="card max-w-2xl rounded-[22px] p-6 shadow-[0_14px_32px_rgba(15,23,42,0.04)]">
+          <h2 className="text-lg font-black tracking-[-0.04em] text-[#0f172a]">Notification preferences</h2>
           <div className="mt-6 grid gap-3">
-            {["payments", "messages", "productUpdates"].map((key) => (
-              <label key={key} className="flex items-center justify-between rounded-[14px] border border-border p-4 text-sm">
-                <span className="capitalize">{key.replace(/([A-Z])/g, " $1")}</span>
-                <input type="checkbox" checked={Boolean(notificationPrefs[key])} onChange={(event) => saveSettings("notificationPreferences", { ...notificationPrefs, [key]: event.target.checked })} />
-              </label>
-            ))}
+            {["payments", "messages", "productUpdates"].map((key) => {
+              const active = Boolean(notificationPrefs[key]);
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => saveSettings("notificationPreferences", { ...notificationPrefs, [key]: !active })}
+                  className="flex items-center justify-between rounded-[14px] border border-[#dfe7e3] bg-white p-4 text-left text-sm font-medium text-[#0f172a] transition-colors hover:border-[#cfe4dc]"
+                >
+                  <span className="capitalize">{key.replace(/([A-Z])/g, " $1")}</span>
+                  <span className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${active ? "bg-[#baff00]" : "bg-slate-200"}`}>
+                    <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform ${active ? "translate-x-5" : "translate-x-1"}`} />
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </section>
       ) : null}

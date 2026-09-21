@@ -32,7 +32,7 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <AuthShell eyebrow="Forgot password" title="Get back to your account." description="We&apos;ll help you reset your password securely.">
+    <AuthShell variant="centered" eyebrow="Forgot password" title="Get back to your account." description="We&apos;ll help you reset your password securely.">
       <div className="mx-auto w-full max-w-md">
         <div className="text-lg font-semibold tracking-tight">Reset your password</div>
         <div className="mt-1 text-sm text-muted">

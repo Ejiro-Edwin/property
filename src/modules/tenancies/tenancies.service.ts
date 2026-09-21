@@ -25,16 +25,28 @@ export class TenanciesService {
     if (!tenantUser) {
       throw new BadRequestException('Referenced tenant user does not exist in this tenant');
     }
+    if (tenantUser.role !== $Enums.UserRole.TENANT) {
+      throw new BadRequestException('Selected user must have the tenant role');
+    }
 
     const landlord = await this.prisma.user.findFirst({ where: { id: dto.landlordId, tenantId: dto.tenantId } });
     if (!landlord) {
       throw new BadRequestException('Referenced landlord user does not exist in this tenant');
     }
+    if (landlord.role !== $Enums.UserRole.LANDLORD && landlord.role !== $Enums.UserRole.ADMIN) {
+      throw new BadRequestException('Selected landlord user does not have a landlord role');
+    }
 
     if (dto.agentId) {
       const agent = await this.prisma.user.findFirst({ where: { id: dto.agentId, tenantId: dto.tenantId } });
       if (!agent) throw new BadRequestException('Referenced agent user does not exist in this tenant');
+      if (agent.role !== $Enums.UserRole.LETTING_AGENT && agent.role !== $Enums.UserRole.ADMIN) {
+        throw new BadRequestException('Selected agent user does not have an agent role');
+      }
     }
+
+    const overlapping = await this.prisma.tenancy.findFirst({ where: { tenantId: dto.tenantId, propertyId: dto.propertyId, status: { in: [PrismaTenancyStatus.PENDING, PrismaTenancyStatus.ACTIVE] }, OR: [{ endDate: null }, ...(dto.startDate ? [{ endDate: { gte: new Date(dto.startDate) } }] : [])] } });
+    if (overlapping) throw new BadRequestException('This property already has an active or pending tenancy');
 
     const tenancy = await this.prisma.tenancy.create({
       data: {

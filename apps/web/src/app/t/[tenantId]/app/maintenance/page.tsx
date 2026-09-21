@@ -25,6 +25,7 @@ export default function MaintenancePage() {
   const [items, setItems] = React.useState<RequestItem[] | null>(null);
   const [form, setForm] = React.useState({ title: "", description: "", priority: "normal" });
   const [error, setError] = React.useState<string | null>(null);
+  const [submitted, setSubmitted] = React.useState<RequestItem | null>(null);
 
   function load() {
     return api<{ requests: RequestItem[] }>("maintenance", { tenantId })
@@ -39,6 +40,7 @@ export default function MaintenancePage() {
     setError(null);
     try {
       await api("maintenance", { method: "POST", tenantId, body: form });
+      setSubmitted({ id: "new", title: form.title, description: form.description, priority: form.priority, status: "OPEN" });
       setForm({ title: "", description: "", priority: "normal" });
       await load();
     } catch (err) {
@@ -50,7 +52,7 @@ export default function MaintenancePage() {
   const urgentCount = items?.filter((item) => item.priority.toLowerCase() === "urgent").length ?? 0;
 
   return (
-    <div className="mx-auto grid w-full max-w-5xl gap-6 pb-8">
+    <div className="mx-auto grid w-full max-w-[1140px] gap-5 pb-8">
       <PageHeader
         title="Maintenance"
         description="Report issues and track their progress in one place."
@@ -74,7 +76,9 @@ export default function MaintenancePage() {
         </div>
       </div>
 
-      <form className="card grid gap-4 rounded-[22px] p-5 shadow-[0_14px_30px_rgba(15,23,42,0.04)] sm:grid-cols-2" onSubmit={submit}>
+      {submitted ? (
+        <section className="mx-auto w-full max-w-[440px] rounded-[10px] border border-[#dfe7e3] bg-white p-8 text-center shadow-[0_14px_32px_rgba(15,23,42,0.08)]"><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#baff00] text-xl font-bold text-[#004b49]">✓</div><h2 className="mt-5 text-lg font-bold text-[#004b49]">Maintenance request submitted</h2><p className="mt-2 text-sm text-[#71817e]">Your landlord or agent has been notified.</p><div className="mt-5 rounded-[8px] bg-[#f2fff0] p-4 text-left text-xs"><div className="flex justify-between"><span className="text-[#71817e]">Request code</span><span className="font-semibold">{submitted.id}</span></div><div className="mt-2 flex justify-between"><span className="text-[#71817e]">Current status</span><span className="font-semibold text-[#45863b]">Open</span></div></div><Button className="mt-6" onClick={() => setSubmitted(null)}>View request details</Button></section>
+      ) : <form className="card grid gap-4 rounded-[10px] p-5 shadow-[0_14px_30px_rgba(15,23,42,0.04)] sm:grid-cols-2" onSubmit={submit}>
         <Field label="Issue">
           <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
         </Field>
@@ -90,7 +94,7 @@ export default function MaintenancePage() {
           <textarea className="min-h-24 rounded-[12px] border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm sm:col-span-2" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required />
         </Field>
         <Button className="sm:col-span-2 bg-[#baff00] text-[#0d1b1d] hover:bg-[#a7ea00]">Submit request</Button>
-      </form>
+      </form>}
 
       {error ? <div className="text-sm text-danger">{error}</div> : null}
 

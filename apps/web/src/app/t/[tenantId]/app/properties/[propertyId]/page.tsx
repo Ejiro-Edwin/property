@@ -55,28 +55,20 @@ export default function PropertyDetailPage() {
   const rules = property.rules?.map((item) => item.title) ?? [];
 
   return (
-    <div className="mx-auto grid w-full max-w-6xl gap-6 pb-8">
+    <div className="mx-auto grid w-full max-w-[1140px] gap-5 pb-8">
       <PageHeader
         eyebrow="Property overview"
-        title={property.title}
-        description={property.address}
+        title="My Property"
+        description="View your property details, amenities and house rules."
         action={
           <div className="flex flex-wrap gap-2">
-            <Button variant="secondary" className="border-slate-200 bg-white text-slate-800 hover:bg-slate-100">
-              Edit property
-            </Button>
-            <Button className="bg-[#baff00] text-[#0d1b1d] hover:bg-[#a7ea00]">Share property</Button>
+            <Badge tone="success">Active tenancy</Badge>
           </div>
         }
       />
 
-      <div className="property-art h-64 overflow-hidden rounded-[20px] shadow-[0_10px_30px_rgba(15,23,42,0.04)] sm:h-80">
-        <div className="flex h-full items-end bg-gradient-to-t from-[#0f172a]/75 via-transparent to-transparent p-6">
-          <div className="text-white">
-            <div className="text-xs font-bold uppercase tracking-[0.18em] text-[#baff00]">Active property</div>
-            <div className="mt-2 text-2xl font-bold">{property.address}</div>
-          </div>
-        </div>
+      <div className="rounded-[8px] border border-[#dfe7e3] bg-white p-4 shadow-[0_4px_16px_rgba(15,23,42,0.03)] sm:p-5">
+        <div className="flex flex-col gap-5 sm:flex-row"><div className="property-art h-40 w-full rounded-[6px] sm:w-[260px]" /><div className="flex-1"><div className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#71817e]">Current property</div><h2 className="mt-2 text-xl font-bold text-[#24211f]">{property.title}</h2><p className="mt-1 text-sm text-[#77716d]">{property.address}</p><div className="mt-5 flex flex-wrap gap-4 text-xs text-[#77716d]"><span>{property.bedrooms ?? "--"} bedrooms</span><span>Residential</span><span>{formatMoney(property.rentAmount, property.currency)} / month</span></div></div></div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -85,14 +77,14 @@ export default function PropertyDetailPage() {
         <Stat label="Status" value="Available" />
       </div>
 
-      <div className="flex gap-2 rounded-[12px] border border-[#dfe7e3] bg-[#f8faf9] p-1 shadow-sm">
+      <div className="flex gap-5 border-b border-[#dfe7e3] px-1">
         {(["overview", "amenities", "rules"] as Tab[]).map((item) => (
           <button
             key={item}
             type="button"
             onClick={() => setTab(item)}
-            className={`rounded-[10px] px-4 py-2 text-sm font-medium capitalize transition-colors ${
-              tab === item ? "bg-[#efffee] text-[#004b49]" : "text-slate-500 hover:text-slate-800"
+            className={`border-b-2 px-1 pb-3 text-sm font-medium capitalize transition-colors ${
+              tab === item ? "border-[#baff00] text-[#004b49]" : "border-transparent text-slate-500 hover:text-slate-800"
             }`}
           >
             {item}

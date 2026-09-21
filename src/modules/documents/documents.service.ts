@@ -17,6 +17,7 @@ export class DocumentsService {
   }
 
   async create(dto: any, actor: any) {
+    const ownerId = dto.ownerId ?? actor.id;
     if (dto.propertyId) {
       const property = await this.prisma.property.findFirst({ where: { id: dto.propertyId, tenantId: dto.tenantId } });
       if (!property) throw new NotFoundException('Property not found');
@@ -25,13 +26,13 @@ export class DocumentsService {
       const tenancy = await this.prisma.tenancy.findFirst({ where: { id: dto.tenancyId, tenantId: dto.tenantId } });
       if (!tenancy) throw new NotFoundException('Tenancy not found');
       if (dto.propertyId && tenancy.propertyId !== dto.propertyId) throw new ForbiddenException('Property does not belong to this tenancy');
-      if (dto.ownerId && dto.ownerId !== tenancy.tenantUserId && dto.ownerId !== tenancy.landlordId) throw new ForbiddenException('Document owner is not linked to this tenancy');
+      if (ownerId !== tenancy.tenantUserId && ownerId !== tenancy.landlordId && ownerId !== tenancy.agentId) throw new ForbiddenException('Document owner is not linked to this tenancy');
     }
-    if (dto.ownerId) {
-      const owner = await this.prisma.user.findFirst({ where: { id: dto.ownerId, tenantId: dto.tenantId } });
+    if (ownerId) {
+      const owner = await this.prisma.user.findFirst({ where: { id: ownerId, tenantId: dto.tenantId } });
       if (!owner) throw new NotFoundException('Document owner not found');
     }
-    const document = await this.prisma.document.create({ data: { ...dto, visibility: dto.visibility ?? 'PRIVATE', uploadedById: actor.id } });
+    const document = await this.prisma.document.create({ data: { ...dto, ownerId, visibility: dto.visibility ?? 'PRIVATE', uploadedById: actor.id } });
     return { message: 'Document uploaded', document };
   }
 

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import {
   CreatePaymentScheduleDto,
@@ -67,5 +67,10 @@ export class PaymentsController {
       id: req.user.id,
       role: req.user.role,
     });
+  }
+
+  @Get(':id')
+  getPayment(@Param('id') id: string, @Query('tenantId') tenantId: string, @Request() req: any) {
+    return this.paymentsService.getPayment(tenantId, id, { id: req.user.id, role: req.user.role });
   }
 }

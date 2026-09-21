@@ -150,7 +150,7 @@ export default function TenancyDetailPage() {
           <h2 className="text-lg font-semibold text-[#0f172a]">Property activity</h2>
           <div className="mt-5 grid gap-4 lg:grid-cols-2">
             <div>
-              <div className="mb-2 text-xs font-medium uppercase tracking-wide text-slate-500">Amenities</div>
+              <div className="mb-2 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Amenities</div>
               <div className="space-y-2">
                 {amenityList.length ? (
                   amenityList.map((item) => (
@@ -166,7 +166,7 @@ export default function TenancyDetailPage() {
               </div>
             </div>
             <div>
-              <div className="mb-2 text-xs font-medium uppercase tracking-wide text-slate-500">House rules</div>
+              <div className="mb-2 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">House rules</div>
               <div className="space-y-2">
                 {ruleList.length ? (
                   ruleList.map((item) => (
@@ -200,7 +200,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 function Info({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-[14px] border border-slate-200 bg-[#f8fafc] p-3">
-      <div className="text-xs uppercase tracking-wide text-slate-500">{label}</div>
+      <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">{label}</div>
       <div className="mt-1 font-medium text-[#0f172a]">{value}</div>
     </div>
   );

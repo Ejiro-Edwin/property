@@ -198,9 +198,7 @@ function TenanciesPageContent() {
           items ? `${total} tenanc${total === 1 ? "y" : "ies"} in this workspace.` : undefined
         }
         action={
-          <Button className="bg-[#baff00] text-[#0d1b1d] hover:bg-[#a7ea00]" onClick={resetForm}>
-            New tenancy
-          </Button>
+          <Link href={`/t/${tenantId}/app/tenancies/create`}><Button className="bg-[#baff00] text-[#0d1b1d] hover:bg-[#a7ea00]">Create Tenancy</Button></Link>
         }
       />
 

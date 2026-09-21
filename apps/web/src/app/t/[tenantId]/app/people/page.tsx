@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { api, ApiError } from "@/lib/api";
 import { PageHeader } from "@/components/app/page-header";
@@ -258,6 +259,7 @@ function PeoplePageContent() {
       <PageHeader
         title="People"
         description="Everyone in this workspace — invite tenants, agents and co-landlords by email."
+        action={<Link href={`/t/${tenantId}/app/people/add`}><Button className="bg-[#baff00] text-[#004b49] hover:bg-[#a9eb00]">Add Tenant</Button></Link>}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -458,12 +460,12 @@ function PeoplePageContent() {
                     {m.name?.charAt(0).toUpperCase() || "?"}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium">
+                    <Link href={`/t/${tenantId}/app/people/${m.id}`} className="truncate text-sm font-medium hover:text-[#45863b]">
                       {m.name}
                       {isSelf ? (
                         <span className="ml-1.5 text-xs font-normal text-muted">(you)</span>
                       ) : null}
-                    </div>
+                    </Link>
                     <div className="truncate text-xs text-muted">{m.email}</div>
                   </div>
                   {!m.emailVerified ? (

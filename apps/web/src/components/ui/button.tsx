@@ -11,7 +11,7 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-[#baff00] text-[#0d1b1d] hover:bg-[#a9eb00] active:bg-[#9ae200] shadow-none",
+    "bg-[#baff00] text-[#004b49] hover:bg-[#a9eb00] active:bg-[#9ae200] shadow-none",
   secondary:
     "border border-[#dfe7e3] bg-white text-[#0f172a] hover:bg-[#f5f7f4] active:bg-[#edf2ef]",
   ghost: "bg-transparent text-[#1f2937] hover:bg-[#f5f7f4] active:bg-[#edf2ef]",

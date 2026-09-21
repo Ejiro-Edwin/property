@@ -78,7 +78,7 @@ html {
 }
 
 body {
-  background: #faf8f5;
+  background: #fbfaf8;
   color: var(--foreground);
   min-height: 100dvh;
 }
@@ -151,14 +151,14 @@ a {
 .text-teal { color: var(--auth-teal); }
 
 .app-workspace {
-  background: #faf8f5;
+  background: #fbfaf8;
 }
 .app-sidebar {
-  background: #faf8f5;
+  background: #fbfaf8;
 }
 
 .page-shell {
-  background: #faf8f5;
+  background: #fbfaf8;
   color: var(--foreground);
 }
 

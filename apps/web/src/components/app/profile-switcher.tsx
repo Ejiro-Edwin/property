@@ -74,7 +74,7 @@ export function ProfileSwitcher({
               className={cn(
                 "flex-1 rounded-[10px] px-2 py-1.5 text-xs font-medium transition sm:flex-none sm:px-3 sm:text-sm",
                 active
-                  ? "bg-[#e2f3fb] text-[#1f1f1f] shadow-[0_1px_0_rgba(255,255,255,0.06)]"
+                  ? "bg-[#dff1fb] text-[#1f1f1f] shadow-[0_1px_0_rgba(255,255,255,0.06)]"
                   : "text-[#77716d] hover:bg-[#f4f1ed] hover:text-[#1f1f1f]",
                 busy === role && "opacity-60",
               )}

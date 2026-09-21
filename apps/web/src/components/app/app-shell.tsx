@@ -117,7 +117,7 @@ export function AppShell({
 
       <aside
         className={cn(
-          "app-sidebar fixed inset-y-0 left-0 z-50 flex w-[270px] flex-col gap-5 border-r border-[#e7e2dd] px-5 py-5 text-[#292624] transition-transform md:static md:sticky md:top-0 md:z-auto md:h-dvh md:translate-x-0",
+          "app-sidebar fixed inset-y-0 left-0 z-50 flex w-[270px] flex-col gap-5 border-r border-[#e4e2de] px-5 py-5 text-[#292624] transition-transform md:static md:sticky md:top-0 md:z-auto md:h-dvh md:translate-x-0",
           mobileOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
@@ -125,7 +125,7 @@ export function AppShell({
       </aside>
 
       <div className="page-shell min-w-0 flex-1">
-        <header className="hidden h-[76px] items-center justify-between border-b border-[#e7e2dd] px-9 md:flex">
+        <header className="hidden h-[76px] items-center justify-between border-b border-[#e4e2de] bg-[#fbfaf8] px-9 md:flex">
           <div className="flex h-8 w-[220px] items-center rounded-full border border-[#dfe7e3] bg-white px-3 text-xs text-[#9a9691]">⌕&nbsp;&nbsp;Search...</div>
           <div className="flex items-center gap-4">
             <Link href={`/t/${tenantId}/app/notifications`} aria-label="Notifications" className="text-sm text-[#71817e] hover:text-[#24211f]">♧</Link>

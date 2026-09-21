@@ -48,6 +48,10 @@ function PropertiesPageContent() {
   const [total, setTotal] = React.useState(0);
   const [search, setSearch] = React.useState("");
   const [query, setQuery] = React.useState("");
+  const [typeFilter, setTypeFilter] = React.useState("all");
+  const [statusFilter, setStatusFilter] = React.useState("all");
+  const [rentFilter, setRentFilter] = React.useState("all");
+  const [occupiedPropertyIds, setOccupiedPropertyIds] = React.useState<string[]>([]);
   const [currentUserId, setCurrentUserId] = React.useState("");
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState(false);
@@ -63,6 +67,15 @@ function PropertiesPageContent() {
   const portfolioValue = items?.reduce((sum, p) => sum + p.rentAmount, 0) ?? 0;
   const avgRent =
     items && items.length > 0 ? Math.round(portfolioValue / items.length) : 0;
+
+  const visibleItems = items?.filter((property) => {
+    const haystack = `${property.title} ${property.address}`.toLowerCase();
+    const matchesType = typeFilter === "all" || (typeFilter === "apartment" && !haystack.includes("house")) || (typeFilter === "house" && haystack.includes("house"));
+    const occupied = occupiedPropertyIds.includes(property.id);
+    const matchesStatus = statusFilter === "all" || (statusFilter === "occupied" && occupied) || (statusFilter === "vacant" && !occupied);
+    const matchesRent = rentFilter === "all" || (rentFilter === "low" && property.rentAmount < 250000) || (rentFilter === "high" && property.rentAmount >= 250000);
+    return matchesType && matchesStatus && matchesRent;
+  });
 
   const agents = members.filter((m) =>
     ["letting_agent", "landlord", "admin"].includes(m.role.toLowerCase()),
@@ -80,6 +93,9 @@ function PropertiesPageContent() {
     api<{ users: Member[] }>("users", { tenantId, query: { limit: 100 } })
       .then((r) => setMembers(r.users ?? []))
       .catch(() => setMembers([]));
+    api<{ tenancies: { propertyId: string; status: string }[] }>("tenancies", { tenantId, query: { limit: 100 } })
+      .then((r) => setOccupiedPropertyIds((r.tenancies ?? []).filter((item) => item.status === "ACTIVE").map((item) => item.propertyId)))
+      .catch(() => setOccupiedPropertyIds([]));
   }, [tenantId]);
 
   const loadProperties = React.useCallback(() => {
@@ -215,10 +231,10 @@ function PropertiesPageContent() {
 
       <div className="grid gap-3 md:grid-cols-[1fr_auto_auto_auto_auto]">
         <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search properties..." />
-        <Select defaultValue="all"><option value="all">All types</option><option value="apartment">Apartments</option><option value="house">Houses</option></Select>
-        <Select defaultValue="all"><option value="all">All statuses</option><option value="occupied">Occupied</option><option value="vacant">Vacant</option></Select>
-        <Select defaultValue="all"><option value="all">All rent</option><option value="low">Under ₦250k</option><option value="high">₦250k+</option></Select>
-        <Button variant="secondary">Reset</Button>
+        <Select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)}><option value="all">All types</option><option value="apartment">Apartments</option><option value="house">Houses</option></Select>
+        <Select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}><option value="all">All statuses</option><option value="occupied">Occupied</option><option value="vacant">Vacant</option></Select>
+        <Select value={rentFilter} onChange={(event) => setRentFilter(event.target.value)}><option value="all">All rent</option><option value="low">Under ₦250k</option><option value="high">₦250k+</option></Select>
+        <Button variant="secondary" onClick={() => { setSearch(""); setQuery(""); setTypeFilter("all"); setStatusFilter("all"); setRentFilter("all"); }}>Reset</Button>
       </div>
 
       {items === null ? (
@@ -227,18 +243,18 @@ function PropertiesPageContent() {
             <Skeleton key={i} className="h-[190px]" />
           ))}
         </div>
-      ) : items.length === 0 ? (
+      ) : visibleItems?.length === 0 ? (
         <EmptyState
-          title={query ? "No matches" : "No properties yet"}
+          title={query || typeFilter !== "all" || statusFilter !== "all" || rentFilter !== "all" ? "No matches" : "No properties yet"}
           body={
-            query
+            query || typeFilter !== "all" || statusFilter !== "all" || rentFilter !== "all"
               ? "Nothing matched your search. Try a different title or address."
               : "Properties added to this workspace will show up here with their rent and occupancy."
           }
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((p) => (
+          {visibleItems?.map((p) => (
             <Link key={p.id} href={`/t/${tenantId}/app/properties/${p.id}`} className="card overflow-hidden rounded-[8px] transition hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(15,23,42,0.06)]">
               <div className="property-art h-28" />
               <div className="p-4">

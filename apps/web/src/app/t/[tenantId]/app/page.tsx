@@ -47,7 +47,7 @@ export default function OverviewPage() {
   const portfolioRent = dashboard?.paymentSummary.collectedAmount ?? 0;
 
   return (
-    <div className="mx-auto grid w-full max-w-[1140px] gap-5 pb-8">
+    <div className="mx-auto grid w-full max-w-[1295px] gap-5 pb-8">
       <section className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-[2rem] font-semibold tracking-[-0.045em] text-[#24211f]">Good morning, {sessionUser.name?.split(" ")[0] ?? "landlord"}.</h1>
@@ -82,7 +82,7 @@ function QuickAction({ href, label }: { href: string; label: string }) {
 
 function Metric({ label, value, detail, icon, danger = false }: { label: string; value: string | number; detail: string; icon: React.ReactNode; danger?: boolean }) {
   return (
-    <div className={`metric-card min-h-[112px] p-5 ${danger ? "border-[#f5b0a8]" : ""}`}>
+    <div className={`metric-card min-h-[148px] p-5 ${danger ? "border-[#f5b0a8]" : ""}`}>
       <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#77716d]">{label}</div>
       <div className="mt-3 text-[28px] font-semibold tracking-[-0.055em] text-[#24211f]">{value}</div>
       <div className="mt-1 text-xs text-[#77716d]">{detail}</div>

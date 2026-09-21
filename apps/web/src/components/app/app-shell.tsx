@@ -124,7 +124,7 @@ export function AppShell({
         {sidebar}
       </aside>
 
-      <div className="page-shell min-w-0 flex-1">
+      <div className="page-shell min-h-dvh min-w-0 flex-1">
         <header className="hidden h-[76px] items-center justify-between border-b border-[#e4e2de] bg-[#faf9f7] px-9 md:flex">
           <div className="flex h-8 w-[220px] items-center rounded-full border border-[#dfe7e3] bg-white px-3 text-xs text-[#9a9691]">⌕&nbsp;&nbsp;Search...</div>
           <div className="flex items-center gap-4">

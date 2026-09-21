@@ -100,18 +100,18 @@ export function TenantHome() {
     <div className="mx-auto grid w-full max-w-[1140px] gap-5 pb-8">
       <section className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-[2rem] font-semibold tracking-[-0.045em] text-[#24211f]">{me ? `Good morning, ${me.name.split(" ")[0]}.` : "Good morning."}</h1>
+          <h1 className="text-[2rem] font-semibold tracking-[-0.045em] text-[#24211f]">{me ? `Good morning, ${me.name.split(" ")[0]} 👋` : "Good morning."}</h1>
           <p className="mt-1 text-base text-[#77716d]">Here&apos;s what&apos;s happening with your tenancy today.</p>
         </div>
-        <button type="button" className="rounded-full border border-[#b9dcae] bg-[#f0ffe9] px-4 py-2 text-xs font-semibold text-[#45733b]">Tenant profile</button>
+        <Link href={`/t/${tenantId}/app/profile`} className="rounded-full border border-[#b9dcae] bg-[#f0ffe9] px-4 py-2 text-xs font-semibold text-[#45733b]">Tenant profile</Link>
       </section>
 
       <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr_1fr]">
         <section className="rounded-[8px] border border-[#dfe7e3] bg-white p-4 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
-          <div className="text-[11px] font-semibold text-[#77716d]">Current Property</div>
+          <div className="flex items-center justify-between text-[11px] font-semibold text-[#77716d]"><span>Current Property</span><span className="rounded-full bg-[#f0ffe9] px-2 py-1 text-[9px] font-bold text-[#45863b]">{tenancy?.status?.toLowerCase() ?? "Awaiting"}</span></div>
           <div className="mt-3 flex gap-3">
             <div className="property-art h-20 w-24 shrink-0 rounded-[6px]" />
-            <div className="min-w-0"><div className="font-semibold text-[#24211f]">{property?.title ?? "No property assigned"}</div><div className="mt-1 text-xs text-[#77716d]">{property?.address ?? "Your property will appear here"}</div><div className="mt-2 text-[11px] text-[#77716d]">{tenancy ? `${formatMoney(tenancy.rentAmount, tenancy.currency)} / year` : "Awaiting tenancy"}</div></div>
+            <div className="min-w-0"><div className="font-semibold text-[#24211f]">{property?.title ?? "No property assigned"}</div><div className="mt-1 text-xs text-[#77716d]">{property?.address ?? "Your property will appear here"}</div><div className="mt-2 text-[11px] text-[#77716d]">{tenancy ? `${formatMoney(tenancy.rentAmount, tenancy.currency)} / month` : "Awaiting tenancy"}</div></div>
           </div>
         </section>
         <section className="rounded-[8px] border border-[#dfe7e3] bg-white p-4 shadow-[0_4px_16px_rgba(15,23,42,0.03)]"><div className="text-[11px] font-semibold text-[#77716d]">Rent Status</div><div className="mt-3 text-2xl font-semibold text-[#24211f]">{tenancy ? formatMoney(tenancy.rentAmount, tenancy.currency) : "--"}</div><div className="mt-1 text-xs text-[#77716d]">Next payment due</div><div className="mt-3 flex gap-2"><Button size="sm" onClick={() => tenancy && setPayOpen(true)} className="bg-[#baff00] text-[#004b49] hover:bg-[#a9eb00]">Pay rent</Button><Link href={`/t/${tenantId}/app/my-tenancy`}><Button size="sm" variant="secondary">History</Button></Link></div></section>

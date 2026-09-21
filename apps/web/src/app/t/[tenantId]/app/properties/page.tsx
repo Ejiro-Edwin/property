@@ -179,112 +179,46 @@ function PropertiesPageContent() {
   }
 
   return (
-    <div className="mx-auto grid w-full max-w-6xl gap-6 pb-8">
+    <div className="mx-auto grid w-full max-w-[1140px] gap-5 pb-8">
       <PageHeader
-        title="Properties"
-        description={items ? `${total} propert${total === 1 ? "y" : "ies"} in this workspace.` : undefined}
+        eyebrow="Properties Portfolio"
+        title="Your Properties"
+        description="Manage and monitor your property portfolio."
         action={
           <Link href={`/t/${tenantId}/app/properties/add`}><Button className="shrink-0 bg-[#baff00] text-[#0d1b1d] hover:bg-[#a7ea00]">Add property</Button></Link>
         }
       />
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-3">
         <div className="metric-card p-5">
-          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Properties</div>
-          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
+          <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#77716d]">Total properties</div>
+          <div className="mt-2 text-2xl font-semibold tracking-[-0.05em] text-[#24211f]">
             {items === null ? "…" : total}
           </div>
-          <div className="mt-1 text-xs text-slate-500">Listings in this workspace</div>
+          <div className="mt-1 text-xs text-[#77716d]">Properties in your portfolio</div>
         </div>
         <div className="metric-card p-5">
-          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-            Portfolio value
+          <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#77716d]">Occupied units</div>
+          <div className="mt-2 text-2xl font-semibold tracking-[-0.05em] text-[#24211f]">
+            {items === null ? "…" : `${Math.min(total, items.length)} Units`}
           </div>
-          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
-            {items === null ? "…" : formatMoney(portfolioValue)}
-          </div>
-          <div className="mt-1 text-xs text-slate-500">Annual rent across all properties</div>
+          <div className="mt-1 text-xs text-[#77716d]">Across all properties</div>
         </div>
         <div className="metric-card p-5">
-          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Average rent</div>
-          <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
-            {items === null ? "…" : formatMoney(avgRent)}
+          <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#77716d]">Vacant units</div>
+          <div className="mt-2 text-2xl font-semibold tracking-[-0.05em] text-[#24211f]">
+            {items === null ? "…" : `${Math.max(total - items.length, 0)} Units`}
           </div>
-          <div className="mt-1 text-xs text-slate-500">Per property, on average</div>
+          <div className="mt-1 text-xs text-[#77716d]">Available for letting</div>
         </div>
       </div>
 
-      <div className="card rounded-[8px] p-5 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
-        <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-          <form className="grid gap-3 sm:grid-cols-2" onSubmit={submitProperty}>
-            <Input
-              value={form.title}
-              onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
-              placeholder="Property title"
-              required
-            />
-            <Input
-              value={form.address}
-              onChange={(e) => setForm((prev) => ({ ...prev, address: e.target.value }))}
-              placeholder="Address"
-              required
-            />
-            <Select
-              value={form.agentId}
-              onChange={(e) => setForm((prev) => ({ ...prev, agentId: e.target.value }))}
-            >
-              <option value="">No assigned agent</option>
-              {agents.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name} ({m.role.replaceAll("_", " ").toLowerCase()})
-                </option>
-              ))}
-            </Select>
-            <Input
-              value={form.bedrooms}
-              onChange={(e) => setForm((prev) => ({ ...prev, bedrooms: e.target.value }))}
-              placeholder="Bedrooms"
-              type="number"
-              min="0"
-              required
-            />
-            <Input
-              value={form.rentAmount}
-              onChange={(e) => setForm((prev) => ({ ...prev, rentAmount: e.target.value }))}
-              placeholder="Rent amount"
-              type="number"
-              min="0"
-              required
-            />
-            <Input
-              value={form.currency}
-              onChange={(e) => setForm((prev) => ({ ...prev, currency: e.target.value }))}
-              placeholder="Currency"
-            />
-            <div className="flex items-center gap-2 sm:col-span-2">
-              <Button type="submit" disabled={busy}>
-                {busy ? "Saving…" : editingId ? "Update property" : "Create property"}
-              </Button>
-              {editingId ? (
-                <Button type="button" variant="secondary" onClick={resetForm}>
-                  Cancel
-                </Button>
-              ) : null}
-            </div>
-          </form>
-          <div className="grid gap-3">
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by title or address…"
-            />
-            <div className="rounded-[8px] border border-[#dfe7e3] bg-[#f6fff0] p-4 text-sm leading-6 text-slate-600">
-              You are recorded as the landlord automatically. Assign an agent
-              from your workspace if someone manages this property for you.
-            </div>
-          </div>
-        </div>
-        {formError ? <div className="mt-3 text-sm text-danger">{formError}</div> : null}
+      <div className="grid gap-3 md:grid-cols-[1fr_auto_auto_auto_auto]">
+        <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search properties..." />
+        <Select defaultValue="all"><option value="all">All types</option><option value="apartment">Apartments</option><option value="house">Houses</option></Select>
+        <Select defaultValue="all"><option value="all">All statuses</option><option value="occupied">Occupied</option><option value="vacant">Vacant</option></Select>
+        <Select defaultValue="all"><option value="all">All rent</option><option value="low">Under ₦250k</option><option value="high">₦250k+</option></Select>
+        <Button variant="secondary">Reset</Button>
       </div>
 
       {items === null ? (

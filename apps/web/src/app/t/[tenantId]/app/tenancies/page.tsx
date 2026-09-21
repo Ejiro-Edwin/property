@@ -44,6 +44,7 @@ function TenanciesPageContent() {
   const [properties, setProperties] = React.useState<Property[]>([]);
   const [members, setMembers] = React.useState<Member[]>([]);
   const [total, setTotal] = React.useState(0);
+  const [search, setSearch] = React.useState("");
   const [currentUserId, setCurrentUserId] = React.useState("");
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState(false);
@@ -80,14 +81,14 @@ function TenanciesPageContent() {
     setItems(null);
     api<{ tenancies: Tenancy[]; meta: { total: number } }>("tenancies", {
       tenantId,
-      query: { limit: 50 },
+      query: { limit: 50, ...(search.trim() ? { search: search.trim() } : {}) },
     })
       .then((r) => {
         setItems(r.tenancies ?? []);
         setTotal(r.meta?.total ?? 0);
       })
       .catch(() => setItems([]));
-  }, [tenantId]);
+  }, [tenantId, search]);
 
   React.useEffect(() => {
     api<{ user: { id: string } }>("auth/me", { tenantId })
@@ -202,7 +203,7 @@ function TenanciesPageContent() {
         }
       />
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-4">
         <div className="metric-card p-5">
           <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Active</div>
           <div className="mt-1 text-3xl font-black tracking-[-0.05em] text-[#0f172a]">
@@ -224,94 +225,18 @@ function TenanciesPageContent() {
           </div>
           <div className="mt-1 text-xs text-slate-500">Archived tenancy records</div>
         </div>
+        <div className="metric-card p-5">
+          <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#77716d]">Completed</div>
+          <div className="mt-2 text-2xl font-semibold tracking-[-0.05em] text-[#24211f]">{items === null ? "…" : endedCount}</div>
+          <div className="mt-1 text-xs text-[#77716d]">Past agreements</div>
+        </div>
       </div>
 
-      <div className="card rounded-[8px] p-4 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
-        <form className="grid gap-3 sm:grid-cols-2" onSubmit={submitTenancy}>
-          <Select
-            value={form.propertyId}
-            onChange={(e) => onPropertyChange(e.target.value)}
-            required
-          >
-            <option value="">Select property</option>
-            {properties.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.title}
-              </option>
-            ))}
-          </Select>
-          <Select
-            value={form.tenantUserId}
-            onChange={(e) => setForm((p) => ({ ...p, tenantUserId: e.target.value }))}
-            required
-          >
-            <option value="">Select tenant</option>
-            {tenants.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-              </option>
-            ))}
-          </Select>
-          <Select
-            value={form.agentId}
-            onChange={(e) => setForm((p) => ({ ...p, agentId: e.target.value }))}
-          >
-            <option value="">No assigned agent</option>
-            {agents.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-              </option>
-            ))}
-          </Select>
-          <Select
-            value={form.status}
-            onChange={(e) => setForm((p) => ({ ...p, status: e.target.value }))}
-          >
-            <option value="PENDING">Pending</option>
-            <option value="ACTIVE">Active</option>
-            <option value="ENDED">Ended</option>
-          </Select>
-          <Input
-            value={form.rentAmount}
-            onChange={(e) => setForm((p) => ({ ...p, rentAmount: e.target.value }))}
-            placeholder="Rent amount"
-            type="number"
-            min="0"
-            required
-          />
-          <Input
-            value={form.currency}
-            onChange={(e) => setForm((p) => ({ ...p, currency: e.target.value }))}
-            placeholder="Currency"
-          />
-          <Input
-            value={form.startDate}
-            onChange={(e) => setForm((p) => ({ ...p, startDate: e.target.value }))}
-            type="date"
-            required
-          />
-          <Input
-            value={form.endDate}
-            onChange={(e) => setForm((p) => ({ ...p, endDate: e.target.value }))}
-            type="date"
-          />
-          <div className="flex items-center gap-2 sm:col-span-2">
-            <Button type="submit" disabled={busy}>
-              {busy ? "Saving…" : editingId ? "Update tenancy" : "Create tenancy"}
-            </Button>
-            {editingId ? (
-              <Button type="button" variant="secondary" onClick={resetForm}>
-                Cancel
-              </Button>
-            ) : null}
-          </div>
-        </form>
-        {tenants.length === 0 ? (
-          <div className="mt-3 text-sm text-slate-600">
-            Invite tenants from the People page before creating a tenancy.
-          </div>
-        ) : null}
-        {formError ? <div className="mt-3 text-sm text-danger">{formError}</div> : null}
+      <div className="grid gap-3 md:grid-cols-[1fr_auto_auto_auto]">
+        <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search tenancies..." />
+        <Select defaultValue="all"><option value="all">All statuses</option><option value="ACTIVE">Active</option><option value="PENDING">Pending</option><option value="ENDED">Ended</option></Select>
+        <Select defaultValue="all"><option value="all">All properties</option>{properties.map((property) => <option key={property.id} value={property.id}>{property.title}</option>)}</Select>
+        <Button variant="secondary">Reset</Button>
       </div>
 
       {items === null ? (

@@ -14,7 +14,7 @@ type UserMenuProps = {
 };
 
 export function UserMenu({ tenantId, user, onNavigate }: UserMenuProps) {
-  const logoutAction = `/api/auth/logout?redirect=${encodeURIComponent("/login")}`;
+  const logoutAction = `/api/auth/logout?redirect=${encodeURIComponent("/")}`;
   const profileHref = `/t/${tenantId}/app/profile`;
 
   return (

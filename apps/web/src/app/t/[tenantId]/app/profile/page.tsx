@@ -72,7 +72,7 @@ export default function ProfilePage() {
     }
   }
 
-  const logoutAction = `/api/auth/logout?redirect=${encodeURIComponent("/login")}`;
+  const logoutAction = `/api/auth/logout?redirect=${encodeURIComponent("/")}`;
 
   return (
     <div className="mx-auto grid w-full max-w-2xl gap-6 pb-8">

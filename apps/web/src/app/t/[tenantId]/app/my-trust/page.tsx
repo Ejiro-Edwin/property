@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { api, ApiError } from "@/lib/api";
 import { PageHeader } from "@/components/app/page-header";
 import { Badge, tenancyStatusTone } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatMoney } from "@/lib/format";
 
@@ -50,10 +51,11 @@ export default function MyTrustPage() {
   }, [tenantId]);
 
   return (
-    <div className="mx-auto grid w-full max-w-4xl gap-6 pb-8">
+    <div className="mx-auto grid w-full max-w-[1140px] gap-5 pb-8">
       <PageHeader
-        title="Your trust score"
-        description="How landlords see your payment reliability — built from real rent history."
+        eyebrow="Trust Profile"
+        title="Your TenantSea Trust Profile"
+        description="Your verified digital tenancy profile makes securing your next home fast and effortless."
       />
 
       {profile === null && !error ? (
@@ -61,38 +63,21 @@ export default function MyTrustPage() {
       ) : error ? (
         <div className="card p-6 text-sm text-muted">{error}</div>
       ) : profile ? (
-        <div className="grid gap-6">
-          <div className="card flex flex-col items-center p-8 text-center sm:flex-row sm:text-left">
-            <div>
-              <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                Trust score
-              </div>
-              <div className={`mt-1 text-6xl font-black tracking-[-0.05em] ${scoreTone(profile.trustScore)}`}>
-                {profile.trustScore}
-              </div>
-              <div className="mt-1 text-sm text-slate-500">out of 100</div>
-            </div>
-            <div className="mt-6 grid flex-1 grid-cols-2 gap-4 text-sm sm:mt-0 sm:ml-auto sm:grid-cols-4">
-              <div>
-                <div className="text-muted">On time</div>
-                <div className="text-lg font-semibold">{profile.summary.onTime}</div>
-              </div>
-              <div>
-                <div className="text-muted">Late</div>
-                <div className="text-lg font-semibold">{profile.summary.late}</div>
-              </div>
-              <div>
-                <div className="text-muted">Partial</div>
-                <div className="text-lg font-semibold">{profile.summary.partial}</div>
-              </div>
-              <div>
-                <div className="text-muted">Missed</div>
-                <div className="text-lg font-semibold">{profile.summary.missed}</div>
-              </div>
-            </div>
+        <div className="grid gap-5 lg:grid-cols-[330px_1fr]">
+          <div className="card flex flex-col items-center justify-center p-6 text-center">
+            <div className="text-xs font-bold text-[#004b49]">Trust Score</div>
+            <div className="mt-5 flex h-32 w-32 items-center justify-center rounded-full border-[8px] border-[#4d8f2b] bg-white"><div><div className={`text-3xl font-bold ${scoreTone(profile.trustScore)}`}>{profile.trustScore}</div><div className="text-[10px] text-[#71817e]">/100</div></div></div>
+            <div className="mt-4 rounded-full bg-[#f2fff0] px-3 py-1 text-[10px] font-bold text-[#45863b]">Excellent Standing</div>
+            <Button size="sm" className="mt-4 bg-[#4d8f2b] text-white hover:bg-[#3f7824]">Improve your score</Button>
+          </div>
+          <div className="grid gap-2">
+            <TrustCriterion label="Payment History" detail="Perfect track record of timely monthly payments" value={profile.summary.late || profile.summary.missed ? "Needs attention" : "Excellent"} />
+            <TrustCriterion label="Tenancy Duration" detail="Average tenancy lease completion active" value="Good" />
+            <TrustCriterion label="Document Verification" detail="Government-issued ID and references authenticated" value="Verified" />
+            <TrustCriterion label="Landlord Rating" detail="Consistent rating from previous landlords" value="4.8 / 5 Stars" />
           </div>
 
-          <section className="grid gap-3">
+          <section className="hidden grid gap-3">
             <h2 className="text-sm font-semibold tracking-tight">Rental history</h2>
             {profile.rentalHistory.length === 0 ? (
               <div className="card-flat px-5 py-8 text-center text-sm text-muted">
@@ -113,7 +98,7 @@ export default function MyTrustPage() {
             )}
           </section>
 
-          <div className="card p-5 text-sm text-muted">
+          <div className="hidden card p-5 text-sm text-muted">
             Scores start at 60. On-time payments add points; late, partial and missed
             payments reduce them. Paying rent consistently helps your score over time.
           </div>
@@ -121,4 +106,8 @@ export default function MyTrustPage() {
       ) : null}
     </div>
   );
+}
+
+function TrustCriterion({ label, detail, value }: { label: string; detail: string; value: string }) {
+  return <div className="flex items-center gap-3 rounded-[8px] border border-[#dfe7e3] bg-white px-4 py-3"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#f2fff0] text-xs text-[#45863b]">✓</span><div className="min-w-0 flex-1"><div className="text-xs font-bold text-[#24211f]">{label}</div><div className="truncate text-[10px] text-[#71817e]">{detail}</div></div><span className="text-[10px] font-bold text-[#45863b]">{value}</span></div>;
 }

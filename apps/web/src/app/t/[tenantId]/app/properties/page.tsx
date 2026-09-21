@@ -244,14 +244,9 @@ function PropertiesPageContent() {
           ))}
         </div>
       ) : visibleItems?.length === 0 ? (
-        <EmptyState
-          title={query || typeFilter !== "all" || statusFilter !== "all" || rentFilter !== "all" ? "No matches" : "No properties yet"}
-          body={
-            query || typeFilter !== "all" || statusFilter !== "all" || rentFilter !== "all"
-              ? "Nothing matched your search. Try a different title or address."
-              : "Properties added to this workspace will show up here with their rent and occupancy."
-          }
-        />
+        <div className="flex min-h-[330px] items-center justify-center rounded-[8px] border border-[#d9efd9] bg-[#efffee] text-center">
+          <div><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#f2fff0] text-lg text-[#78b85c]">▣</div><h2 className="mt-4 text-sm font-bold text-[#004b49]">{query || typeFilter !== "all" || statusFilter !== "all" || rentFilter !== "all" ? "No matching properties" : "No Properties Yet"}</h2><p className="mt-2 text-xs text-[#71817e]">{query || typeFilter !== "all" || statusFilter !== "all" || rentFilter !== "all" ? "Try changing your filters." : "Start building your portfolio by adding your first property."}</p>{!query && typeFilter === "all" && statusFilter === "all" && rentFilter === "all" ? <Link href={`/t/${tenantId}/app/properties/add`}><Button size="sm" className="mt-5">Add Your First Property</Button></Link> : null}</div>
+        </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {visibleItems?.map((p) => (
@@ -261,15 +256,8 @@ function PropertiesPageContent() {
                 <div className="truncate text-sm font-semibold tracking-tight text-[#0f172a]">{p.title}</div>
                 <div className="mt-0.5 truncate text-xs text-slate-500">{p.address}</div>
                 <div className="mt-3 flex items-center justify-between gap-2">
-                  <div className="text-sm font-medium text-[#0f172a]">
-                    {formatMoney(p.rentAmount, p.currency)}
-                    <span className="text-xs font-normal text-slate-500"> / yr</span>
-                  </div>
-                  {p.bedrooms != null ? (
-                    <Badge tone="sand" className="shrink-0">
-                      {p.bedrooms} bed{p.bedrooms === 1 ? "" : "s"}
-                    </Badge>
-                  ) : null}
+                  <div className="text-sm font-medium text-[#0f172a]">{formatMoney(p.rentAmount, p.currency)}<span className="text-xs font-normal text-slate-500"> / month</span></div>
+                  <Badge tone={occupiedPropertyIds.includes(p.id) ? "success" : "warning"} className="shrink-0">{occupiedPropertyIds.includes(p.id) ? "Occupied" : "Vacant"}</Badge>
                 </div>
                 <div className="mt-4 flex items-center gap-2">
                   <Button size="sm" variant="secondary" className="border-slate-200 bg-white text-slate-800 hover:bg-slate-100" onClick={() => startEdit(p)}>

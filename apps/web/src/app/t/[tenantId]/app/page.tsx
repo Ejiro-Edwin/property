@@ -47,7 +47,7 @@ export default function OverviewPage() {
   const portfolioRent = dashboard?.paymentSummary.collectedAmount ?? 0;
 
   return (
-    <div className="mx-auto grid w-full max-w-[1295px] gap-5 pb-8">
+    <div className="mx-auto grid w-full max-w-[1140px] gap-4 pb-8">
       <section className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-[2rem] font-semibold tracking-[-0.045em] text-[#24211f]">Good morning, {sessionUser.name?.split(" ")[0] ?? "landlord"}.</h1>

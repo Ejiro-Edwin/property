@@ -45,6 +45,8 @@ function TenanciesPageContent() {
   const [members, setMembers] = React.useState<Member[]>([]);
   const [total, setTotal] = React.useState(0);
   const [search, setSearch] = React.useState("");
+  const [statusFilter, setStatusFilter] = React.useState("all");
+  const [propertyFilter, setPropertyFilter] = React.useState("all");
   const [currentUserId, setCurrentUserId] = React.useState("");
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState(false);
@@ -76,6 +78,8 @@ function TenanciesPageContent() {
   const activeCount = items?.filter((t) => t.status === "ACTIVE").length ?? 0;
   const pendingCount = items?.filter((t) => t.status === "PENDING").length ?? 0;
   const endedCount = items?.filter((t) => t.status === "ENDED").length ?? 0;
+  const expiringCount = items?.filter((t) => t.endDate && new Date(t.endDate).getTime() > Date.now() && new Date(t.endDate).getTime() < Date.now() + 30 * 24 * 60 * 60 * 1000).length ?? 0;
+  const visibleItems = items?.filter((item) => (statusFilter === "all" || item.status === statusFilter) && (propertyFilter === "all" || item.propertyId === propertyFilter));
 
   const loadTenancies = React.useCallback(() => {
     setItems(null);
@@ -226,22 +230,22 @@ function TenanciesPageContent() {
           <div className="mt-1 text-xs text-slate-500">Archived tenancy records</div>
         </div>
         <div className="metric-card p-5">
-          <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#77716d]">Completed</div>
-          <div className="mt-2 text-2xl font-semibold tracking-[-0.05em] text-[#24211f]">{items === null ? "…" : endedCount}</div>
-          <div className="mt-1 text-xs text-[#77716d]">Past agreements</div>
+            <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#77716d]">Expiring soon</div>
+          <div className="mt-2 text-2xl font-semibold tracking-[-0.05em] text-[#24211f]">{items === null ? "…" : expiringCount}</div>
+          <div className="mt-1 text-xs text-[#77716d]">Within 30 days</div>
         </div>
       </div>
 
       <div className="grid gap-3 md:grid-cols-[1fr_auto_auto_auto]">
         <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search tenancies..." />
-        <Select defaultValue="all"><option value="all">All statuses</option><option value="ACTIVE">Active</option><option value="PENDING">Pending</option><option value="ENDED">Ended</option></Select>
-        <Select defaultValue="all"><option value="all">All properties</option>{properties.map((property) => <option key={property.id} value={property.id}>{property.title}</option>)}</Select>
-        <Button variant="secondary">Reset</Button>
+        <Select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}><option value="all">All statuses</option><option value="ACTIVE">Active</option><option value="PENDING">Pending</option><option value="ENDED">Completed</option></Select>
+        <Select value={propertyFilter} onChange={(event) => setPropertyFilter(event.target.value)}><option value="all">All properties</option>{properties.map((property) => <option key={property.id} value={property.id}>{property.title}</option>)}</Select>
+        <Button variant="secondary" onClick={() => { setSearch(""); setStatusFilter("all"); setPropertyFilter("all"); }}>Reset</Button>
       </div>
 
       {items === null ? (
         <Skeleton className="h-[280px]" />
-      ) : items.length === 0 ? (
+      ) : visibleItems?.length === 0 ? (
         <EmptyState
           title="No tenancies yet"
           body="When a tenant is placed in a property, the tenancy—its rent, dates and status—will appear here."
@@ -260,7 +264,7 @@ function TenanciesPageContent() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {items.map((t) => (
+              {visibleItems?.map((t) => (
                 <tr key={t.id}>
                   <td className="px-4 py-4">
                     <Link href={`/t/${tenantId}/app/tenancies/${t.id}`} className="font-medium text-teal hover:underline">

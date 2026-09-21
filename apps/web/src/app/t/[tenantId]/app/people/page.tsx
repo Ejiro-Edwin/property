@@ -257,8 +257,9 @@ function PeoplePageContent() {
   return (
     <div className="mx-auto grid w-full max-w-5xl gap-8 pb-8">
       <PageHeader
-        title="People"
-        description="Everyone in this workspace — invite tenants, agents and co-landlords by email."
+        eyebrow="Tenants Registry"
+        title="Manage Tenants"
+        description="View and manage your tenants across your portfolio."
         action={<Link href={`/t/${tenantId}/app/people/add`}><Button className="bg-[#baff00] text-[#004b49] hover:bg-[#a9eb00]">Add Tenant</Button></Link>}
       />
 
@@ -439,16 +440,14 @@ function PeoplePageContent() {
       ) : null}
 
       <section className="grid gap-3">
-        <h2 className="text-sm font-semibold tracking-tight">Members</h2>
+        <h2 className="text-sm font-semibold tracking-tight">Tenants</h2>
         {memberError && !editingMemberId ? (
           <div className="text-sm text-danger">{memberError}</div>
         ) : null}
         {members === null ? (
           <Skeleton className="h-[220px]" />
         ) : members.length === 0 ? (
-          <div className="card-flat px-5 py-8 text-center text-sm text-muted">
-            No members found.
-          </div>
+          <div className="flex min-h-[300px] items-center justify-center rounded-[8px] border border-[#d9efd9] bg-[#efffee] text-center"><div><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#f2fff0] text-lg text-[#78b85c]">♙</div><h2 className="mt-4 text-sm font-bold text-[#004b49]">No Tenants Yet</h2><p className="mt-2 text-xs text-[#71817e]">Add tenants to your properties to start managing tenancies.</p><Link href={`/t/${tenantId}/app/people/add`}><Button size="sm" className="mt-5">Add Your First Tenant</Button></Link></div></div>
         ) : (
           <div className="card-flat divide-y divide-border">
             {members.map((m) => {

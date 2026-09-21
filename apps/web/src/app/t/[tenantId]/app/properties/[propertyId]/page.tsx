@@ -94,7 +94,7 @@ export default function PropertyDetailPage() {
 
       {tab === "overview" ? (
         <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
-          <section className="card rounded-[20px] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+          <section className="card rounded-[8px] p-5 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
             <h2 className="text-lg font-semibold text-[#0f172a]">Property overview</h2>
             <p className="mt-3 text-sm leading-6 text-slate-600">
               Manage the property details, occupancy, amenities, and house rules from one place.
@@ -107,7 +107,7 @@ export default function PropertyDetailPage() {
             </div>
           </section>
 
-          <section className="card rounded-[20px] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+          <section className="card rounded-[8px] p-5 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-lg font-semibold text-[#0f172a]">Workspace notes</h2>
               <Badge tone="brand">Live</Badge>
@@ -163,7 +163,7 @@ function Info({ label, value }: { label: string; value: string }) {
 
 function FeatureList({ title, empty, items }: { title: string; empty: string; items: string[] }) {
   return (
-    <section className="card rounded-[20px] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+    <section className="card rounded-[8px] p-5 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-[#0f172a]">{title}</h2>
         <Button size="sm" className="bg-[#baff00] text-[#0d1b1d] hover:bg-[#a7ea00]">

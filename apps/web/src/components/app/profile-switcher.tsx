@@ -30,7 +30,7 @@ export function ProfileSwitcher({
   const [error, setError] = React.useState<string | null>(null);
 
   const visible = sortProfiles(profiles.filter((p) => PROFILE_ORDER.includes(p as (typeof PROFILE_ORDER)[number])));
-  if (visible.length <= 1) {
+  if (visible.length === 0) {
     return null;
   }
 
@@ -61,9 +61,7 @@ export function ProfileSwitcher({
 
   return (
     <div className="grid gap-2 px-1">
-      <div className="px-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#77716d]">
-        Operating as
-      </div>
+      <div className="px-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#77716d]">Workspace role</div>
       <div className="flex flex-wrap gap-1 rounded-[12px] border border-[#ded8d2] bg-white p-1">
         {visible.map((role) => {
           const active = role === (activeRole ?? "").toLowerCase();
@@ -71,7 +69,7 @@ export function ProfileSwitcher({
             <button
               key={role}
               type="button"
-              disabled={busy !== null}
+              disabled={busy !== null || visible.length === 1}
               onClick={() => switchTo(role)}
               className={cn(
                 "flex-1 rounded-[10px] px-2 py-1.5 text-xs font-medium transition sm:flex-none sm:px-3 sm:text-sm",

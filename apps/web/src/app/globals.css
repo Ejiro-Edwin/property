@@ -93,14 +93,14 @@ a {
 
 .card {
   border: 1px solid rgba(15, 23, 42, 0.06);
-  border-radius: 20px;
-  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.04);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
   background: rgba(255, 255, 255, 0.98);
 }
 
 .card-flat {
   border: 1px solid rgba(15, 23, 42, 0.06);
-  border-radius: 20px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.98);
 }
 
@@ -171,7 +171,7 @@ a {
 }
 
 .metric-card {
-  border-radius: 18px;
+  border-radius: 8px;
 }
 
 .deck-grid {
@@ -186,7 +186,7 @@ a {
 
 .section-card {
   border: 1px solid rgba(15, 23, 42, 0.06);
-  border-radius: 20px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.98);
   box-shadow: 0 10px 26px rgba(15, 23, 42, 0.035);
 }

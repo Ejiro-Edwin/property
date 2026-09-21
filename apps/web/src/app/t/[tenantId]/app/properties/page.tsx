@@ -214,7 +214,7 @@ function PropertiesPageContent() {
         </div>
       </div>
 
-      <div className="card rounded-[22px] p-5 shadow-[0_14px_30px_rgba(15,23,42,0.04)]">
+      <div className="card rounded-[8px] p-5 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
         <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
           <form className="grid gap-3 sm:grid-cols-2" onSubmit={submitProperty}>
             <Input
@@ -278,7 +278,7 @@ function PropertiesPageContent() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by title or address…"
             />
-            <div className="rounded-[16px] border border-[#dfe7e3] bg-[#f6fff0] p-4 text-sm leading-6 text-slate-600">
+            <div className="rounded-[8px] border border-[#dfe7e3] bg-[#f6fff0] p-4 text-sm leading-6 text-slate-600">
               You are recorded as the landlord automatically. Assign an agent
               from your workspace if someone manages this property for you.
             </div>
@@ -305,7 +305,7 @@ function PropertiesPageContent() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((p) => (
-            <Link key={p.id} href={`/t/${tenantId}/app/properties/${p.id}`} className="card overflow-hidden rounded-[22px] transition hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
+            <Link key={p.id} href={`/t/${tenantId}/app/properties/${p.id}`} className="card overflow-hidden rounded-[8px] transition hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(15,23,42,0.06)]">
               <div className="property-art h-28" />
               <div className="p-4">
                 <div className="truncate text-sm font-semibold tracking-tight text-[#0f172a]">{p.title}</div>

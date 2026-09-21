@@ -66,7 +66,7 @@ export default function SettingsPage() {
       {error ? <div className="text-sm text-danger">{error}</div> : null}
 
       {tab === "profile" ? (
-        <section className="card max-w-2xl rounded-[22px] p-6 shadow-[0_14px_32px_rgba(15,23,42,0.04)]">
+        <section className="card max-w-2xl rounded-[8px] p-6 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
           <h2 className="text-lg font-black tracking-[-0.04em] text-[#0f172a]">Profile settings</h2>
           <form className="mt-6 grid gap-4" onSubmit={async (event) => { event.preventDefault(); if (!userId) return; setBusy(true); try { await api(`users/${userId}`, { method: "PATCH", tenantId, body: { tenantId, name: form.name, phone: form.phone } }); setNotice("Profile saved"); } catch (err) { setError(err instanceof ApiError ? err.message : "Could not save profile"); } finally { setBusy(false); } }}>
             <Field label="Full name"><Input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required /></Field>
@@ -78,7 +78,7 @@ export default function SettingsPage() {
       ) : null}
 
       {tab === "security" ? (
-        <section className="card max-w-2xl rounded-[22px] p-6 shadow-[0_14px_32px_rgba(15,23,42,0.04)]">
+        <section className="card max-w-2xl rounded-[8px] p-6 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
           <h2 className="text-lg font-black tracking-[-0.04em] text-[#0f172a]">Security and privacy</h2>
           <form className="mt-6 grid gap-4" onSubmit={changePassword}>
             <Field label="Current password"><Input type="password" value={password.currentPassword} onChange={(event) => setPassword({ ...password, currentPassword: event.target.value })} required /></Field>
@@ -91,7 +91,7 @@ export default function SettingsPage() {
       {tab === "lease" ? <PreferenceSection title="Lease preferences" preferences={settings?.leasePreferences ?? {}} fields={["rentReminderDays", "preferredLeaseTerm"]} onSave={(value) => saveSettings("leasePreferences", value)} busy={busy} /> : null}
       {tab === "payment" ? <PreferenceSection title="Payment settings" preferences={settings?.paymentPreferences ?? {}} fields={["defaultCurrency", "autoPay"]} onSave={(value) => saveSettings("paymentPreferences", value)} busy={busy} /> : null}
       {tab === "notifications" ? (
-        <section className="card max-w-2xl rounded-[22px] p-6 shadow-[0_14px_32px_rgba(15,23,42,0.04)]">
+        <section className="card max-w-2xl rounded-[8px] p-6 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
           <h2 className="text-lg font-black tracking-[-0.04em] text-[#0f172a]">Notification preferences</h2>
           <div className="mt-6 grid gap-3">
             {["payments", "messages", "productUpdates"].map((key) => {

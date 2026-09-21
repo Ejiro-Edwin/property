@@ -63,7 +63,7 @@ export default function DocumentsPage() {
         </div>
       </div>
 
-      <form className="card grid gap-4 rounded-[22px] p-5 shadow-[0_14px_30px_rgba(15,23,42,0.04)] sm:grid-cols-3" onSubmit={submit}>
+      <form className="card grid gap-4 rounded-[8px] p-5 shadow-[0_4px_16px_rgba(15,23,42,0.03)] sm:grid-cols-3" onSubmit={submit}>
         <Field label="Document name"><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></Field>
         <Field label="Category"><Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} required /></Field>
         <Field label="Storage URL"><Input type="url" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} required /></Field>

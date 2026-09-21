@@ -66,11 +66,11 @@ export default function MessagesPage() {
       </div>
 
       {items === null ? (
-        <div className="card rounded-[22px] p-6 text-sm text-slate-600">Loading messages…</div>
+        <div className="card rounded-[8px] p-6 text-sm text-slate-600">Loading messages…</div>
       ) : items.length === 0 ? (
         <EmptyState title="No messages yet" body="Messages from your workspace will appear here." />
       ) : (
-        <div className="card divide-y divide-slate-200 rounded-[22px]">
+        <div className="card divide-y divide-slate-200 rounded-[8px]">
           {items.map((item) => (
             <div key={item.id} className="px-5 py-4">
               <div className="flex items-start justify-between gap-3">
@@ -85,7 +85,7 @@ export default function MessagesPage() {
         </div>
       )}
 
-      <form className="card flex flex-col gap-3 rounded-[22px] p-4 shadow-[0_14px_30px_rgba(15,23,42,0.04)] sm:flex-row" onSubmit={send}>
+      <form className="card flex flex-col gap-3 rounded-[8px] p-4 shadow-[0_4px_16px_rgba(15,23,42,0.03)] sm:flex-row" onSubmit={send}>
         <Input value={body} onChange={(e) => setBody(e.target.value)} placeholder="Write a message" aria-label="Message" className="flex-1" />
         <Button className="bg-[#baff00] text-[#0d1b1d] hover:bg-[#a7ea00]">Send</Button>
       </form>

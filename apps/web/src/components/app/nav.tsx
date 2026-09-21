@@ -36,32 +36,26 @@ const iconByHref: Record<string, React.ComponentType<{ width?: number; height?: 
 };
 
 const landlordItems = [
-  { href: "app", label: "Overview", exact: true },
+  { href: "app", label: "Dashboard", exact: true },
   { href: "app/properties", label: "Properties" },
+  { href: "app/people", label: "Tenants" },
   { href: "app/tenancies", label: "Tenancies" },
-  { href: "app/people", label: "People" },
   { href: "app/payments", label: "Payments" },
-  { href: "app/trust", label: "Trust" },
-  { href: "app/notifications", label: "Notifications" },
-  { href: "app/profile", label: "Profile" },
-  { href: "app/audit", label: "Audit", adminOnly: true },
+  { href: "app/maintenance", label: "Maintenance" },
   { href: "app/documents", label: "Documents" },
   { href: "app/messages", label: "Messages" },
-  { href: "app/maintenance", label: "Maintenance" },
-  { href: "app/settings", label: "Settings" },
+  { href: "app/audit", label: "Trust / Activity" },
 ];
 
 const tenantItems = [
-  { href: "app", label: "Home", exact: true },
+  { href: "app", label: "Dashboard", exact: true },
   { href: "app/my-tenancy", label: "My tenancy" },
-  { href: "app/payments", label: "My payments" },
-  { href: "app/my-trust", label: "Trust score" },
-  { href: "app/notifications", label: "Notifications" },
-  { href: "app/profile", label: "Profile" },
+  { href: "app/payments", label: "Payments" },
+  { href: "app/properties", label: "Property" },
+  { href: "app/maintenance", label: "Maintenance" },
   { href: "app/documents", label: "Documents" },
   { href: "app/messages", label: "Messages" },
-  { href: "app/maintenance", label: "Maintenance" },
-  { href: "app/settings", label: "Settings" },
+  { href: "app/my-trust", label: "Trust Profile" },
 ];
 
 export function AppNav({
@@ -88,7 +82,7 @@ export function AppNav({
             key={item.href}
             href={href}
             className={cn(
-              "flex items-center gap-3 rounded-[14px] border border-transparent px-4 py-3 text-[16px] transition-all",
+              "flex items-center gap-3 rounded-[8px] border border-transparent px-3 py-2 text-[13px] transition-all",
               active
                 ? "bg-[#e2f3fb] font-medium text-[#1f1f1f]"
                 : "text-[#2f2c2a] hover:bg-[#f4f1ed] hover:text-[#1f1f1f]",

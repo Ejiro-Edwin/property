@@ -87,14 +87,14 @@ export default function TenancyDetailPage() {
         <Stat label="Tenant" value={tenancy.tenantUser?.name ?? "Unassigned"} />
       </section>
 
-      <div className="flex gap-2 rounded-[12px] border border-[#dfe7e3] bg-[#f8faf9] p-1 shadow-sm">
+      <div className="flex gap-5 border-b border-[#dfe7e3] px-1">
         {(["overview", "agreement", "history"] as Tab[]).map((item) => (
           <button
             key={item}
             type="button"
             onClick={() => setTab(item)}
-            className={`rounded-[10px] px-4 py-2 text-sm font-medium capitalize transition-colors ${
-              tab === item ? "bg-[#efffee] text-[#004b49]" : "text-slate-500 hover:text-slate-800"
+            className={`border-b-2 px-1 pb-3 text-sm font-medium capitalize transition-colors ${
+              tab === item ? "border-[#baff00] text-[#004b49]" : "border-transparent text-slate-500 hover:text-slate-800"
             }`}
           >
             {item}
@@ -104,7 +104,7 @@ export default function TenancyDetailPage() {
 
       {tab === "overview" ? (
         <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
-          <section className="card rounded-[20px] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+          <section className="card rounded-[8px] p-5 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
             <h2 className="text-lg font-semibold text-[#0f172a]">Tenancy overview</h2>
             <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
               <Info label="Property" value={tenancy.property.address} />
@@ -114,7 +114,7 @@ export default function TenancyDetailPage() {
             </div>
           </section>
 
-          <section className="card rounded-[20px] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+          <section className="card rounded-[8px] p-5 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-lg font-semibold text-[#0f172a]">Status summary</h2>
               <Badge tone={tenancyStatusTone(tenancy.status)}>{tenancy.status.toLowerCase()}</Badge>
@@ -132,7 +132,7 @@ export default function TenancyDetailPage() {
       ) : null}
 
       {tab === "agreement" ? (
-        <section className="card rounded-[20px] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+        <section className="card rounded-[8px] p-5 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
           <h2 className="text-lg font-semibold text-[#0f172a]">Agreement details</h2>
           <div className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
             <Info label="Rent amount" value={formatMoney(tenancy.rentAmount, tenancy.currency)} />
@@ -146,7 +146,7 @@ export default function TenancyDetailPage() {
       ) : null}
 
       {tab === "history" ? (
-        <section className="card rounded-[20px] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+        <section className="card rounded-[8px] p-5 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
           <h2 className="text-lg font-semibold text-[#0f172a]">Property activity</h2>
           <div className="mt-5 grid gap-4 lg:grid-cols-2">
             <div>

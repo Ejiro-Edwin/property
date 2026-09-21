@@ -294,7 +294,7 @@ function PeoplePageContent() {
       </div>
 
       {canInvite ? (
-        <section className="card grid gap-4 rounded-[20px] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+        <section className="card grid gap-4 rounded-[8px] p-5 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
           <h2 className="text-sm font-semibold tracking-tight text-[#0f172a]">Invite someone</h2>
           <form onSubmit={sendInvite} className="grid gap-3 sm:grid-cols-[1.4fr_1fr_auto_auto]">
             <Input

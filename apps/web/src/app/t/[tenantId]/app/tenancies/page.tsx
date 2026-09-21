@@ -226,7 +226,7 @@ function TenanciesPageContent() {
         </div>
       </div>
 
-      <div className="card rounded-[22px] p-4 shadow-[0_14px_30px_rgba(15,23,42,0.04)]">
+      <div className="card rounded-[8px] p-4 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
         <form className="grid gap-3 sm:grid-cols-2" onSubmit={submitTenancy}>
           <Select
             value={form.propertyId}
@@ -322,7 +322,7 @@ function TenanciesPageContent() {
           body="When a tenant is placed in a property, the tenancy—its rent, dates and status—will appear here."
         />
       ) : (
-        <div className="card overflow-x-auto rounded-[22px]">
+        <div className="card overflow-x-auto rounded-[8px]">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">

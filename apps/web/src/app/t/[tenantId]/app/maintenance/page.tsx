@@ -99,11 +99,11 @@ export default function MaintenancePage() {
       {error ? <div className="text-sm text-danger">{error}</div> : null}
 
       {items === null ? (
-        <div className="card rounded-[22px] p-6 text-sm text-slate-600">Loading requests…</div>
+        <div className="card rounded-[8px] p-6 text-sm text-slate-600">Loading requests…</div>
       ) : items.length === 0 ? (
         <EmptyState title="No maintenance requests" body="Reported issues will appear here with their status." />
       ) : (
-        <div className="card divide-y divide-slate-200 rounded-[22px]">
+        <div className="card divide-y divide-slate-200 rounded-[8px]">
           {items.map((item) => (
             <div key={item.id} className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">

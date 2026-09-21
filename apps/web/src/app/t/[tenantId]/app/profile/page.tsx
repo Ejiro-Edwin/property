@@ -83,7 +83,7 @@ export default function ProfilePage() {
       />
 
       {me ? (
-        <div className="card rounded-[20px] p-6 shadow-[0_14px_32px_rgba(15,23,42,0.04)]">
+        <div className="card rounded-[8px] p-6 shadow-[0_4px_16px_rgba(15,23,42,0.03)]">
           <div className="flex items-start gap-4">
             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#efffee] text-xl font-black text-[#004b49]">
               {me.name?.charAt(0).toUpperCase() || "?"}
@@ -139,7 +139,7 @@ export default function ProfilePage() {
           </form>
         </div>
       ) : (
-        <div className="card rounded-[22px] p-6 text-sm text-slate-600">
+        <div className="card rounded-[8px] p-6 text-sm text-slate-600">
           Could not load your profile. Try signing in again.
         </div>
       )}

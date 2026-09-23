@@ -296,6 +296,23 @@ export class UpdatePropertyDto extends TenantScopedDto {
   currency?: string;
 }
 
+export class CreatePropertyAmenityDto extends TenantScopedDto {
+  @ApiProperty({ example: 'Parking space' })
+  @IsString()
+  name: string;
+}
+
+export class CreatePropertyRuleDto extends TenantScopedDto {
+  @ApiProperty({ example: 'No smoking' })
+  @IsString()
+  title: string;
+
+  @ApiPropertyOptional({ example: 'Smoking is not permitted inside the property.' })
+  @IsOptional()
+  @IsString()
+  details?: string;
+}
+
 export class CreateTenancyDto extends TenantScopedDto {
   @ApiProperty({ example: 'clx123propertyid' })
   @IsString()

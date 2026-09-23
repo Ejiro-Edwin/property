@@ -50,6 +50,22 @@ export class TrustService {
     const missed = payments.filter((payment) => payment.status === 'MISSED').length;
     const collectedAmount = payments.filter((payment) => payment.status === 'PAID').reduce((total, payment) => total + (payment.verifiedAmount ?? payment.amount), 0);
     const expectedAmount = tenancies.filter((tenancy) => tenancy.status === 'ACTIVE').reduce((total, tenancy) => total + tenancy.rentAmount, 0);
+    const activeMonthlyRent = tenancies
+      .filter((tenancy) => tenancy.status === 'ACTIVE')
+      .reduce((total, tenancy) => total + tenancy.rentAmount, 0);
+    const now = new Date();
+    const propertyPerformance = Array.from({ length: 6 }, (_, index) => {
+      const monthDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (5 - index), 1));
+      const nextMonth = new Date(Date.UTC(monthDate.getUTCFullYear(), monthDate.getUTCMonth() + 1, 1));
+      const collectedAmount = payments
+        .filter((payment) => payment.status === 'PAID' && payment.createdAt >= monthDate && payment.createdAt < nextMonth)
+        .reduce((total, payment) => total + (payment.verifiedAmount ?? payment.amount), 0);
+      return {
+        month: monthDate.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' }),
+        collectedAmount,
+        expectedAmount: activeMonthlyRent,
+      };
+    });
     const tenantTrustProfiles = tenantUsers.map((user) => {
       const userPayments = payments.filter((payment) => payment.payerId === user.id);
       const userOnTime = userPayments.filter((payment) => payment.status === 'PAID').length;
@@ -74,6 +90,9 @@ export class TrustService {
       totalProperties: properties.length,
       occupiedProperties: new Set(tenancies.filter((tenancy) => tenancy.status === 'ACTIVE').map((tenancy) => tenancy.propertyId)).size,
       vacantProperties: Math.max(properties.length - new Set(tenancies.filter((tenancy) => tenancy.status === 'ACTIVE').map((tenancy) => tenancy.propertyId)).size, 0),
+      occupiedPropertyIds: tenancies
+        .filter((tenancy) => tenancy.status === 'ACTIVE')
+        .map((tenancy) => tenancy.propertyId),
       paymentSummary: {
         totalPayments: payments.length,
         onTime,
@@ -83,6 +102,7 @@ export class TrustService {
         expectedAmount,
         collectionRate: expectedAmount ? Math.round((collectedAmount / expectedAmount) * 100) : 0,
       },
+      propertyPerformance,
       tenantTrustProfiles,
       notifications: [
         late > 0 ? `${late} payment${late > 1 ? 's' : ''} need attention` : 'All payments are on track',

@@ -24,6 +24,7 @@ export default function SettingsPage() {
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
+    if (window.location.hash === "#security") setTab("security");
     api<{ user: { id: string; name: string; email: string; phone?: string } }>("auth/me", { tenantId }).then((result) => { setUserId(result.user.id); setForm({ name: result.user.name ?? "", email: result.user.email ?? "", phone: result.user.phone ?? "" }); }).catch(() => setError("Could not load your profile"));
     api<{ settings: Settings }>("settings", { tenantId }).then((result) => setSettings(result.settings)).catch(() => setSettings({ leasePreferences: {}, paymentPreferences: {}, notificationPreferences: {}, privacyPreferences: {} }));
   }, [tenantId]);

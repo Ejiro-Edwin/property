@@ -296,11 +296,16 @@ function PeoplePageContent() {
   }, [payments]);
 
   const tenantMembers = (members ?? []).filter((m) => m.role.toLowerCase() === "tenant");
+  const pendingTenantInvites = pendingInvites.filter((invite) => invite.role.toLowerCase() === "tenant");
   const visibleTenants = tenantMembers.filter((m) => {
     const tenancy = tenancyByTenant.get(m.id);
     const matchesSearch = !search.trim() || `${m.name} ${m.email}`.toLowerCase().includes(search.trim().toLowerCase());
     const matchesStatus = statusFilter === "all" || tenancy?.status === statusFilter;
     return matchesSearch && matchesStatus;
+  });
+  const visiblePendingInvites = pendingTenantInvites.filter((invite) => {
+    const matchesSearch = !search.trim() || `${invite.name ?? ""} ${invite.email}`.toLowerCase().includes(search.trim().toLowerCase());
+    return matchesSearch && (statusFilter === "all" || statusFilter === "PENDING");
   });
 
   return (
@@ -339,9 +344,9 @@ function PeoplePageContent() {
         ) : null}
         {members === null ? (
           <Skeleton className="h-[220px]" />
-        ) : tenantMembers.length === 0 ? (
+        ) : tenantMembers.length === 0 && pendingTenantInvites.length === 0 ? (
           <div className="flex min-h-[300px] items-center justify-center rounded-[8px] border border-[#d9efd9] bg-[#efffee] text-center"><div><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#f2fff0] text-lg text-[#78b85c]">♙</div><h2 className="mt-4 text-sm font-bold text-[#004b49]">No Tenants Yet</h2><p className="mt-2 text-xs text-[#71817e]">Add tenants to your properties to start managing tenancies.</p><Link href={`/t/${tenantId}/app/people/add`}><Button size="sm" className="mt-5">Add Your First Tenant</Button></Link></div></div>
-        ) : visibleTenants.length === 0 ? (
+        ) : visibleTenants.length === 0 && visiblePendingInvites.length === 0 ? (
           <div className="rounded-[8px] border border-[#dfe7e3] bg-white px-5 py-10 text-center text-sm text-muted">No tenants match your search.</div>
         ) : (
           <div className="card-flat overflow-x-auto rounded-[8px]">
@@ -390,6 +395,20 @@ function PeoplePageContent() {
                     </tr>
                   );
                 })}
+                {visiblePendingInvites.map((invite) => (
+                  <tr key={invite.id}>
+                    <td className="px-4 py-3">
+                      <div className="font-medium text-[#0f172a]">{invite.name ?? invite.email}</div>
+                      <div className="text-xs text-muted">{invite.email}</div>
+                    </td>
+                    <td className="px-4 py-3 text-muted">Unassigned</td>
+                    <td className="px-4 py-3"><Badge tone="warning">pending</Badge></td>
+                    <td className="px-4 py-3 font-medium">—</td>
+                    <td className="px-4 py-3 text-muted">No payments</td>
+                    <td className="px-4 py-3 text-muted">—</td>
+                    <td className="px-4 py-3 text-xs text-warning">Invite sent</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

@@ -160,10 +160,7 @@ export function AppShell({
             >
               <IconBell width={17} height={17} />
             </Link>
-            <Link href={`/t/${tenantId}/app/profile`} className="flex items-center gap-2">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#baff00] text-xs font-bold text-[#004b49]">{user?.name?.charAt(0).toUpperCase() || "?"}</span>
-              <span className="hidden text-right lg:block"><span className="block text-xs font-semibold text-[#24211f]">{user?.name || "TenantSea user"}</span><span className="block text-[10px] text-[#71817e]">{activeRole?.replaceAll("_", " ") || "Workspace"}</span></span>
-            </Link>
+            <UserMenu tenantId={tenantId} user={user} compact />
           </div>
         </header>
         <main className="min-w-0 px-4 py-6 sm:px-6 sm:py-8 md:px-6 md:py-9 lg:px-9 lg:py-11">{children}</main>

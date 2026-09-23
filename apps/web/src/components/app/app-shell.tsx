@@ -8,6 +8,7 @@ import { ProfileSwitcher } from "@/components/app/profile-switcher";
 import { UserMenu } from "@/components/app/user-menu";
 import { cn } from "@/lib/cn";
 import { api } from "@/lib/api";
+import { IconBell, IconSearch } from "@/components/ui/icons";
 
 function canSeeAudit(role: string | undefined) {
   const r = (role ?? "").toLowerCase();
@@ -83,28 +84,45 @@ export function AppShell({
   );
 
   return (
-    <div className="app-workspace min-h-dvh flex flex-col md:flex-row">
-      <header className="app-sidebar flex items-center justify-between border-b border-[#e7e2dd] px-4 py-3 text-[#1f1f1f] md:hidden">
-        <Link href={`/t/${tenantId}/app`} className="flex items-center gap-2">
-          <Mark className="h-8 w-8" />
-          <span className="text-sm font-semibold tracking-tight">TenantSea</span>
-        </Link>
-        <div className="flex items-center gap-2">
-          <Link
-            href={`/t/${tenantId}/app/profile`}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-[#e5f4fb] text-sm font-semibold text-[#1399d8]"
-          >
-            {user?.name?.charAt(0).toUpperCase() || "?"}
+    <div className="app-workspace flex min-h-dvh flex-col md:flex-row">
+      <header className="app-sidebar flex flex-col gap-3 border-b border-[#e7e2dd] px-4 py-3 text-[#1f1f1f] md:hidden">
+        <div className="flex items-center justify-between">
+          <Link href={`/t/${tenantId}/app`} className="flex items-center gap-2">
+            <Mark className="h-8 w-8" />
+            <span className="text-sm font-semibold tracking-tight">TenantSea</span>
           </Link>
-          <button
-            type="button"
-            aria-label="Open menu"
-            className="rounded-[10px] border border-[#ded8d2] bg-white px-3 py-2 text-sm font-medium text-[#4b4744] hover:bg-[#f4f1ed]"
-            onClick={() => setMobileOpen((v) => !v)}
-          >
-            Menu
-          </button>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/t/${tenantId}/app/notifications`}
+              aria-label="Notifications"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-[#ded8d2] bg-white text-[#71817e] hover:text-[#24211f]"
+            >
+              <IconBell width={16} height={16} />
+            </Link>
+            <Link
+              href={`/t/${tenantId}/app/profile`}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#baff00] text-sm font-semibold text-[#004b49]"
+            >
+              {user?.name?.charAt(0).toUpperCase() || "?"}
+            </Link>
+            <button
+              type="button"
+              aria-label="Open menu"
+              className="rounded-[10px] border border-[#ded8d2] bg-white px-3 py-2 text-sm font-medium text-[#4b4744] hover:bg-[#f4f1ed]"
+              onClick={() => setMobileOpen((v) => !v)}
+            >
+              Menu
+            </button>
+          </div>
         </div>
+        <label className="flex h-9 items-center gap-2 rounded-[8px] border border-[#dfe7e3] bg-white px-3 text-sm text-[#9a9691]">
+          <IconSearch width={15} height={15} />
+          <input
+            type="search"
+            placeholder="Search..."
+            className="w-full bg-transparent text-[#24211f] outline-none placeholder:text-[#9a9691]"
+          />
+        </label>
       </header>
 
       {mobileOpen ? (
@@ -117,7 +135,7 @@ export function AppShell({
 
       <aside
         className={cn(
-          "app-sidebar fixed inset-y-0 left-0 z-50 flex w-[270px] flex-col gap-5 border-r border-[#e4e2de] px-5 py-5 text-[#292624] transition-transform md:static md:sticky md:top-0 md:z-auto md:h-dvh md:translate-x-0",
+          "app-sidebar fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col gap-5 border-r border-[#e4e2de] px-4 py-5 text-[#292624] transition-transform md:static md:sticky md:top-0 md:z-auto md:h-dvh md:w-[240px] md:translate-x-0 lg:w-[270px] lg:px-5",
           mobileOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
@@ -125,17 +143,30 @@ export function AppShell({
       </aside>
 
       <div className="page-shell min-h-dvh min-w-0 flex-1">
-        <header className="flex h-[76px] items-center justify-between border-b border-[#d9efd9] bg-white px-5 md:px-9">
-          <div className="flex h-8 w-[220px] items-center rounded-full border border-[#dfe7e3] bg-white px-3 text-xs text-[#9a9691]">⌕&nbsp;&nbsp;Search...</div>
-          <div className="flex items-center gap-4">
-            <Link href={`/t/${tenantId}/app/notifications`} aria-label="Notifications" className="text-sm text-[#71817e] hover:text-[#24211f]">♧</Link>
+        <header className="hidden h-[72px] items-center gap-4 border-b border-[#d9efd9] bg-white px-5 md:flex md:px-6 lg:h-[76px] lg:px-9">
+          <label className="flex h-9 w-full max-w-[240px] shrink items-center gap-2 rounded-[8px] border border-[#dfe7e3] bg-white px-3 text-sm text-[#9a9691] lg:max-w-[260px]">
+            <IconSearch width={15} height={15} className="shrink-0" />
+            <input
+              type="search"
+              placeholder="Search..."
+              className="w-full min-w-0 bg-transparent text-[#24211f] outline-none placeholder:text-[#9a9691]"
+            />
+          </label>
+          <div className="ml-auto flex shrink-0 items-center gap-3 lg:gap-4">
+            <Link
+              href={`/t/${tenantId}/app/notifications`}
+              aria-label="Notifications"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-[#71817e] hover:bg-[#f4f1ed] hover:text-[#24211f]"
+            >
+              <IconBell width={17} height={17} />
+            </Link>
             <Link href={`/t/${tenantId}/app/profile`} className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#baff00] text-xs font-bold text-[#004b49]">{user?.name?.charAt(0).toUpperCase() || "?"}</span>
-              <span className="hidden text-right sm:block"><span className="block text-xs font-semibold text-[#24211f]">{user?.name || "TenantSea user"}</span><span className="block text-[10px] text-[#71817e]">{activeRole?.replaceAll("_", " ") || "Workspace"}</span></span>
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#baff00] text-xs font-bold text-[#004b49]">{user?.name?.charAt(0).toUpperCase() || "?"}</span>
+              <span className="hidden text-right lg:block"><span className="block text-xs font-semibold text-[#24211f]">{user?.name || "TenantSea user"}</span><span className="block text-[10px] text-[#71817e]">{activeRole?.replaceAll("_", " ") || "Workspace"}</span></span>
             </Link>
           </div>
         </header>
-        <main className="px-5 py-10 md:px-9 md:py-11">{children}</main>
+        <main className="min-w-0 px-4 py-6 sm:px-6 sm:py-8 md:px-6 md:py-9 lg:px-9 lg:py-11">{children}</main>
       </div>
     </div>
   );

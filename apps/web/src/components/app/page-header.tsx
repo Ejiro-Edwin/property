@@ -22,15 +22,15 @@ export function PageHeader({
       )}
     >
       <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
-        <div>
+        <div className="min-w-0">
           {eyebrow ? (
-            <div className="text-[11px] font-black uppercase tracking-[0.18em] text-[#1f6b67]">
+            <div className="text-[10px] font-black uppercase tracking-[0.16em] text-[#1f6b67] sm:text-[11px] sm:tracking-[0.18em]">
               {eyebrow}
             </div>
           ) : null}
           <h1
             className={cn(
-              "text-[2rem] font-black tracking-[-0.06em] text-[#0f172a] md:text-[2.35rem]",
+              "text-[1.6rem] font-black tracking-[-0.04em] text-[#0f172a] sm:text-[2rem] md:text-[2.35rem] md:tracking-[-0.06em]",
               eyebrow ? "mt-2" : "mt-0",
             )}
           >

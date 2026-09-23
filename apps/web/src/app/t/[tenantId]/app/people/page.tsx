@@ -23,6 +23,19 @@ type Member = {
   createdAt: string;
 };
 
+type Tenancy = {
+  id: string;
+  tenantUserId: string;
+  propertyId: string;
+  rentAmount: number;
+  currency: string;
+  status: string;
+};
+
+type Property = { id: string; title: string };
+
+type Payment = { id: string; payerId: string; amount: number; currency: string; status: string; createdAt: string };
+
 type Invite = {
   id: string;
   email: string;
@@ -114,6 +127,11 @@ function PeoplePageContent() {
   const [notice, setNotice] = React.useState<string | null>(null);
   const [inviteLink, setInviteLink] = React.useState<string | null>(null);
   const [copied, setCopied] = React.useState(false);
+  const [search, setSearch] = React.useState("");
+  const [statusFilter, setStatusFilter] = React.useState("all");
+  const [tenancies, setTenancies] = React.useState<Tenancy[]>([]);
+  const [properties, setProperties] = React.useState<Property[]>([]);
+  const [payments, setPayments] = React.useState<Payment[]>([]);
   const memberCount = members?.length ?? 0;
   const verifiedCount = members?.filter((m) => m.emailVerified).length ?? 0;
   const inviteCount = invites?.length ?? 0;
@@ -139,6 +157,15 @@ function PeoplePageContent() {
       .catch(() => setMe(null));
     loadMembers();
     loadInvites();
+    api<{ tenancies: Tenancy[] }>("tenancies", { tenantId, query: { limit: 200 } })
+      .then((r) => setTenancies(r.tenancies ?? []))
+      .catch(() => setTenancies([]));
+    api<{ properties: Property[] }>("properties", { tenantId, query: { limit: 200 } })
+      .then((r) => setProperties(r.properties ?? []))
+      .catch(() => setProperties([]));
+    api<{ payments: Payment[] }>("payments/history", { tenantId, query: { limit: 200 } })
+      .then((r) => setPayments(r.payments ?? []))
+      .catch(() => setPayments([]));
   }, [tenantId, loadInvites, loadMembers]);
 
   async function sendInvite(e: React.FormEvent) {
@@ -253,6 +280,28 @@ function PeoplePageContent() {
   const manageMembers = canManageMembers(me?.role);
   const removeMembers = canDeleteMembers(me?.role);
   const pendingCount = pendingInvites.length;
+
+  const propertyMap = React.useMemo(() => new Map(properties.map((p) => [p.id, p])), [properties]);
+  const tenancyByTenant = React.useMemo(() => {
+    const map = new Map<string, Tenancy>();
+    for (const t of tenancies) if (!map.has(t.tenantUserId)) map.set(t.tenantUserId, t);
+    return map;
+  }, [tenancies]);
+  const lastPaymentByTenant = React.useMemo(() => {
+    const map = new Map<string, Payment>();
+    for (const payment of [...payments].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())) {
+      if (!map.has(payment.payerId)) map.set(payment.payerId, payment);
+    }
+    return map;
+  }, [payments]);
+
+  const tenantMembers = (members ?? []).filter((m) => m.role.toLowerCase() === "tenant");
+  const visibleTenants = tenantMembers.filter((m) => {
+    const tenancy = tenancyByTenant.get(m.id);
+    const matchesSearch = !search.trim() || `${m.name} ${m.email}`.toLowerCase().includes(search.trim().toLowerCase());
+    const matchesStatus = statusFilter === "all" || tenancy?.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <div className="mx-auto grid w-full max-w-5xl gap-8 pb-8">
@@ -440,65 +489,85 @@ function PeoplePageContent() {
       ) : null}
 
       <section className="grid gap-3">
-        <h2 className="text-sm font-semibold tracking-tight">Tenants</h2>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-sm font-semibold tracking-tight">Tenants</h2>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by tenant name or email"
+              className="sm:w-64"
+            />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="h-10 rounded-[8px] border border-[#dfe7e3] bg-white px-3 text-sm text-[#24211f]"
+            >
+              <option value="all">All tenants</option>
+              <option value="ACTIVE">Active</option>
+              <option value="PENDING">Pending</option>
+              <option value="ENDED">Completed</option>
+            </select>
+          </div>
+        </div>
         {memberError && !editingMemberId ? (
           <div className="text-sm text-danger">{memberError}</div>
         ) : null}
         {members === null ? (
           <Skeleton className="h-[220px]" />
-        ) : members.length === 0 ? (
+        ) : tenantMembers.length === 0 ? (
           <div className="flex min-h-[300px] items-center justify-center rounded-[8px] border border-[#d9efd9] bg-[#efffee] text-center"><div><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#f2fff0] text-lg text-[#78b85c]">♙</div><h2 className="mt-4 text-sm font-bold text-[#004b49]">No Tenants Yet</h2><p className="mt-2 text-xs text-[#71817e]">Add tenants to your properties to start managing tenancies.</p><Link href={`/t/${tenantId}/app/people/add`}><Button size="sm" className="mt-5">Add Your First Tenant</Button></Link></div></div>
+        ) : visibleTenants.length === 0 ? (
+          <div className="rounded-[8px] border border-[#dfe7e3] bg-white px-5 py-10 text-center text-sm text-muted">No tenants match your search.</div>
         ) : (
-          <div className="card-flat divide-y divide-border">
-            {members.map((m) => {
-              const isSelf = m.id === me?.id;
-              const showActions = manageMembers && !isSelf;
-              return (
-                <div key={m.id} className="flex items-center gap-4 px-5 py-3.5">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-soft text-sm font-semibold text-brand-ink">
-                    {m.name?.charAt(0).toUpperCase() || "?"}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <Link href={`/t/${tenantId}/app/people/${m.id}`} className="truncate text-sm font-medium hover:text-[#45863b]">
-                      {m.name}
-                      {isSelf ? (
-                        <span className="ml-1.5 text-xs font-normal text-muted">(you)</span>
-                      ) : null}
-                    </Link>
-                    <div className="truncate text-xs text-muted">{m.email}</div>
-                  </div>
-                  {!m.emailVerified ? (
-                    <span className="text-xs text-muted">unverified</span>
-                  ) : null}
-                  <Badge tone={roleTone(m.role)} className="capitalize">
-                    {m.role.replaceAll("_", " ").toLowerCase()}
-                  </Badge>
-                  <span className="hidden text-xs text-muted sm:block">
-                    joined {formatDate(m.createdAt)}
-                  </span>
-                  {showActions ? (
-                    <div className="flex shrink-0 items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => startEditMember(m)}
-                        className="text-xs font-medium text-brand hover:underline"
-                      >
-                        Edit
-                      </button>
-                      {removeMembers ? (
-                        <button
-                          type="button"
-                          onClick={() => deleteMember(m.id, m.name)}
-                          className="text-xs font-medium text-danger hover:underline"
-                        >
-                          Remove
-                        </button>
-                      ) : null}
-                    </div>
-                  ) : null}
-                </div>
-              );
-            })}
+          <div className="card-flat overflow-x-auto rounded-[8px]">
+            <table className="w-full min-w-[720px] text-sm">
+              <thead>
+                <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">
+                  <th className="px-4 py-3 font-medium">Tenant name</th>
+                  <th className="px-4 py-3 font-medium">Property</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Monthly rent</th>
+                  <th className="px-4 py-3 font-medium">Rent status</th>
+                  <th className="px-4 py-3 font-medium">Last paid</th>
+                  <th className="px-4 py-3 font-medium">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {visibleTenants.map((m) => {
+                  const tenancy = tenancyByTenant.get(m.id);
+                  const property = tenancy ? propertyMap.get(tenancy.propertyId) : undefined;
+                  const lastPayment = lastPaymentByTenant.get(m.id);
+                  const rentStatus = lastPayment ? (lastPayment.status.toLowerCase() === "paid" ? "Paid" : "Outstanding") : "No payments";
+                  return (
+                    <tr key={m.id}>
+                      <td className="px-4 py-3">
+                        <div className="font-medium text-[#0f172a]">{m.name}</div>
+                        <div className="text-xs text-muted">{m.email}</div>
+                      </td>
+                      <td className="px-4 py-3 text-muted">{property?.title ?? "Unassigned"}</td>
+                      <td className="px-4 py-3">
+                        <Badge tone={tenancy?.status === "ACTIVE" ? "success" : tenancy?.status === "PENDING" ? "warning" : "neutral"} className="capitalize">
+                          {tenancy?.status.toLowerCase() ?? "no tenancy"}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 font-medium">
+                        {tenancy ? `${tenancy.currency} ${tenancy.rentAmount.toLocaleString()}` : "—"}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={rentStatus === "Paid" ? "text-success" : rentStatus === "Outstanding" ? "text-warning" : "text-muted"}>{rentStatus}</span>
+                      </td>
+                      <td className="px-4 py-3 text-muted">{lastPayment ? formatDate(lastPayment.createdAt) : "—"}</td>
+                      <td className="px-4 py-3">
+                        <Link href={`/t/${tenantId}/app/people/${m.id}`} className="text-xs font-medium text-brand hover:underline">
+                          View
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         )}
       </section>

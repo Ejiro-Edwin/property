@@ -216,14 +216,14 @@ function PropertiesPageContent() {
         <div className="metric-card p-5">
           <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#77716d]">Occupied units</div>
           <div className="mt-2 text-2xl font-semibold tracking-[-0.05em] text-[#24211f]">
-            {items === null ? "…" : `${Math.min(total, items.length)} Units`}
+            {items === null ? "…" : `${occupiedPropertyIds.filter((id, index, all) => all.indexOf(id) === index).length} Units`}
           </div>
           <div className="mt-1 text-xs text-[#77716d]">Across all properties</div>
         </div>
         <div className="metric-card p-5">
           <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#77716d]">Vacant units</div>
           <div className="mt-2 text-2xl font-semibold tracking-[-0.05em] text-[#24211f]">
-            {items === null ? "…" : `${Math.max(total - items.length, 0)} Units`}
+            {items === null ? "…" : `${Math.max(total - occupiedPropertyIds.filter((id, index, all) => all.indexOf(id) === index).length, 0)} Units`}
           </div>
           <div className="mt-1 text-xs text-[#77716d]">Available for letting</div>
         </div>

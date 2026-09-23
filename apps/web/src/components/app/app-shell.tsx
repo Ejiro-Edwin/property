@@ -8,7 +8,7 @@ import { ProfileSwitcher } from "@/components/app/profile-switcher";
 import { UserMenu } from "@/components/app/user-menu";
 import { cn } from "@/lib/cn";
 import { api } from "@/lib/api";
-import { IconBell, IconSearch } from "@/components/ui/icons";
+import { IconBell } from "@/components/ui/icons";
 
 function canSeeAudit(role: string | undefined) {
   const r = (role ?? "").toLowerCase();
@@ -115,14 +115,6 @@ export function AppShell({
             </button>
           </div>
         </div>
-        <label className="flex h-9 items-center gap-2 rounded-[8px] border border-[#dfe7e3] bg-white px-3 text-sm text-[#9a9691]">
-          <IconSearch width={15} height={15} />
-          <input
-            type="search"
-            placeholder="Search..."
-            className="w-full bg-transparent text-[#24211f] outline-none placeholder:text-[#9a9691]"
-          />
-        </label>
       </header>
 
       {mobileOpen ? (
@@ -144,14 +136,6 @@ export function AppShell({
 
       <div className="page-shell min-h-dvh min-w-0 flex-1">
         <header className="hidden h-[72px] items-center gap-4 border-b border-[#d9efd9] bg-white px-5 md:flex md:px-6 lg:h-[76px] lg:px-9">
-          <label className="flex h-9 w-full max-w-[240px] shrink items-center gap-2 rounded-[8px] border border-[#dfe7e3] bg-white px-3 text-sm text-[#9a9691] lg:max-w-[260px]">
-            <IconSearch width={15} height={15} className="shrink-0" />
-            <input
-              type="search"
-              placeholder="Search..."
-              className="w-full min-w-0 bg-transparent text-[#24211f] outline-none placeholder:text-[#9a9691]"
-            />
-          </label>
           <div className="ml-auto flex shrink-0 items-center gap-3 lg:gap-4">
             <Link
               href={`/t/${tenantId}/app/notifications`}
@@ -160,7 +144,10 @@ export function AppShell({
             >
               <IconBell width={17} height={17} />
             </Link>
-            <UserMenu tenantId={tenantId} user={user} compact />
+            <Link href={`/t/${tenantId}/app/profile`} className="flex items-center gap-2 rounded-[10px] p-1 hover:bg-[#f4f1ed]">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#baff00] text-xs font-bold text-[#004b49]">{user?.name?.charAt(0).toUpperCase() || "?"}</span>
+              <span className="hidden text-right lg:block"><span className="block text-xs font-semibold text-[#24211f]">{user?.name || "TenantSea user"}</span><span className="block text-[10px] text-[#71817e]">{activeRole?.replaceAll("_", " ") || "Workspace"}</span></span>
+            </Link>
           </div>
         </header>
         <main className="min-w-0 px-4 py-6 sm:px-6 sm:py-8 md:px-6 md:py-9 lg:px-9 lg:py-11">{children}</main>

@@ -22,15 +22,32 @@ export default function TenantDetailPage() {
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    Promise.all([
+    setError(null);
+    setUser(null);
+    Promise.allSettled([
       api<{ user: User }>(`users/${userId}`, { tenantId, query: { tenantId } }),
       api<{ tenancies: Tenancy[] }>("tenancies", { tenantId, query: { limit: 100 } }),
-      api<{ payments: Payment[] }>("payments/history", { tenantId, query: { limit: 100 } }),
-    ]).then(([userResult, tenancyResult, paymentResult]) => {
-      setUser(userResult.user);
-      const match = tenancyResult.tenancies?.find((item) => item.tenantUserId === userId) ?? null;
+    ]).then(async ([userResult, tenancyResult]) => {
+      if (userResult.status === "rejected" || !userResult.value.user) {
+        const reason = userResult.status === "rejected" ? userResult.reason : null;
+        throw reason instanceof ApiError ? reason : new Error("Tenant account could not be found");
+      }
+
+      setUser(userResult.value.user);
+      const tenanciesForTenant = tenancyResult.status === "fulfilled" ? tenancyResult.value.tenancies ?? [] : [];
+      const match = tenanciesForTenant.find((item) => item.tenantUserId === userId) ?? null;
       setTenancy(match);
-      setPayments(match ? (paymentResult.payments ?? []).filter((item) => item.id || match.id) : []);
+      if (!match) {
+        setPayments([]);
+        return;
+      }
+
+      try {
+        const paymentResult = await api<{ payments: Payment[] }>("payments/history", { tenantId, query: { limit: 100, tenancyId: match.id } });
+        setPayments(paymentResult.payments ?? []);
+      } catch {
+        setPayments([]);
+      }
     }).catch((err) => setError(err instanceof ApiError ? err.message : "Could not load tenant details"));
   }, [tenantId, userId]);
 

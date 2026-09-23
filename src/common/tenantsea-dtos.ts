@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsNumber, IsOptional, IsString, Matches, MinLength } from 'class-validator';
+import { IsArray, IsEmail, IsEnum, IsNumber, IsOptional, IsString, Matches, MinLength } from 'class-validator';
 
 export enum UserRole {
   TENANT = 'tenant',
@@ -253,6 +253,12 @@ export class CreatePropertyDto extends TenantScopedDto {
   @IsOptional()
   @IsString()
   currency?: string;
+
+  @ApiPropertyOptional({ type: [String], example: ['Parking Space', 'Water Supply'] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  amenities?: string[];
 }
 
 export class UpdatePropertyDto extends TenantScopedDto {

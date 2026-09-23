@@ -38,7 +38,11 @@ export class PropertiesService {
         bedrooms: dto.bedrooms,
         rentAmount: dto.rentAmount,
         currency: dto.currency ?? 'NGN',
+        amenities: dto.amenities?.length
+          ? { create: [...new Set(dto.amenities.map((name) => name.trim()).filter(Boolean))].map((name) => ({ tenantId: dto.tenantId, name })) }
+          : undefined,
       },
+      include: { amenities: true, rules: true },
     });
 
     await Promise.all([

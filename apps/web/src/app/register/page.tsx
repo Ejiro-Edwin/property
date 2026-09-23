@@ -43,18 +43,23 @@ export default function RegisterPage() {
     setBusy(true);
     setError(null);
     try {
-      const res = await api<{
-        tenant?: { id: string };
-      }>("auth/register", {
+      const response = await fetch("/api/auth/register", {
         method: "POST",
-        body: {
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           ...(workspaceName.trim() ? { workspaceName: workspaceName.trim() } : {}),
           name,
           email,
           password,
-        },
+        }),
       });
-      setCreatedTenantId(res.tenant?.id ?? "");
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const message = payload?.message ?? payload?.error ?? "Registration failed";
+        throw new ApiError(Array.isArray(message) ? message.join(", ") : message, response.status);
+      }
+      const result = payload?.data ?? payload;
+      setCreatedTenantId(result?.tenant?.id ?? "");
       setDone(true);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Registration failed");

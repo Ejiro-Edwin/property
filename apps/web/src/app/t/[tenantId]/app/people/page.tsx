@@ -317,6 +317,24 @@ function PeoplePageContent() {
         action={<Link href={`/t/${tenantId}/app/people/add`}><Button className="bg-[#baff00] text-[#004b49] hover:bg-[#a9eb00]">Add Tenant</Button></Link>}
       />
 
+      {manageMembers && editingMemberId ? (
+        <section className="card grid gap-4 rounded-[8px] p-5">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-sm font-semibold tracking-tight">Edit tenant</h2>
+            <button type="button" onClick={resetMemberForm} className="text-xs font-medium text-muted hover:text-foreground">Cancel</button>
+          </div>
+          <form onSubmit={saveMember} className="grid gap-3">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <Input value={memberForm.name} onChange={(event) => setMemberForm((current) => ({ ...current, name: event.target.value }))} placeholder="Full name" required />
+              <Input type="email" value={memberForm.email} onChange={(event) => setMemberForm((current) => ({ ...current, email: event.target.value }))} placeholder="Email" required />
+              <Input value={memberForm.phone} onChange={(event) => setMemberForm((current) => ({ ...current, phone: event.target.value }))} placeholder="Phone" />
+            </div>
+            {memberError ? <div className="text-sm text-danger">{memberError}</div> : null}
+            <div className="flex justify-end gap-2"><Button type="button" variant="secondary" onClick={resetMemberForm}>Cancel</Button><Button type="submit" disabled={memberBusy}>{memberBusy ? "Saving..." : "Save changes"}</Button></div>
+          </form>
+        </section>
+      ) : null}
+
       <section className="grid gap-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-sm font-semibold tracking-tight">Tenants</h2>
@@ -388,9 +406,11 @@ function PeoplePageContent() {
                       </td>
                       <td className="px-4 py-3 text-muted">{lastPayment ? formatDate(lastPayment.createdAt) : "—"}</td>
                       <td className="px-4 py-3">
-                        <Link href={`/t/${tenantId}/app/people/${m.id}`} className="text-xs font-medium text-brand hover:underline">
-                          View
-                        </Link>
+                        <div className="flex items-center gap-3 whitespace-nowrap">
+                          <Link href={`/t/${tenantId}/app/people/${m.id}`} className="text-xs font-medium text-brand hover:underline">View</Link>
+                          {manageMembers ? <button type="button" onClick={() => startEditMember(m)} className="text-xs font-medium text-[#45863b] hover:underline">Edit</button> : null}
+                          {removeMembers && m.id !== me?.id ? <button type="button" onClick={() => void deleteMember(m.id, m.name)} className="text-xs font-medium text-danger hover:underline">Remove</button> : null}
+                        </div>
                       </td>
                     </tr>
                   );

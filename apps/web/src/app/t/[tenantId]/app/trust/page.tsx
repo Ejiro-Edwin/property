@@ -30,6 +30,15 @@ type TrustProfile = {
 };
 
 type Member = { id: string; name: string; role: string };
+type TenantTrust = {
+  tenantUserId: string;
+  name: string;
+  email: string;
+  trustScore: number;
+  tenancyStatus: string;
+  summary: { totalPayments: number; onTime: number; late: number; partial: number; missed: number };
+  lastPaymentAt: string | null;
+};
 
 function scoreTone(score: number) {
   if (score >= 75) return "text-success";
@@ -52,10 +61,14 @@ function TrustPageContent() {
   const [tenants, setTenants] = React.useState<Member[]>([]);
   const [userId, setUserId] = React.useState("");
   const [profile, setProfile] = React.useState<TrustProfile | null>(null);
+  const [tenantTrust, setTenantTrust] = React.useState<TenantTrust[]>([]);
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
+    api<{ tenantTrustProfiles: TenantTrust[] }>("trust/dashboard", { tenantId })
+      .then((r) => setTenantTrust(r.tenantTrustProfiles ?? []))
+      .catch(() => setTenantTrust([]));
     api<{ users: Member[] }>("users", { tenantId, query: { limit: 100 } })
       .then((r) =>
         setTenants(
@@ -65,14 +78,13 @@ function TrustPageContent() {
       .catch(() => setTenants([]));
   }, [tenantId]);
 
-  async function lookup(e: React.FormEvent) {
-    e.preventDefault();
-    if (!userId) return;
+  async function loadProfile(selectedUserId: string) {
+    if (!selectedUserId) return;
     setBusy(true);
     setError(null);
     setProfile(null);
     try {
-      const p = await api<TrustProfile>(`trust/${userId}`, { tenantId });
+      const p = await api<TrustProfile>(`trust/${selectedUserId}`, { tenantId });
       setProfile(p);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Could not load trust profile");
@@ -81,12 +93,55 @@ function TrustPageContent() {
     }
   }
 
+  async function lookup(e: React.FormEvent) {
+    e.preventDefault();
+    await loadProfile(userId);
+  }
+
   return (
     <div className="mx-auto grid w-full max-w-4xl gap-6 pb-8">
       <PageHeader
-        title="Trust"
-        description="Explainable tenant trust scores based on payment behavior and tenancy history."
+        eyebrow="Trust / Activity"
+        title="Tenant Trust Scores"
+        description="Review tenant payment behavior, tenancy status, and explainable trust scores."
       />
+
+      <section className="grid gap-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold tracking-tight">Your tenants</h2>
+          <span className="text-xs text-muted">{tenantTrust.length} profiles</span>
+        </div>
+        {tenantTrust.length === 0 ? (
+          <div className="card-flat px-5 py-8 text-center text-sm text-muted">No tenant trust profiles yet.</div>
+        ) : (
+          <div className="card-flat overflow-x-auto rounded-[8px]">
+            <table className="w-full min-w-[700px] text-sm">
+              <thead>
+                <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">
+                  <th className="px-4 py-3 font-medium">Tenant</th>
+                  <th className="px-4 py-3 font-medium">Trust score</th>
+                  <th className="px-4 py-3 font-medium">Payment history</th>
+                  <th className="px-4 py-3 font-medium">Tenancy</th>
+                  <th className="px-4 py-3 font-medium">Activity</th>
+                  <th className="px-4 py-3 font-medium">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {tenantTrust.map((tenant) => (
+                  <tr key={tenant.tenantUserId}>
+                    <td className="px-4 py-3"><div className="font-medium">{tenant.name}</div><div className="text-xs text-muted">{tenant.email}</div></td>
+                    <td className={`px-4 py-3 text-lg font-bold ${scoreTone(tenant.trustScore)}`}>{tenant.trustScore}<span className="ml-1 text-xs font-normal text-muted">/100</span></td>
+                    <td className="px-4 py-3 text-muted">{tenant.summary.onTime} on time · {tenant.summary.late + tenant.summary.missed} attention</td>
+                    <td className="px-4 py-3"><Badge tone={tenant.tenancyStatus === "active" ? "success" : tenant.tenancyStatus === "pending" ? "warning" : "neutral"}>{tenant.tenancyStatus}</Badge></td>
+                    <td className="px-4 py-3 text-muted">{tenant.lastPaymentAt ? new Date(tenant.lastPaymentAt).toLocaleDateString() : "No payments"}</td>
+                    <td className="px-4 py-3"><Button type="button" size="sm" variant="secondary" onClick={() => { setUserId(tenant.tenantUserId); void loadProfile(tenant.tenantUserId); }}>View</Button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
 
       <form onSubmit={lookup} className="flex max-w-lg flex-col gap-2 sm:flex-row">
         <Select

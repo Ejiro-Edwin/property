@@ -44,7 +44,7 @@ const landlordItems = [
   { href: "app/maintenance", label: "Maintenance" },
   { href: "app/documents", label: "Documents" },
   { href: "app/messages", label: "Messages" },
-  { href: "app/audit", label: "Trust / Activity" },
+  { href: "app/trust", label: "Trust / Activity" },
 ];
 
 const tenantItems = [

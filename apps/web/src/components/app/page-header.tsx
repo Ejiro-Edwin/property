@@ -17,7 +17,7 @@ export function PageHeader({
   return (
     <section
       className={cn(
-        "rounded-[18px] border border-[#dfe7e3] bg-white px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]",
+        "rounded-[8px] border border-[#dfe7e3] bg-white px-5 py-5 shadow-[0_4px_16px_rgba(15,23,42,0.03)]",
         className,
       )}
     >
